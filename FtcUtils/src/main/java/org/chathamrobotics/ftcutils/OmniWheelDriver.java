@@ -26,12 +26,12 @@ public class OmniWheelDriver {
     /*
      * The angle used to offset the front of the robot
      */
-    public double offsetAngle = 0;
+    private double offsetAngle = 0;
 
     /*
      * Whether or not to log telemetry data
      */
-    public boolean silent = false;
+    private boolean silent = false;
 
     /*
      * Builds new OmniWheelDriver using default names for motors
@@ -125,5 +125,13 @@ public class OmniWheelDriver {
             backLeft.setPower(-BL); // +
             backRight.setPower(-BR); //+
         }
+    }
+
+    public void setOffsetAngle(double angle) {
+        offsetAngle = angle;
+    }
+
+    public void setTelemetry(boolean telemetry) {
+        silent = telemetry;
     }
 }

@@ -50,10 +50,15 @@ public class TeleMode extends OpMode {
     @Override
     public void loop() {
         // Drive
-        if(gamepad1.dpad_up){driver.offsetAngle = 0;}
-        if(gamepad1.dpad_left){driver.offsetAngle = Math.PI/2;}
-        if(gamepad1.dpad_down){driver.offsetAngle = Math.PI;}
-        if(gamepad1.dpad_right){driver.offsetAngle = (3*Math.PI)/2;}
+        //Sets angle shift based on dpad
+        if (gamepad1.dpad_up)
+            driver.setOffsetAngle(0);
+        else if (gamepad1.dpad_left)
+            driver.setOffsetAngle(Math.PI/2);
+        else if (gamepad1.dpad_down)
+            driver.setOffsetAngle(Math.PI);
+        else if (gamepad1.dpad_right)
+            driver.setOffsetAngle(3*Math.PI/2);
 
         driver.move(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
 
