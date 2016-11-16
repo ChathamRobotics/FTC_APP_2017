@@ -80,8 +80,8 @@ public class Robot11248 extends OmniWheelDriver {
      * Initializes the robot. (In this case it just sets servo positions to default)
      */
     public void init() {
-        liftArm.setPosition(LIFT_UP);
-        paddle.setPosition(PADDLE_DOWN);
+        moveLiftArmUp();
+        movePaddleDown();
     }
 
     /**

@@ -26,12 +26,12 @@ public class OmniWheelDriver {
     /*
      * The angle used to offset the front of the robot
      */
-    private double offsetAngle = 0;
+    public double offsetAngle = 0;
 
     /*
      * Whether or not to log telemetry data
      */
-    private boolean silent = false;
+    public boolean silent = false;
 
     /*
      * Builds new OmniWheelDriver using default names for motors
@@ -86,15 +86,17 @@ public class OmniWheelDriver {
         else
             angle = (3 * Math.PI)/2;
 
-        //Using a function on variable r will smooth out the slow values but still give full range
+        //Using the quadratic function on the magnitude
+        // will smooth out the slow values but still give full range
         if(smooth)
             magnitude = magnitude*magnitude;
         move(angle, rotation, magnitude);
+        //TODO: TRY THIS
         //move(Math.atan2(y, x), rotation, magnitude);
     }
 
     /*
-     * TODO: 11/7/2016 write this
+     * Controls the wheel motors based on angle, rotation, and magnitude
      */
     public void move(double angle, double rotation, double magnitude) {
         double FL, FR, BL, BR;

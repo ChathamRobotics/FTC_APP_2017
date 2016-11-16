@@ -11,9 +11,8 @@ import java.util.Map;
 /**
  * Team 11248 TeleOp for test robot.
  */
-@TeleOp(name = "DrivingTest", group = "General")
-
-public class DrivingModeOmni extends OpMode {
+@TeleOp(name = "DrivingOmni", group = "General")
+public class DriverOmni extends OpMode {
     /*
      * Config
      */
@@ -60,7 +59,7 @@ public class DrivingModeOmni extends OpMode {
         else if (gamepad1.dpad_right)
             robot.setOffsetAngle(3 * Robot11248.RIGHT_ANGLE);
 
-        robot.move(-gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+        robot.move(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
 
         telemetryData();
     }

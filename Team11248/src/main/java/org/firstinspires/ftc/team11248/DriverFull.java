@@ -7,9 +7,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 /**
  * Team 11248 TeleOp for real robot.
  */
-@TeleOp(name = "Driving", group = "General")
-
-public class DrivingMode extends DrivingModeOmni {
+@TeleOp(name = "DrivingFull", group = "General")
+public class DriverFull extends DriverOmni {
 
     public Robot11248 robot;
 
