@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.team11248;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.chathamrobotics.ftcutils.OmniWheelDriver;
 
 import java.util.Map;
 
@@ -12,6 +12,7 @@ import java.util.Map;
  * Team 11248 TeleOp for test robot.
  */
 @TeleOp(name = "DrivingOmni", group = "General")
+@Disabled
 public class DriverOmni extends OpMode {
     /*
      * Config
@@ -59,7 +60,7 @@ public class DriverOmni extends OpMode {
         else if (gamepad1.dpad_right)
             robot.setOffsetAngle(3 * Robot11248.RIGHT_ANGLE);
 
-        robot.move(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+        robot.driveold(-gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x,true);
 
         telemetryData();
     }

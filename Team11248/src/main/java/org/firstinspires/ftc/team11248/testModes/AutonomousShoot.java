@@ -1,12 +1,16 @@
-package org.firstinspires.ftc.team11248;
+package org.firstinspires.ftc.team11248.testModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.team11248.Robot11248;
 
 /**
  * Team 11248 Shooter Autonomous
  */
 @Autonomous(name = "AutonomousShoot", group = "General")
+@Disabled
 public class AutonomousShoot extends LinearOpMode{
 
     /**
@@ -37,10 +41,10 @@ public class AutonomousShoot extends LinearOpMode{
             robot.shooterOn();
             sleep(2000);
 
-            robot.movePaddleDown();
+           // robot.movePaddleDown();
             sleep(3000);
 
-            robot.movePaddleUp();
+           // robot.movePaddleUp();
             sleep(5000);
 
             robot.shooterOff();

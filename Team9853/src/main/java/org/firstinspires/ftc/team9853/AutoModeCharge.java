@@ -22,7 +22,7 @@ public class AutoModeCharge extends AutoMode {
 
         for(long endTime = System.currentTimeMillis() + driveTime; System.currentTimeMillis() < endTime;) {
             statusCheck();
-            driver.drive(isRedTeam ? -1 : 1, 1, 0, .7);
+            driver.drive(isRedTeam ? -1 : 1, 1, .7, false);
         }
     }
 }
