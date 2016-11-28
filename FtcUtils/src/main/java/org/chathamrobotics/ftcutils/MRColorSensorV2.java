@@ -46,11 +46,11 @@ public class MRColorSensorV2 extends ModernRoboticsI2cColorSensor implements Col
             throw new IllegalArgumentException("MRColorSensorV2 only accepts Modern Robotics color sensors.");
         }
 
-        // Make sure the sensor is using the right address
-        this.setI2cAddress(address);
-
         // Create I2c synchronizer
         this.sensorSynch = new I2cDeviceSynchImpl(sensor, address, false);
+
+        // Make sure the sensor is using the right address
+        this.setI2cAddress(address);
 
         defaultBehavior();
     }
@@ -70,7 +70,7 @@ public class MRColorSensorV2 extends ModernRoboticsI2cColorSensor implements Col
      * @return {int} colorNumber
      */
     public int getColorNumber() {
-        return this.sensorSynch.read(ADDRESS_COMMAND, 1)[1] & 0xFF;
+        return this.sensorSynch.read(ADDRESS_COLOR_NUMBER, 1)[1] & 0xFF;
     }
 
     /*

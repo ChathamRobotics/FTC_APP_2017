@@ -31,7 +31,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
     /*
      * Called on start
      */
-    abstract public void runRobot() throws StoppedException;
+    abstract public void runRobot() throws StoppedException, InterruptedException;
 
     /*
      * called on stop

@@ -92,8 +92,27 @@ public class OmniWheelDriver {
         //Using a function on variable r will smooth out the slow values but still give full range
         if(smooth)
             modifier = modifier*modifier;
-        
-        move(Math.atan2(y, x), rotation, modifier);
+
+        if(!silent) {
+            telemetry.addData("OmniWheelDriver", "x=" + x);
+            telemetry.addData("OmniWheelDriver", "y=" + y);
+        }
+
+        double angle = 0;
+        // if x is 0, atan comes out undefined instead of PI/2 or 3PI/bo
+        if (x != 0) {
+            angle = Math.atan(y / x);
+            if(x<0) {
+                angle += Math.PI;
+            }
+        } else if(y > 0)//if it's 90 degrees use PI/2
+            angle = Math.PI/2;
+        else {
+            angle = (3 * Math.PI) / 2;
+        }
+
+//        move(Math.atan2(y, x), rotation, modifier);
+        move(angle, rotation, modifier);
     }
 
     /*
@@ -104,12 +123,12 @@ public class OmniWheelDriver {
      */
     public void move(double angle, double rotation, double modifier) {
         if(!silent) {
-            telemetry.addData("OmniWheelDriver 1", "rotation=" + rotation);
-            telemetry.addData("OmniWheelDriver 2", "angle=" + angle);
-            telemetry.addData("OmniWheelDriver 3", "angle(corrected)=" + (angle + OMNI_WHEEL_ANGLE_CORRECTION));
-            telemetry.addData("OmniWheelDriver 4", "angle(corrected & offset)=" + (angle + OMNI_WHEEL_ANGLE_CORRECTION + offsetAngle));
-            telemetry.addData("OmniWheelDriver 5", "modifier=" + modifier);
-            telemetry.addData("OmniWheelDriver 6", "offset angle=" + offsetAngle);
+            telemetry.addData("OmniWheelDriver", "rotation=" + rotation);
+            telemetry.addData("OmniWheelDriver", "angle=" + angle);
+            telemetry.addData("OmniWheelDriver", "angle(corrected)=" + (angle + OMNI_WHEEL_ANGLE_CORRECTION));
+            telemetry.addData("OmniWheelDriver", "angle(corrected & offset)=" + (angle + OMNI_WHEEL_ANGLE_CORRECTION + offsetAngle));
+            telemetry.addData("OmniWheelDriver", "modifier=" + modifier);
+            telemetry.addData("OmniWheelDriver", "offset angle=" + offsetAngle);
         }
 
         angle += OMNI_WHEEL_ANGLE_CORRECTION + offsetAngle;

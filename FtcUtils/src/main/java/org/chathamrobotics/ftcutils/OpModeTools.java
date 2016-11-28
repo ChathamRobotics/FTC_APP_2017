@@ -1,7 +1,9 @@
 package org.chathamrobotics.ftcutils;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.Map;
 
@@ -22,6 +24,12 @@ public final class OpModeTools {
         for (Map.Entry<String, DcMotor> entry : opMode.hardwareMap.dcMotor.entrySet()) {
             opMode.telemetry.addData("Motor Power", entry.getKey() + "="
                     + entry.getValue().getController().getMotorPower(entry.getValue().getPortNumber()));
+        }
+
+        // Servos
+        for (Map.Entry<String, Servo> entry: opMode.hardwareMap.servo.entrySet()) {
+            opMode.telemetry.addData("Servo Position",entry.getKey() + "="
+                    + entry.getValue().getController().getServoPosition(entry.getValue().getPortNumber()));
         }
 
         if(update) {

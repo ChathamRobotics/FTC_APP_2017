@@ -67,7 +67,7 @@ public abstract class AutonomousVisionOpMode extends LinearVisionOpMode {
     /*
      * Called on start
      */
-    abstract public void runRobot() throws StoppedException;
+    abstract public void runRobot() throws StoppedException, InterruptedException;
 
     /*
      * called on stop
@@ -122,7 +122,9 @@ public abstract class AutonomousVisionOpMode extends LinearVisionOpMode {
         telemetry.addData("Frame Rate", fps.getFPSString() + " FPS");
         telemetry.addData("Frame Size", "Width: " + width + " Height: " + height);
 
-        OpModeTools.debug(this);
+        OpModeTools.debug(this, false);
+
+        telemetry.update();
     }
 
     /*
