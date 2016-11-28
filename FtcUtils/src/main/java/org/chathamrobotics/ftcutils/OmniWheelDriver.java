@@ -18,12 +18,19 @@ public class OmniWheelDriver {
     public static final double BACK_OFFSET = Math.PI;
     public static final double RIGHT_OFFSET = 3* Math.PI / 2;
 
+    public static final double SLOW_SPEED = .5;
+
     // Stateful
     private Telemetry telemetry;
     private DcMotor frontLeft;
     private DcMotor frontRight;
     private DcMotor backLeft;
     private DcMotor backRight;
+
+
+    public static double MAX_TURN = .20;
+    public static double MAX_SPEED = .80;
+    public static boolean SLOW = false;
 
     /*
      * The angle used to offset the front of the robot
@@ -66,6 +73,64 @@ public class OmniWheelDriver {
         this.backLeft = backLeft;
         this.backRight = backRight;
         this.telemetry = telemetry;
+    }
+
+    public void driveold(double x, double y, double rotate, boolean smooth){
+        double FL, FR, BL, BR, angle, r;
+        //## CALCULATE VALUES ##
+
+        rotate *= MAX_TURN;
+
+        // Takes regular x,y coordinates and converts them into polar (angle radius) cooridnates
+        // Then turns angle by 90 degrees (Pi/4) to accommodate omni wheel axis
+
+        // if x is 0, atan comes out undefined instead of PI/2 or 3PI/2
+
+        if (x != 0) {
+            angle = Math.atan(y / x);
+
+        }else if(y > 0){//if it's 90 degrees use PI/2
+            angle = Math.PI/2;
+
+        }else{
+            angle = (3 * Math.PI)/2;
+        }
+
+        r = Math.sqrt( (x*x) + (y*y) ) ;//get the radius (hypotenuse)
+        angle += (Math.PI/4);//take our angle and shift it 90 deg (PI/4)
+
+
+        if(smooth) r = r*r; //Using a function on variable r will smooth out the slow values but still give full range
+
+        //TODO: r = -(4/3*r-2)/((4/3*r)*(4/3*r)); Cooler more impressive function
+
+        // BUG FIX atan() assumes x is always positive and angle in standard position
+        // add PI to go to quadrant 2 or 3
+        if(x<0) {
+            angle += Math.PI;
+        }
+
+
+        FL = BR =  Math.sin(angle + offsetAngle) * MAX_SPEED * r; //takes new angle and radius and converts them into the motor values
+        FR = BL = Math.cos(angle + offsetAngle) * MAX_SPEED * r;
+
+        FL -= rotate; // implements rotation
+        FR -= rotate;
+        BL += rotate;
+        BR += rotate;
+
+        double SPEED = 1;
+
+        if(this.SLOW)
+            SPEED = SLOW_SPEED;
+
+
+        if(FL<=1 & FR<=1 & BR <=1 & BL<=1) {// Prevent fatal error
+            frontLeft.setPower(FL*SPEED); // -rot fl br y
+            frontRight.setPower(FR*SPEED); // -
+            backLeft.setPower(-BL*SPEED); // +
+            backRight.setPower(-BR*SPEED); //+
+        }
     }
 
     /*
@@ -111,6 +176,7 @@ public class OmniWheelDriver {
             angle = (3 * Math.PI) / 2;
         }
 
+<<<<<<< HEAD
 //        move(Math.atan2(y, x), rotation, modifier);
         move(angle, rotation, modifier);
     }
@@ -120,6 +186,19 @@ public class OmniWheelDriver {
      * @param {double} angle
      * @param {double} rotation
      * @param {double} modifier
+=======
+        //Using the quadratic function on the magnitude
+        // will smooth out the slow values but still give full range
+        if(smooth)
+            magnitude = magnitude*magnitude;
+        move(angle, rotation, magnitude);
+        //TODO: TRY THIS
+        //move(Math.atan2(y, x), rotation, magnitude);
+    }
+
+    /*
+     * Controls the wheel motors based on angle, rotation, and magnitude
+>>>>>>> b46745c2dbfdff26d0efa057ca47a14cb09e9ded
      */
     public void move(double angle, double rotation, double modifier) {
         if(!silent) {
@@ -151,5 +230,13 @@ public class OmniWheelDriver {
         }
         
         return Range.clip(power, -1, 1);
+    }
+
+    public void setOffsetAngle(double angle) {
+        offsetAngle = angle;
+    }
+
+    public void setTelemetry(boolean telemetry) {
+        silent = telemetry;
     }
 }

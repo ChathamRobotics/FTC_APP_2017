@@ -30,7 +30,11 @@ public class AutoModeCharge extends AutonomousOpMode {
 
         for(long endTime = System.currentTimeMillis() + driveTime; System.currentTimeMillis() < endTime;) {
             statusCheck();
+<<<<<<< HEAD
             driver.move(Math.toRadians(isRedTeam ? 135 : 45), 0, .7);
+=======
+            driver.drive(isRedTeam ? -1 : 1, 1, .7, false);
+>>>>>>> b46745c2dbfdff26d0efa057ca47a14cb09e9ded
         }
     }
 }
