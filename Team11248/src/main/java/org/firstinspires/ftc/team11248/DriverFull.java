@@ -47,48 +47,36 @@ public class DriverFull extends DriverOmni {
         else
             robot.moveLiftArmUp();
 
-        //Turns on/off shooter/ collector
-
-        boolean shooterOn = false;
-        boolean shooterBack = false;
-        boolean conveyorOn = false;
-        boolean conveyorBack = false;
-
-
-        if (gamepad1.left_bumper)
-            shooterOn = true;
-
-        else if (gamepad1.right_bumper)
-            shooterBack = true;
-
-        if (gamepad1.x)
-            conveyorOn = true;
-
-        else if (gamepad1.b){
-            conveyorBack = true;
-            shooterBack = true;
+        if (gamepad2.a) {
+            while (gamepad1.y) {}
+            if(robot.getShooterOn())
+                robot.shooterOff();
+            else
+                robot.shooterOn();
+        }
+        if (gamepad2.b) {
+            while (gamepad1.y) {}
+            if(robot.getShooterOn())
+                robot.shooterOff();
+            else
+                robot.shooterReverse();
         }
 
-        if(conveyorOn)
-            robot.conveyorOn();
-        else if (conveyorBack)
-            robot.conveyorBack();
-        else
-            robot.conveyorOff();
+        if (gamepad2.x) {
+            while (gamepad1.y) {}
+            if(robot.getShooterOn())
+                robot.shooterOff();
+            else
+                robot.setShooter(-.2);
+        }
 
-        if (shooterBack)
-            robot.shooterBack(.3);
-        else if (shooterOn)
-            robot.shooterOn();
-        else
-            robot.shooterOff();
+        robot.setConveyor(gamepad2.left_trigger);
+
+        robot.setConveyor(-gamepad2.right_trigger);
 
         if (gamepad1.y) {
             while (gamepad1.y) {}
-            if(robot.SLOW)
-                robot.SLOW = false;
-            else
-                robot.SLOW = true;
+            robot.switchSlow();
         }
 
         //Sets arm motor to whatever right trigger is

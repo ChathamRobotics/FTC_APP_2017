@@ -16,7 +16,7 @@ public class OmniWheelDriver {
     public static final double BACK_OFFSET = Math.PI;
     public static final double RIGHT_OFFSET = 3* Math.PI / 2;
 
-    public static final double SLOW_SPEED = .5;
+    public static final double SLOW_SPEED = .1;
 
     // Stateful
     private Telemetry telemetry;
@@ -28,7 +28,7 @@ public class OmniWheelDriver {
 
     public static double MAX_TURN = .20;
     public static double MAX_SPEED = .80;
-    public static boolean SLOW = false;
+    public static boolean isSlow = false;
 
     /*
      * The angle used to offset the front of the robot
@@ -54,6 +54,18 @@ public class OmniWheelDriver {
                 hardwareMap.dcMotor.get("BackRight"),
                 telemetry
         );
+    }
+
+    public boolean getIsSlow() {
+        return isSlow;
+    }
+
+    public void setIsSlow(boolean isSlow) {
+        this.isSlow = isSlow;
+    }
+
+    public void switchSlow() {
+        isSlow = !isSlow;
     }
 
     /*
@@ -98,7 +110,7 @@ public class OmniWheelDriver {
         angle += (Math.PI/4);//take our angle and shift it 90 deg (PI/4)
 
 
-        if(smooth) r = r*r; //Using a function on variable r will smooth out the slow values but still give full range
+        if(smooth||isSlow) r = r*r; //Using a function on variable r will smooth out the slow values but still give full range
 
         //TODO: r = -(4/3*r-2)/((4/3*r)*(4/3*r)); Cooler more impressive function
 
@@ -119,7 +131,7 @@ public class OmniWheelDriver {
 
         double SPEED = 1;
 
-        if(this.SLOW)
+        if(isSlow)
             SPEED = SLOW_SPEED;
 
 

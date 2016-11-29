@@ -12,6 +12,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Robot11248 extends OmniWheelDriver {
 
+    private boolean shooterOn, conveyorOn;
+
     //Angles
     public static final double RIGHT_ANGLE = Math.PI/2;
 
@@ -21,8 +23,8 @@ public class Robot11248 extends OmniWheelDriver {
     public static final double SHOOTER_SPEED = 1;
 
     //Servo constants
-    public static final double LIFT_UP = 0;
-    public static final double LIFT_DOWN = 1;
+    private static final double LIFT_UP = 0;
+    private static final double LIFT_DOWN = 1;
 
     //Motors, Sensors, Telemetry
     private DcMotor shooterL, shooterR, lift, conveyor;
@@ -99,29 +101,31 @@ public class Robot11248 extends OmniWheelDriver {
             moveLiftArmUp();
     }
 
-    public void shooterOn(double SHOOTER_SPEED) {
+    public void setShooter(double SHOOTER_SPEED) {
         shooterL.setPower(SHOOTER_SPEED);
         shooterR.setPower(-SHOOTER_SPEED);
+        shooterOn = true;
+        if(SHOOTER_SPEED == 0)
+            shooterOn = false;
+    }
+
+    public void shooterReverse() {
+        shooterL.setPower(SHOOTER_SPEED);
+        shooterR.setPower(-SHOOTER_SPEED);
+        shooterOn = true;
     }
 
     //Overload
-    public void  shooterOn(){
-        shooterOn(SHOOTER_SPEED);
+    public void shooterOn() {
+        shooterL.setPower(SHOOTER_SPEED);
+        shooterR.setPower(-SHOOTER_SPEED);
+        shooterOn = true;
     }
 
     public void shooterOff() {
         shooterL.setPower(0);
         shooterR.setPower(0);
-    }
-
-    public void shooterBack(double SHOOTER_SPEED) {
-        shooterL.setPower(-SHOOTER_SPEED);
-        shooterR.setPower(SHOOTER_SPEED);
-    }
-
-    //Overload
-    public void shooterBack (){
-        shooterBack(SHOOTER_SPEED);
+        shooterOn = false;
     }
 
     public void setLiftSpeed(double speed) {
@@ -132,15 +136,33 @@ public class Robot11248 extends OmniWheelDriver {
         lift.setPower(speed);
     }
 
-    public void conveyorOn(){
-        conveyor.setPower(-1);
+    public void setConveyor(float f){
+        conveyor.setPower(f);
+        conveyorOn = true;
+        if(f == 0)
+            conveyorOn = false;
     }
 
-    public void conveyorBack(){
+    public void conveyorOn(){
+        conveyor.setPower(-1);
+        conveyorOn = true;
+    }
+
+    public void conveyorReverse(){
         conveyor.setPower(1);
+        conveyorOn = true;
     }
 
     public void conveyorOff(){
         conveyor.setPower(0);
+        conveyorOn = false;
+    }
+
+    public boolean getConveyerOn() {
+        return conveyorOn;
+    }
+
+    public boolean getShooterOn() {
+        return shooterOn;
     }
 }
