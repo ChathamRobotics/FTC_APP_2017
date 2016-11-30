@@ -28,7 +28,7 @@ public class OmniWheelDriver {
 
     public static double MAX_TURN = .20;
     public static double MAX_SPEED = .80;
-    public static boolean isSlow = false;
+    public boolean isSlow = false;
 
     /*
      * The angle used to offset the front of the robot
@@ -56,17 +56,7 @@ public class OmniWheelDriver {
         );
     }
 
-    public boolean getIsSlow() {
-        return isSlow;
-    }
 
-    public void setIsSlow(boolean isSlow) {
-        this.isSlow = isSlow;
-    }
-
-    public void switchSlow() {
-        isSlow = !isSlow;
-    }
 
     /*
      * creates new OmniWheelDriver.
@@ -83,6 +73,18 @@ public class OmniWheelDriver {
         this.backLeft = backLeft;
         this.backRight = backRight;
         this.telemetry = telemetry;
+    }
+
+    public void setSlow(boolean slow) {
+        isSlow = slow;
+    }
+
+    public boolean getSlow() {
+        return isSlow;
+    }
+
+    public void switchSlow() {
+        isSlow = !isSlow;
     }
 
     public void driveold(double x, double y, double rotate, boolean smooth){
@@ -212,5 +214,9 @@ public class OmniWheelDriver {
 
     public void setTelemetry(boolean telemetry) {
         silent = telemetry;
+    }
+
+    public Telemetry getTelemetry() {
+        return telemetry;
     }
 }

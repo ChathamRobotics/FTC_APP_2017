@@ -2,6 +2,10 @@ package org.firstinspires.ftc.team11248;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
+
+import org.chathamrobotics.ftcutils.MRColorSensorV2;
 
 /**
  * Team 11248 Shooter Autonomous
@@ -12,7 +16,7 @@ public class BeaconTest extends LinearOpMode{
     /**
      * The robot being controlled.
      */
-    private Robot11248BEACONCOPY robot;
+    private Robot11248 robot;
 
     //Time spent driving forward in milliseconds
     private long timeDriving = 3000;
@@ -20,6 +24,17 @@ public class BeaconTest extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
 
+        DcMotor[] motors = new DcMotor[8];
+        Servo[] servos = new Servo[1];
+        MRColorSensorV2[] colors = new MRColorSensorV2[3];
+        for(int i = 0; i < motors.length; i++)
+            motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
+        for(int i = 0; i < servos.length; i++)
+            servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
+//        for(int i = 0; i < colors.length; i++)
+//            colors[i] = new MRColorSensorV2(hardwareMap.i2cDevice.get(Robot11248.COLOR_LIST[i]));
+        colors[2] = new MRColorSensorV2(hardwareMap.i2cDevice.get(Robot11248.COLOR_LIST[2]));
+        robot = new Robot11248(motors,servos,colors,telemetry);
         robot.init(); //Sets servos to right position.
 
         waitForStart();

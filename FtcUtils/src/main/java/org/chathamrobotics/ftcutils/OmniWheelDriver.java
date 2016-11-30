@@ -176,7 +176,6 @@ public class OmniWheelDriver {
             angle = (3 * Math.PI) / 2;
         }
 
-<<<<<<< HEAD
 //        move(Math.atan2(y, x), rotation, modifier);
         move(angle, rotation, modifier);
     }
