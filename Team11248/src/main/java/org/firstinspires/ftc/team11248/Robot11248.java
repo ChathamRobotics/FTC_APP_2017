@@ -24,7 +24,7 @@ public class Robot11248 extends OmniWheelDriver {
     public static final double SHOOTER_SPEED = 1;
 
     //Servo constants
-    private static final double LIFT_UP = 0;
+    private static final double LIFT_UP = .35;
     private static final double LIFT_DOWN = 1;
 
     //Motors, Sensors, Telemetry
@@ -35,7 +35,8 @@ public class Robot11248 extends OmniWheelDriver {
 
     //hardware map
     public static final String[] MOTOR_LIST =
-            {"FrontLeft","FrontRight","BackLeft","BackRight","ShooterL","ShooterR","Lift","Conveyor"};
+            {"FrontLeft","FrontRight","BackLeft","BackRight",
+                    "ShooterL","ShooterR","Lift","Conveyor"};
 
     public static final String[] SERVO_LIST =
             {"servo1"};
@@ -49,20 +50,10 @@ public class Robot11248 extends OmniWheelDriver {
      * @param servos
      * @param telemetry
      */
-    public Robot11248(DcMotor[] motors, Servo[] servos,MRColorSensorV2[] colors, Telemetry telemetry) {
+    public Robot11248(DcMotor[] motors, Servo[] servos,
+                      MRColorSensorV2[] colors, Telemetry telemetry) {
         this(motors[0],motors[1],motors[2],motors[3],motors[4],motors[5],
-                motors[6],motors[7],servos[0],colors[2],telemetry);
-    }
-
-    /**
-     * Initializes using a list of motors.
-     * @param motors
-     * @param servos
-     * @param telemetry
-     */
-    public Robot11248(DcMotor[] motors, Servo[] servos, Telemetry telemetry) {
-        this(motors[0],motors[1],motors[2],motors[3],motors[4],motors[5],
-                motors[6],motors[7],servos[0],null,telemetry);
+                motors[6],motors[7],servos[0],colors[0],colors[1],colors[2],telemetry);
     }
 
     /**
@@ -80,7 +71,8 @@ public class Robot11248 extends OmniWheelDriver {
      */
     public Robot11248(DcMotor frontLeft,DcMotor frontRight,DcMotor backLeft,DcMotor backRight,
                       DcMotor shooterL,DcMotor shooterR,DcMotor lift, DcMotor conveyor,
-                      Servo liftArm, MRColorSensorV2 color3, Telemetry telemetry) {
+                      Servo liftArm, MRColorSensorV2 color1, MRColorSensorV2 color2,
+                      MRColorSensorV2 color3, Telemetry telemetry) {
         super(frontLeft, frontRight, backLeft, backRight, telemetry);
         this.shooterL = shooterL;
         this.shooterR = shooterR;
@@ -88,8 +80,8 @@ public class Robot11248 extends OmniWheelDriver {
         this.liftArm = liftArm;
         this.conveyor = conveyor;
 
-//        this.color1 = color1;
-//        this.color2 = color2;
+        this.color1 = color1;
+        this.color2 = color2;
         this.color3 = color3;
         //this.shooterL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //this.shooterR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -187,8 +179,8 @@ public class Robot11248 extends OmniWheelDriver {
     public MRColorSensorV2 getColor(int n) {
         switch (n) {
             case 2: return color2;
-            case 3: return color3;
-            default: return color1;
+            case 1: return color1;
+            default: return color3;
         }
     }
 }

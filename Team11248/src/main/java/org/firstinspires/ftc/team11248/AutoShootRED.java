@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.chathamrobotics.ftcutils.MRColorSensorV2;
+
 /**
  * Team 11248 Shooter Autonomous
  */
@@ -24,14 +26,15 @@ public class AutoShootRED extends LinearOpMode{
 
     @Override
     public void runOpMode() throws InterruptedException {
-
+        //Initializes all sensors and motors
         DcMotor[] motors = new DcMotor[8];
         Servo[] servos = new Servo[1];
+        MRColorSensorV2[] colors = new MRColorSensorV2[3];
         for(int i = 0; i < motors.length; i++)
             motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
         for(int i = 0; i < servos.length; i++)
             servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
-        robot = new Robot11248(motors,servos,telemetry);
+        robot = new Robot11248(motors,servos,colors,telemetry);
 
         robot.moveLiftArmUp();
 

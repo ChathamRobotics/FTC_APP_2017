@@ -39,8 +39,6 @@ public class BeaconTest extends LinearOpMode{
 
         waitForStart();
 
-        while (opModeIsActive()) {
-
             //Drive diagonal until hit white line
             while(!robot.getColor(1).isWhite())
                 robot.drive(.5,.5,0,true);
@@ -64,8 +62,5 @@ public class BeaconTest extends LinearOpMode{
                 wait(500);
                 robot.drive(0,0,0,false);
             }
-            break;
-
-        }
     }
 }

@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.chathamrobotics.ftcutils.MRColorSensorV2;
+
 /**
  * Team 11248 TeleOp for real robot.
  */
@@ -17,11 +19,12 @@ public class DriverFull extends DriverOmni {
         //Initializes all sensors and motors
         DcMotor[] motors = new DcMotor[8];
         Servo[] servos = new Servo[1];
+        MRColorSensorV2[] colors = new MRColorSensorV2[3];
         for(int i = 0; i < motors.length; i++)
             motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
         for(int i = 0; i < servos.length; i++)
             servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
-        robot = new Robot11248(motors,servos,telemetry);
+        robot = new Robot11248(motors,servos,colors,telemetry);
 
     }
 
@@ -48,14 +51,14 @@ public class DriverFull extends DriverOmni {
             robot.moveLiftArmUp();
 
         if (gamepad2.a) {
-            while (gamepad1.y) {}
+            while (gamepad2.a) {}
             if(robot.getShooterOn())
                 robot.shooterOff();
             else
                 robot.shooterOn();
         }
         if (gamepad2.b) {
-            while (gamepad1.y) {}
+            while (gamepad2.b) {}
             if(robot.getShooterOn())
                 robot.shooterOff();
             else
@@ -63,7 +66,7 @@ public class DriverFull extends DriverOmni {
         }
 
         if (gamepad2.x) {
-            while (gamepad1.y) {}
+            while (gamepad2.x) {}
             if(robot.getShooterOn())
                 robot.shooterOff();
             else

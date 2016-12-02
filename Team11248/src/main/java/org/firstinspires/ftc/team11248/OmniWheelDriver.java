@@ -56,8 +56,6 @@ public class OmniWheelDriver {
         );
     }
 
-
-
     /*
      * creates new OmniWheelDriver.
      * @param {DcMotor} frontLeft

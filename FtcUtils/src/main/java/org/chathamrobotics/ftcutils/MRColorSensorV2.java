@@ -70,7 +70,7 @@ public class MRColorSensorV2 extends ModernRoboticsI2cColorSensor implements Col
      * @return {int} colorNumber
      */
     public int getColorNumber() {
-        return this.sensorSynch.read(ADDRESS_COLOR_NUMBER, 1)[1] & 0xFF;
+        return this.sensorSynch.read(ADDRESS_COLOR_NUMBER, 1)[0] & 0xFF;
     }
 
     /*
