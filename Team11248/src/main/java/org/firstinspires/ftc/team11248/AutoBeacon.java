@@ -48,8 +48,8 @@ import org.chathamrobotics.ftcutils.MRColorSensorV2;
 //        telemetry.addData("isRed", "stuff:=" + robot.getColor(3).getColorNumber());
 //    }
 //}
-@TeleOp(name = "Sensor: MR Color")
-@Disabled
+@TeleOp(name = "Senhjk")
+
 public class AutoBeacon extends LinearOpMode {
 
     ColorSensor colorSensor;    // Hardware Device Object
