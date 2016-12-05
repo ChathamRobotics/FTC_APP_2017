@@ -48,7 +48,7 @@ import org.chathamrobotics.ftcutils.MRColorSensorV2;
 //        telemetry.addData("isRed", "stuff:=" + robot.getColor(3).getColorNumber());
 //    }
 //}
-@TeleOp(name = "Senhjk")
+@TeleOp(name = "ColorRead")
 
 public class AutoBeacon extends LinearOpMode {
 

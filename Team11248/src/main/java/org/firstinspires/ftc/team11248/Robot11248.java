@@ -13,6 +13,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Robot11248 extends OmniWheelDriver {
 
+    //Debouncing Variables
+
+
     private boolean shooterOn, conveyorOn;
 
     //Angles
@@ -24,12 +27,15 @@ public class Robot11248 extends OmniWheelDriver {
     public static final double SHOOTER_SPEED = 1;
 
     //Servo constants
-    private static final double LIFT_UP = .35;
+    private static final double LIFT_UP = .30;
     private static final double LIFT_DOWN = 1;
+
+    private static final double BEACON_OUT = 0;
+    private static final double BEACON_IN = 1;
 
     //Motors, Sensors, Telemetry
     private DcMotor shooterL, shooterR, lift, conveyor;
-    private Servo liftArm;
+    private Servo liftArm, beaconPusher;
     private boolean isLiftArmUp = false;
     private MRColorSensorV2 color1, color2, color3;
 
@@ -39,7 +45,7 @@ public class Robot11248 extends OmniWheelDriver {
                     "ShooterL","ShooterR","Lift","Conveyor"};
 
     public static final String[] SERVO_LIST =
-            {"servo1"};
+            {"servo1", "servo2"};
 
     public static final String[] COLOR_LIST =
             {"color1","color2","color3"};
@@ -53,7 +59,7 @@ public class Robot11248 extends OmniWheelDriver {
     public Robot11248(DcMotor[] motors, Servo[] servos,
                       MRColorSensorV2[] colors, Telemetry telemetry) {
         this(motors[0],motors[1],motors[2],motors[3],motors[4],motors[5],
-                motors[6],motors[7],servos[0],colors[0],colors[1],colors[2],telemetry);
+                motors[6],motors[7],servos[0],servos[1],colors[0],colors[1],colors[2],telemetry);
     }
 
     /**
@@ -71,7 +77,7 @@ public class Robot11248 extends OmniWheelDriver {
      */
     public Robot11248(DcMotor frontLeft,DcMotor frontRight,DcMotor backLeft,DcMotor backRight,
                       DcMotor shooterL,DcMotor shooterR,DcMotor lift, DcMotor conveyor,
-                      Servo liftArm, MRColorSensorV2 color1, MRColorSensorV2 color2,
+                      Servo liftArm, Servo beaconPusher,MRColorSensorV2 color1, MRColorSensorV2 color2,
                       MRColorSensorV2 color3, Telemetry telemetry) {
         super(frontLeft, frontRight, backLeft, backRight, telemetry);
         this.shooterL = shooterL;
@@ -79,6 +85,7 @@ public class Robot11248 extends OmniWheelDriver {
         this.lift = lift;
         this.liftArm = liftArm;
         this.conveyor = conveyor;
+        this.beaconPusher = beaconPusher;
 
         this.color1 = color1;
         this.color2 = color2;
@@ -92,6 +99,8 @@ public class Robot11248 extends OmniWheelDriver {
      */
     public void init() {
         moveLiftArmUp();
+        moveBeaconIn();
+
     }
 
     public void moveLiftArmUp() {
@@ -109,6 +118,14 @@ public class Robot11248 extends OmniWheelDriver {
             moveLiftArmDown();
         else
             moveLiftArmUp();
+    }
+
+    public void moveBeaconOut(){
+        beaconPusher.setPosition(BEACON_OUT);
+    }
+
+    public void moveBeaconIn(){
+        beaconPusher.setPosition(BEACON_IN);
     }
 
     public void setShooter(double SHOOTER_SPEED) {

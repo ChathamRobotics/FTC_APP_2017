@@ -10,15 +10,19 @@ import org.chathamrobotics.ftcutils.MRColorSensorV2;
  * Team 11248 TeleOp for real robot.
  */
 @TeleOp(name = "DrivingFull", group = "General")
-public class DriverFull extends DriverOmni {
+public class DriverFull extends DriverOmni{
+
 
     public Robot11248 robot;
+
+    boolean prevGP1y, prevGP2a, prevGP2x, prevGP2y;
+
 
     @Override
     public void init() {
         //Initializes all sensors and motors
         DcMotor[] motors = new DcMotor[8];
-        Servo[] servos = new Servo[1];
+        Servo[] servos = new Servo[2];
         MRColorSensorV2[] colors = new MRColorSensorV2[3];
         for(int i = 0; i < motors.length; i++)
             motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
@@ -30,6 +34,8 @@ public class DriverFull extends DriverOmni {
 
     @Override
     public void loop() {
+
+       // ##GAMEPAD 1 CONTROLS ##
 
         //Controls Wheels
         if (gamepad1.dpad_up)
@@ -43,44 +49,23 @@ public class DriverFull extends DriverOmni {
 
         robot.driveold(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, true);
 
-
         //Sets liftarm up and down
         if (gamepad1.a)
             robot.moveLiftArmDown();
         else
             robot.moveLiftArmUp();
 
-        if (gamepad2.a) {
-            while (gamepad2.a) {}
-            if(robot.getShooterOn())
-                robot.shooterOff();
-            else
-                robot.shooterOn();
-        }
-        if (gamepad2.b) {
-            while (gamepad2.b) {}
-            if(robot.getShooterOn())
-                robot.shooterOff();
-            else
-                robot.shooterReverse();
-        }
 
-        if (gamepad2.x) {
-            while (gamepad2.x) {}
-            if(robot.getShooterOn())
-                robot.shooterOff();
-            else
-                robot.setShooter(-.2);
-        }
+        if(gamepad1.b)
+            robot.moveBeaconOut();
+        else
+            robot.moveBeaconIn();
 
-        robot.setConveyor(gamepad2.left_trigger);
 
-        robot.setConveyor(-gamepad2.right_trigger);
-
-        if (gamepad1.y) {
-            while (gamepad1.y) {}
+        if (gamepad1.y && (gamepad1.y!=prevGP1y) )
             robot.switchSlow();
-        }
+
+        prevGP1y = gamepad1.y;
 
         //Sets arm motor to whatever right trigger is
         if (gamepad1.right_trigger > 0)
@@ -89,6 +74,47 @@ public class DriverFull extends DriverOmni {
             robot.setLiftSpeed(-gamepad1.left_trigger);
         else
             robot.setLiftSpeed(0);
+
+
+
+
+
+
+        //## GAMEPAD 2 CONTROLS ##
+        if (gamepad2.a && gamepad2.a != prevGP2a) {
+            if(robot.getShooterOn())
+                robot.shooterOff();
+            else
+                robot.shooterOn();
+        }
+        prevGP2a = gamepad2.a;
+
+
+        if (gamepad2.b && gamepad2.y != prevGP2y) {
+            if(robot.getShooterOn())
+                robot.shooterOff();
+            else
+                robot.shooterReverse();
+        }
+        prevGP2y = gamepad2.y;
+
+
+        if (gamepad2.x && gamepad2.x != prevGP2x) {
+
+            if(robot.getShooterOn())
+                robot.shooterOff();
+            else
+                robot.setShooter(-.5);
+        }
+        prevGP2x = gamepad2.x;
+
+
+        if (gamepad2.right_trigger > 0)
+            robot.setConveyor(-gamepad2.right_trigger);
+        else if (gamepad2.left_trigger > 0)
+            robot.setConveyor(gamepad2.left_trigger);
+        else
+            robot.setConveyor(0);
 
     }
 }
