@@ -28,7 +28,7 @@ public class DriverFull extends DriverOmni{
             motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
         for(int i = 0; i < servos.length; i++)
             servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
-        robot = new Robot11248(motors,servos,colors,telemetry);
+        robot = new Robot11248(motors,servos,telemetry);
 
     }
 

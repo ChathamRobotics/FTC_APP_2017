@@ -16,7 +16,7 @@ public class OmniWheelDriver {
     public static final double BACK_OFFSET = Math.PI;
     public static final double RIGHT_OFFSET = 3* Math.PI / 2;
 
-    public static final double SLOW_SPEED = .1;
+    public static final double SLOW_SPEED = .25;
 
     // Stateful
     private Telemetry telemetry;
