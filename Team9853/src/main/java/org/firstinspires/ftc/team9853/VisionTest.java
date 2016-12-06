@@ -13,7 +13,7 @@ import org.opencv.core.Size;
  * Created by storm on 11/5/2016.
  */
 
-@TeleOp(name = "VisionTest", group = "General")
+@TeleOp(name = "VisionTest", group = "Test")
 
 public class VisionTest extends VisionOpMode {
     @Override

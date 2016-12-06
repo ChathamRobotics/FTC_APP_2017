@@ -8,7 +8,7 @@ import org.chathamrobotics.ftcutils.TeleOpMode;
  * Created by storm on 11/15/2016.
  */
 
-@TeleOp(name = "DrivingTest", group = "General")
+@TeleOp(name = "DrivingTest", group = "Test")
 
 
 public class DriveTest extends TeleOpMode {
