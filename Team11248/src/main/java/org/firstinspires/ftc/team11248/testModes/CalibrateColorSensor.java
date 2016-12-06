@@ -1,22 +1,30 @@
-package org.firstinspires.ftc.team11248;
-
-import android.graphics.Color;
+package org.firstinspires.ftc.team11248.testModes;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cController;
 import com.qualcomm.robotcore.hardware.I2cController.I2cPortReadyCallback;
-import com.qualcomm.robotcore.hardware.Servo;
-
-import org.chathamrobotics.ftcutils.MRColorSensorV2;
-
 import java.util.concurrent.locks.Lock;
 
-@TeleOp(name = "Beacon3")
-public class Beacon3 extends OpMode implements I2cPortReadyCallback {
+/**
+ * Color Sensor Calibration
+ * AJ Foster | July 2016
+ *
+ * This code is meant to be an educational tool. Please deploy this code at
+ * your own risk. You should never run code you don't understand.
+ *
+ * The following OpMode allows you to calibrate the Modern Robotics color
+ * sensor using the A/B buttons on a gamepad. Button A (on gamepad 1) will
+ * perform the black calibration, and Button B will perform the white
+ * calibration. You can also use the X/Y buttons to turn the sensor's LED
+ * on and off, respectively.
+ */
+@TeleOp(name = "ColorCalibrate")
+@Disabled
+public class CalibrateColorSensor extends OpMode implements I2cPortReadyCallback {
 
     // IMPORTANT!
     // What did you name your color sensor in the Robot Controller config?
@@ -26,15 +34,9 @@ public class Beacon3 extends OpMode implements I2cPortReadyCallback {
     ModernRoboticsI2cColorSensor color_sensor;
     I2cController controller;
 
-    // What did you name your color sensor in the Robot Controller config?
-    String color_sensor_name2 = "color2";
-
-    // Color Sensor hardware
-    ModernRoboticsI2cColorSensor color_sensor2;
-    I2cController controller2;
-
     // Variable to track the read/write mode of the sensor
-    I2CMode controller_mode = I2CMode.READ;
+    CalibrateColorSensor.I2CMode controller_mode = CalibrateColorSensor.I2CMode.READ;
+
 
     // Variables to prevent repeat calibration
     boolean isWorking = false;
@@ -42,9 +44,13 @@ public class Beacon3 extends OpMode implements I2cPortReadyCallback {
 
     // I2C address, registers, and commands
     public byte COLOR_SENSOR_ADDR = 0x3C;
+    public byte COLOR_SENSOR_ADDR2 = 0x3D;
+    public byte COMMAND_CODE_BLACK = 0x42;
+    public byte COMMAND_CODE_WHITE = 0x43;
+    public byte COMMAND_CODE_LED_ON = 0x00;
+    public byte COMMAND_CODE_LED_OFF = 0x01;
     public byte WRITE_CACHE_OFFSET = 4;
 
-    public Robot11248 robot;
 
     /* In init(), we get a handle on the color sensor itself and its controller.
      * We need access to the cycle of events on the sensor (when the port is
@@ -52,16 +58,6 @@ public class Beacon3 extends OpMode implements I2cPortReadyCallback {
      * as a callback.
      */
     public void init() {
-
-        DcMotor[] motors = new DcMotor[8];
-        Servo[] servos = new Servo[1];
-        MRColorSensorV2[] colors = new MRColorSensorV2[3];
-        for(int i = 0; i < motors.length; i++)
-            motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
-        for(int i = 0; i < servos.length; i++)
-            servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
-        robot = new Robot11248(motors,servos,telemetry);
-        robot.init(); //Sets servos to right position.
 
         // Remember to change the name of the color sensor in get().
         color_sensor = (ModernRoboticsI2cColorSensor) hardwareMap.colorSensor.get(color_sensor_name);
@@ -72,37 +68,13 @@ public class Beacon3 extends OpMode implements I2cPortReadyCallback {
         // Register the callback for portIsReady().
         controller.registerForI2cPortReadyCallback(this, color_sensor.getPort());
 
-        // Remember to change the name of the color sensor in get().
-        color_sensor2 = (ModernRoboticsI2cColorSensor) hardwareMap.colorSensor.get(color_sensor_name);
-
-        // Get a handle on the color sensor's controller.
-        controller2 = color_sensor2.getI2cController();
-
-        // Register the callback for portIsReady().
-        controller2.registerForI2cPortReadyCallback(this, color_sensor2.getPort());
-
 //        // Unimportant.
 //        telemetry.setSorted(false);
     }
 
-    public static boolean isNeighborColor(int r, int g, int b,
-                                          int r2, int g2, int b2, int tolerance) {
-        return Math.abs(r - r2) <= tolerance
-                && Math.abs(g - g2) <= tolerance
-                && Math.abs(b2 - b2) <= tolerance;
-    }
-
-    boolean foundWhite1;
-    boolean stop1;
 
     // Respond to gamepad input.
     public void loop() {
-
-        if(!foundWhite1)
-            robot.driveold(.5,.5,0,false);
-        if(!stop1)
-
-
 
         // If enough time has elapsed since the last time we started a
         // calibration, allow another one to be started.
@@ -116,8 +88,59 @@ public class Beacon3 extends OpMode implements I2cPortReadyCallback {
                 isWorking = false;
         }
 
+        // Button A should begin a black calibration.
+        else if (gamepad1.a && !isWorking) {
+
+            // Prevent another command from running soon.
+            isWorking = true;
+            timeStartedWorking = getRuntime();
+
+            sendCommand(COMMAND_CODE_BLACK);
+
+            telemetry.addData("Black Calibration", "In Progress...");
+        }
+
+        // Button B should begin a white calibration.
+        else if (gamepad1.b && !isWorking) {
+
+            // Prevent another command from running soon.
+            isWorking = true;
+            timeStartedWorking = getRuntime();
+
+            sendCommand(COMMAND_CODE_WHITE);
+
+            telemetry.addData("White Calibration", "In Progress...");
+        }
+
+        // Separately, allow the LED to be turned on and off.
+        else if (gamepad1.x && !isWorking) {
+
+            // Prevent another command from running soon.
+            isWorking = true;
+            timeStartedWorking = getRuntime();
+
+            sendCommand(COMMAND_CODE_LED_ON);
+
+            telemetry.addData("LED Status", "Turning On");
+        }
+
+        else if (gamepad1.y && !isWorking) {
+
+            // Prevent another command from running soon.
+            isWorking = true;
+            timeStartedWorking = getRuntime();
+
+            sendCommand(COMMAND_CODE_LED_OFF);
+
+            telemetry.addData("LED Status", "Turning Off");
+        }
+
         // Give instructions to the user.
         else {
+            telemetry.addData("Black Calibration", "Press A");
+            telemetry.addData("White Calibration", "Press B");
+            telemetry.addData("LED Status", "Press X/Y for On/Off");
+
             String reading = "R(" + color_sensor.red() +
                     ") G(" + color_sensor.green() +
                     ") B(" + color_sensor.blue() +
@@ -183,7 +206,7 @@ public class Beacon3 extends OpMode implements I2cPortReadyCallback {
 
             // During reset, we move back to read mode.
             case RESET:
-                controller.enableI2cReadMode(port, I2cAddr.create8bit(COLOR_SENSOR_ADDR), 0x03, 6);
+                controller.enableI2cReadMode(port, I2cAddr.create8bit(COLOR_SENSOR_ADDR2), 0x03, 6);
                 controller.writeI2cCacheToController(port);
                 controller_mode = I2CMode.READ;
                 break;

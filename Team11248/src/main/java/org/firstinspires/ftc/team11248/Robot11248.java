@@ -2,6 +2,7 @@ package org.firstinspires.ftc.team11248;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.chathamrobotics.ftcutils.MRColorSensorV2;
@@ -33,6 +34,20 @@ public class Robot11248 extends OmniWheelDriver {
     private static final double BEACON_OUT = 0;
     private static final double BEACON_IN = 1;
 
+    //Beacon Setup
+    MRColorSensorV3 colorGreen, colorYellow, colorBeacon;
+
+    // I2C address, registers, and commands
+    private final byte COLOR_SENSOR_GREEN_ADDR = 0x3A; //Green
+    private final byte COLOR_SENSOR_YELLOW_ADDR = 0x3C; //Yellow
+    private final byte COLOR_SENSOR_BEACON_ADDR = 0x3E; //Beacon
+
+    private final int BLUE_LOW_THRESHOLD = 2;
+    private final int BLUE_HIGH_THRESHOLD = 3;
+
+    private final int RED_LOW_THRESHOLD = 10;
+    private final int RED_HIGH_THRESHOLD = 11;
+
     //Motors, Sensors, Telemetry
     private DcMotor shooterL, shooterR, lift, conveyor;
     private Servo liftArm, beaconPusher;
@@ -46,15 +61,19 @@ public class Robot11248 extends OmniWheelDriver {
     public static final String[] SERVO_LIST =
             {"servo1", "servo2"};
 
+    public static final String[] COLOR_LIST =
+            {"color1", "color2", "color3"};
+
     /**
      * Initializes using a list of motors.
      * @param motors
      * @param servos
+     * @param color
      * @param telemetry
      */
-    public Robot11248(DcMotor[] motors, Servo[] servos, Telemetry telemetry) {
-        this(motors[0],motors[1],motors[2],motors[3],motors[4],motors[5],
-                motors[6],motors[7],servos[0],servos[1],telemetry);
+    public Robot11248(DcMotor[] motors, Servo[] servos, I2cDevice[] color, Telemetry telemetry) {
+        this(motors[0], motors[1], motors[2], motors[3], motors[4], motors[5], motors[6],
+                motors[7], servos[0], servos[1], color[0], color[1], color[2], telemetry);
     }
 
     /**
@@ -68,11 +87,17 @@ public class Robot11248 extends OmniWheelDriver {
      * @param conveyor - conveyor motor
      * @param lift - lift motor
      * @param liftArm - lift release servo
+     * @param beaconPusher - beacon pusher servo
+     * @param colorGreen - color sensor on the green side 0x3A
+     * @param colorYellow - color sensor on the yellow side 0x3C
+     * @param colorBeacon - color sensor for beacons 0x3E
      * @param telemetry
      */
-    public Robot11248(DcMotor frontLeft,DcMotor frontRight,DcMotor backLeft,DcMotor backRight,
-                      DcMotor shooterL,DcMotor shooterR,DcMotor lift, DcMotor conveyor,
-                      Servo liftArm, Servo beaconPusher, Telemetry telemetry) {
+    public Robot11248(DcMotor frontLeft, DcMotor frontRight, DcMotor backLeft, DcMotor backRight,
+                      DcMotor shooterL, DcMotor shooterR, DcMotor lift, DcMotor conveyor,
+                      Servo liftArm, Servo beaconPusher, I2cDevice colorGreen, I2cDevice colorYellow,
+                      I2cDevice colorBeacon, Telemetry telemetry) {
+
         super(frontLeft, frontRight, backLeft, backRight, telemetry);
         this.shooterL = shooterL;
         this.shooterR = shooterR;
@@ -80,6 +105,10 @@ public class Robot11248 extends OmniWheelDriver {
         this.liftArm = liftArm;
         this.conveyor = conveyor;
         this.beaconPusher = beaconPusher;
+
+        this.colorGreen = new MRColorSensorV3(colorGreen, COLOR_SENSOR_GREEN_ADDR);
+        this.colorYellow = new MRColorSensorV3(colorYellow, COLOR_SENSOR_YELLOW_ADDR);
+        this.colorBeacon = new MRColorSensorV3(colorBeacon, COLOR_SENSOR_BEACON_ADDR);
 
         //this.shooterL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //this.shooterR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -183,4 +212,42 @@ public class Robot11248 extends OmniWheelDriver {
     public boolean getShooterOn() {
         return shooterOn;
     }
+
+    //BEACONS
+
+    public void activateColorSensors(){
+        colorGreen.setActiveMode();
+        colorYellow.setActiveMode();
+        colorBeacon.setPassiveMode();
+    }
+
+    public void deactivateColorSensors(){
+        colorGreen.setPassiveMode();
+        colorYellow.setPassiveMode();
+        colorBeacon.setPassiveMode();
+    }
+
+    public int getColorGreen(){
+        return colorGreen.getColorNumber();
+    }
+
+    public int getColorYellow(){
+        return colorYellow.getColorNumber();
+    }
+
+    public int getColorBeacon(){
+        return colorBeacon.getColorNumber();
+    }
+
+    public boolean isBeaconBlue(){
+        int color = colorBeacon.getColorNumber();
+        return (BLUE_LOW_THRESHOLD <= color && color <= BLUE_HIGH_THRESHOLD);
+    }
+
+    public boolean isBeaconRed(){
+        int color = colorBeacon.getColorNumber();
+        return (RED_LOW_THRESHOLD <= color && color <= RED_HIGH_THRESHOLD);
+    }
+
+
 }

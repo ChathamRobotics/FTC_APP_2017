@@ -38,6 +38,7 @@ public class MRColorSensorV2 extends ModernRoboticsI2cColorSensor implements Col
     public MRColorSensorV2(I2cDevice sensor, int address) {
         this(sensor, I2cAddr.create8bit(address));
     }
+
     public MRColorSensorV2(I2cDevice sensor, I2cAddr address) {
         // Create a MR color sensor
         super(sensor.getI2cController(), sensor.getPort());

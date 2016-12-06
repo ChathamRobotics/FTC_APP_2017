@@ -1,21 +1,22 @@
-package org.firstinspires.ftc.team11248;
+package org.firstinspires.ftc.team11248.Teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.chathamrobotics.ftcutils.MRColorSensorV2;
+import org.firstinspires.ftc.team11248.Robot11248;
 
 /**
  * Team 11248 TeleOp for real robot.
  */
 @TeleOp(name = "DrivingFull", group = "General")
-public class DriverFull extends DriverOmni{
+public class DriverFull extends DriverOmni {
 
 
     public Robot11248 robot;
 
-    boolean prevGP1y, prevGP2a, prevGP2x, prevGP2y;
+     private boolean prevGP1y, prevGP2a, prevGP2x, prevGP2y;
 
 
     @Override
@@ -23,13 +24,18 @@ public class DriverFull extends DriverOmni{
         //Initializes all sensors and motors
         DcMotor[] motors = new DcMotor[8];
         Servo[] servos = new Servo[2];
-        MRColorSensorV2[] colors = new MRColorSensorV2[3];
+        I2cDevice[] color = new I2cDevice[3];
+
         for(int i = 0; i < motors.length; i++)
             motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
         for(int i = 0; i < servos.length; i++)
             servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
-        robot = new Robot11248(motors,servos,telemetry);
+        for(int i = 0; i < color.length; i++)
+            color[i] = hardwareMap.i2cDevice.get(Robot11248.COLOR_LIST[i]);
 
+        robot = new Robot11248(motors,servos, color, telemetry);
+
+        robot.init();
     }
 
     @Override
