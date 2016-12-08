@@ -6,22 +6,24 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.robot.Robot;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.team11248.Robot11248;
 
 /**
- * Created by Tony_Air on 12/7/16.
+ * blue autonomous 100 POINTS
  */
 @TeleOp(name = "100ptBLUE")
 public class BLUE_100pt extends LinearOpMode {
 
     Robot11248 robot;
-    int threshold = 2;
     int A_SHOOT_TO_BEACON = 60;
     double rotationRatio = .004 ;
 @Override
     public void runOpMode() throws InterruptedException {
+
+        //STAYS HERE UNTIL INIT BUTTON
 
         //Initializes all sensors and motors
         DcMotor[] motors = new DcMotor[8];
@@ -40,95 +42,63 @@ public class BLUE_100pt extends LinearOpMode {
         robot.init(); //Sets servos to right position.
 
         robot.activateColorSensors();
-        robot.calibrateGyro();
+        robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
 
-        waitForStart();
+        waitForStart(); //STAYS HERE UNTIL PLAY BUTTON
 
         int state = 0;
 
         while (opModeIsActive() && !isStopRequested()) {
-            shootBallsStart();
-            sleep(2000);
+            //BEGIN AUTONOMOUS
+            shootBallsStart(); //MOVES FORWARD AND SHOOT BALLS
+            sleep(2000); //WAITS 2 SECONDS
 
             switch (state) {
-                case 0:
-                    driveWithGyro2(0, 0, A_SHOOT_TO_BEACON);
-                    if (robot.getGyroAngle() >= A_SHOOT_TO_BEACON)
-                        robot.stop();
-                    idle();
-                    break;
-                case 1:
-                    driveWithGyro(1, 0, A_SHOOT_TO_BEACON);
-                    if (robot.hitLine()) {
-                        state++;
-                        robot.stop();
+                case 0: //DOES THIS UNTIL ANGLE GETS TO A_SHOOT_BEACON (60 deg)
+                    robot.driveWithGyro2(0, 0, A_SHOOT_TO_BEACON); //ROTATE TO A_SHOOT_TO_BEACON
+                    if(Robot11248.angleWithinThreshold(robot.getGyroAngle(),A_SHOOT_TO_BEACON)) { //WHEN ANGLE REACHED
+                        state++; //NEXT STATE
+                        robot.stop(); //STOP MOVING
                     }
                     break;
-                case 2:
-                    driveWithGyro(0, 0, 90);
-                    if (robot.getGyroAngle() >= 90) {
-                        state++;
-                        robot.driveold(0, -.5, 0, false);
-                        sleep(1000);
-                        robot.stop();
+                case 1: //DOES THIS UNTIL IT REACHES A LINE
+                    robot.driveold(.25, 0, 0,false); //DRIVE LEFT .25
+                    if(robot.hitLine()) { //WHEN WHITE LINE FOUND
+                        state++; //NEXT STATE
+                        robot.stop(); //STOP MOVING
                     }
                     break;
-                case 3:
+                case 2: //DOES THIS UNTIL ANGLE GETS TO 90
+                    robot.driveWithGyro2(0, 0, 90); //ROTATE TO 90 deg
+                    if(Robot11248.angleWithinThreshold(robot.getGyroAngle(),90)) {
+                        state++; //NEXT STATE
+                        robot.driveold(0, -.5, 0, false); //MOVE BACKWARD -.5
+                        sleep(1000); //WAIT A SECOND
+                        robot.stop(); //STOP MOVING
+                    }
+                    break;
+                case 3: //
                     robot.driveold(.3, 0, 0, false);
-                    if (robot.isBeaconBlue() || robot.isBeaconRed()) {
-                        state++;
-                        robot.stop();
-                        if (robot.isBeaconBlue()) {
-                            robot.moveBeaconOut();
-                        } else if (robot.isBeaconRed()) {
-                            robot.driveold(0, .5, 0, false);
-                            sleep(500);
-                            robot.stop();
-                            robot.moveBeaconOut();
+                    if (robot.isBeaconBlue() || robot.isBeaconRed()) { //IF THE BEACON IS RED OR BLUE
+                        state++; //NEXT STATE
+                        robot.stop(); //STOP MOVING
+                        if (robot.isBeaconBlue()) { //WHEN BEACON IS BLUE
+                            robot.moveBeaconOut(); //PUSH BEACON
+                        }
+                        else { //BEACON IS NOT BLUE (AKA ITS RED)
+                            robot.driveold(0, .5, 0, false); //MOVE UP .5
+                            sleep(500); //WAIT .5 SECONDS
+                            robot.stop(); //STOP MOVING
+                            robot.moveBeaconOut(); //PUSH BEACON
                         }
                     }
-                case 4:
-                    shootBallsStart();
-                    //STOP OP MODE HERE
+                case 4: //STOPS OP MODE
                     robot.stop();
                     idle();
                     break;
-
-
-                //OLD CODE
-//            while(robot.getGyroAngle()<A_SHOOT_TO_BEACON) {
-//                driveWithGyro(0, 0, A_SHOOT_TO_BEACON);
-//            }
-//
-//            while(!robot.hitLine())   //Find Line
-//                driveWithGyro(1,0,A_SHOOT_TO_BEACON);
-//
-//            robot.stop();
-//
-//            while(robot.getGyroAngle()< 90) // flat to wall
-//                driveWithGyro(0,0,90);
-
-
-//           //LEFT AND RI˝HT ADJUSTMENTS TO LINE UP WITH BEACON
-//                robot.driveold(0,-.5, 0, false);
-//                sleep(1000);
-//                robot.stop();
-//
-//
-//                //Beacon Time
-//
-//                while(!robot.isBeaconBlue() && !robot.isBeaconRed()) robot.driveold(.3, 0, 0, false);
-//                robot.stop();
-//
-//                if(robot.isBeaconBlue()) {
-//                    robot.moveBeaconOut();
-//
-//                }else if(robot.isBeaconRed()) {
-//                    robot.driveold(0,.5,0,false);
-//                    sleep(500);
-//                    robot.stop();
-//                    robot.moveBeaconOut();
-//
+                default:
+                    //Nothing (Here for testing specific sections of switch)
+                    break;
             }
         }
    }
@@ -151,46 +121,29 @@ public class BLUE_100pt extends LinearOpMode {
         robot.shooterOff();
     }
 
-    public void driveWithGyro(double x, double y, int targetAngle){
-
-        int currentAngle = robot.getGyroAngle();
-        int net = currentAngle - targetAngle;
-        double rotation = -.25;
-
-        if(net > 180) { // if passes 0
-            if(currentAngle > 180) //counterclockwise past 0
-                net = (360 - currentAngle) + targetAngle;
-
-            else
-                net = (targetAngle - 360) + currentAngle;
-        }
-
-        //rotation = -.25;//net * rotationRatio + .25;
-
-        telemetry.addData("1:", "Heading: " + robot.getGyroAngle());
-        telemetry.addData("2:", "Net: " + net);
-        telemetry.addData("3: ", "Speed: " +rotation);
-        telemetry.addData("4: ",  "Target: " + targetAngle);
-
-        telemetry.update();
-
-        robot.driveold(x,y,rotation,false);
-    }
-
-    public void driveWithGyro2(double x, double y, int targetAngle){
-        int currentAngle = robot.getGyroAngle();
-
-        double rotation = -.25;
-
-        telemetry.addData("1:", "Heading: " + robot.getGyroAngle());
-        telemetry.addData("3: ", "Speed: " +rotation);
-        telemetry.addData("4: ",  "Target: " + targetAngle);
-
-        telemetry.update();
-
-        if(Math.abs(robot.getGyroAngle() - targetAngle) <= .01)
-            robot.driveold(x,y,0,false);
-        else
-            robot.driveold(x,y,rotation,false);
-    }
+//    public void driveWithGyro(double x, double y, int targetAngle){
+//
+//        int currentAngle = robot.getGyroAngle();
+//        int net = currentAngle - targetAngle;
+//        double rotation = -.25;
+//
+//        if(net > 180) { // if passes 0
+//            if(currentAngle > 180) //counterclockwise past 0
+//                net = (360 - currentAngle) + targetAngle;
+//
+//            else
+//                net = (targetAngle - 360) + currentAngle;
+//        }
+//
+//        //rotation = -.25;//net * rotationRatio + .25;
+//
+//        telemetry.addData("1:", "Heading: " + robot.getGyroAngle());
+//        telemetry.addData("2:", "Net: " + net);
+//        telemetry.addData("3: ", "Speed: " +rotation);
+//        telemetry.addData("4: ",  "Target: " + targetAngle);
+//
+//        telemetry.update();
+//
+//        robot.driveold(x,y,rotation,false);
+//    }
 }

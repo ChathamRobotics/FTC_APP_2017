@@ -28,6 +28,10 @@ public class Robot11248 extends OmniWheelDriver {
 //    public static final double MAX_SPEED = .70;
     public static final double SHOOTER_SPEED = 1;
 
+    //GYRO ROTATION
+    private static final double GYRO_ROTATION = -.25;
+    private static final int DEGREE_THRESHOLD = 3;
+
     //Servo constants
     private static final double LIFT_UP = .30;
     private static final double LIFT_DOWN = 1;
@@ -252,5 +256,14 @@ public class Robot11248 extends OmniWheelDriver {
         return (LINE_LOW_THRESHOLD <= color && color <= LINE_HIGH_THRESHOLD);
     }
 
+    public void driveWithGyro2(double x, double y, int targetAngle){
+        if(angleWithinThreshold(getGyroAngle(),targetAngle))
+            driveold(x,y,0,false);
+        else
+            driveold(x,y,GYRO_ROTATION,false);
+    }
 
+    public static boolean angleWithinThreshold(double current, double target) {
+        return Math.abs(current - target) <= DEGREE_THRESHOLD;
+    }
 }
