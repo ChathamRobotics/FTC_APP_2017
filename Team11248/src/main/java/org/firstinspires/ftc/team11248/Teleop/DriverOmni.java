@@ -35,6 +35,7 @@ public class DriverOmni extends OpMode {
                 hardwareMap.dcMotor.get("FrontRight"),
                 hardwareMap.dcMotor.get("BackLeft"),
                 hardwareMap.dcMotor.get("BackRight"),
+                hardwareMap.gyroSensor.get("gyro"),
                 telemetry
         );
     }

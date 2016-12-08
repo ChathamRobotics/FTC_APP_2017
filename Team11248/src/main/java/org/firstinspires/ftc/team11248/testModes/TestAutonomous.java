@@ -25,7 +25,7 @@ public class TestAutonomous extends LinearOpMode {
 
         waitForStart();
 
-        while (opModeIsActive()){
+        while (opModeIsActive() ){
 
             /*
             AUTONOMOUS CODE

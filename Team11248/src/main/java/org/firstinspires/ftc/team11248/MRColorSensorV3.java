@@ -31,6 +31,16 @@ public class MRColorSensorV3 {
 
     public void writeData(int ireg, int bVal){
         colorSynch.write8(ireg, bVal);
+
+          /*
+            Address	Function
+            0x03	Command
+            0x04	Color Number
+            0x05	Red Value
+            0x06	Green Value
+            0x07	Blue Value
+            0x08	White Value
+         */
     }
 
     public void setActiveMode(){ //Senses color

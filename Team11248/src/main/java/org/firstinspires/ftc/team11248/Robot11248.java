@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.team11248;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -35,7 +36,7 @@ public class Robot11248 extends OmniWheelDriver {
     private static final double BEACON_IN = 1;
 
     //Beacon Setup
-    MRColorSensorV3 colorGreen, colorYellow, colorBeacon;
+    MRColorSensorV3 colorYellow, colorBeacon;
 
     // I2C address, registers, and commands
     private final byte COLOR_SENSOR_GREEN_ADDR = 0x3A; //Green
@@ -44,9 +45,10 @@ public class Robot11248 extends OmniWheelDriver {
 
     private final int BLUE_LOW_THRESHOLD = 2;
     private final int BLUE_HIGH_THRESHOLD = 3;
-
     private final int RED_LOW_THRESHOLD = 10;
     private final int RED_HIGH_THRESHOLD = 11;
+    private final int LINE_LOW_THRESHOLD = 15;
+    private final int LINE_HIGH_THRESHOLD = 16;
 
     //Motors, Sensors, Telemetry
     private DcMotor shooterL, shooterR, lift, conveyor;
@@ -62,18 +64,21 @@ public class Robot11248 extends OmniWheelDriver {
             {"servo1", "servo2"};
 
     public static final String[] COLOR_LIST =
-            {"color1", "color2", "color3"};
+            {"color1", "color2"};
+
+    public static final String GYRO = "gyro";
 
     /**
      * Initializes using a list of motors.
      * @param motors
      * @param servos
      * @param color
+     * @param gyro
      * @param telemetry
      */
-    public Robot11248(DcMotor[] motors, Servo[] servos, I2cDevice[] color, Telemetry telemetry) {
+    public Robot11248(DcMotor[] motors, Servo[] servos, I2cDevice[] color, GyroSensor gyro, Telemetry telemetry) {
         this(motors[0], motors[1], motors[2], motors[3], motors[4], motors[5], motors[6],
-                motors[7], servos[0], servos[1], color[0], color[1], color[2], telemetry);
+                motors[7], servos[0], servos[1], color[0], color[1], gyro, telemetry);
     }
 
     /**
@@ -88,17 +93,17 @@ public class Robot11248 extends OmniWheelDriver {
      * @param lift - lift motor
      * @param liftArm - lift release servo
      * @param beaconPusher - beacon pusher servo
-     * @param colorGreen - color sensor on the green side 0x3A
      * @param colorYellow - color sensor on the yellow side 0x3C
      * @param colorBeacon - color sensor for beacons 0x3E
+     * @param gyro - gyroscopic sensor
      * @param telemetry
      */
     public Robot11248(DcMotor frontLeft, DcMotor frontRight, DcMotor backLeft, DcMotor backRight,
                       DcMotor shooterL, DcMotor shooterR, DcMotor lift, DcMotor conveyor,
-                      Servo liftArm, Servo beaconPusher, I2cDevice colorGreen, I2cDevice colorYellow,
-                      I2cDevice colorBeacon, Telemetry telemetry) {
+                      Servo liftArm, Servo beaconPusher, I2cDevice colorYellow,
+                      I2cDevice colorBeacon, GyroSensor gyro, Telemetry telemetry) {
 
-        super(frontLeft, frontRight, backLeft, backRight, telemetry);
+        super(frontLeft, frontRight, backLeft, backRight, gyro, telemetry);
         this.shooterL = shooterL;
         this.shooterR = shooterR;
         this.lift = lift;
@@ -106,7 +111,6 @@ public class Robot11248 extends OmniWheelDriver {
         this.conveyor = conveyor;
         this.beaconPusher = beaconPusher;
 
-        this.colorGreen = new MRColorSensorV3(colorGreen, COLOR_SENSOR_GREEN_ADDR);
         this.colorYellow = new MRColorSensorV3(colorYellow, COLOR_SENSOR_YELLOW_ADDR);
         this.colorBeacon = new MRColorSensorV3(colorBeacon, COLOR_SENSOR_BEACON_ADDR);
 
@@ -216,19 +220,13 @@ public class Robot11248 extends OmniWheelDriver {
     //BEACONS
 
     public void activateColorSensors(){
-        colorGreen.setActiveMode();
         colorYellow.setActiveMode();
         colorBeacon.setPassiveMode();
     }
 
     public void deactivateColorSensors(){
-        colorGreen.setPassiveMode();
         colorYellow.setPassiveMode();
         colorBeacon.setPassiveMode();
-    }
-
-    public int getColorGreen(){
-        return colorGreen.getColorNumber();
     }
 
     public int getColorYellow(){
@@ -247,6 +245,11 @@ public class Robot11248 extends OmniWheelDriver {
     public boolean isBeaconRed(){
         int color = colorBeacon.getColorNumber();
         return (RED_LOW_THRESHOLD <= color && color <= RED_HIGH_THRESHOLD);
+    }
+
+    public boolean hitLine(){
+        int color = colorYellow.getColorNumber();
+        return (LINE_LOW_THRESHOLD <= color && color <= LINE_HIGH_THRESHOLD);
     }
 
 

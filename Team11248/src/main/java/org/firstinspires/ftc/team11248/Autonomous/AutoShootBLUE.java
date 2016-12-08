@@ -3,6 +3,7 @@ package org.firstinspires.ftc.team11248.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -32,7 +33,8 @@ public class AutoShootBLUE extends LinearOpMode{
         //Initializes all sensors and motors
         DcMotor[] motors = new DcMotor[8];
         Servo[] servos = new Servo[2];
-        I2cDevice[] color = new I2cDevice[3];
+        I2cDevice[] color = new I2cDevice[2];
+        GyroSensor gyro = hardwareMap.gyroSensor.get("gyro");
 
         for(int i = 0; i < motors.length; i++)
             motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
@@ -41,9 +43,8 @@ public class AutoShootBLUE extends LinearOpMode{
         for(int i = 0; i < color.length; i++)
             color[i] = hardwareMap.i2cDevice.get(Robot11248.COLOR_LIST[i]);
 
-        robot = new Robot11248(motors,servos, color, telemetry);
-
-        robot.init();
+        robot = new Robot11248(motors,servos, color, gyro, telemetry);
+        robot.init(); //Sets servos to right position.
 
         waitForStart();
 
