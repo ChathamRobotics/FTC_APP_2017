@@ -22,6 +22,7 @@ public class TestGyroBeacon extends OpMode {
 
 
     int threshold = 2;
+    boolean done;
 
 
     @Override
@@ -50,10 +51,10 @@ public class TestGyroBeacon extends OpMode {
     public void loop() {
 
 
-        while(!robot.isBeaconBlue()) {
-           driveWithGyro(.5,0,.5,0);
-
-        }
+       // while(!robot.isBeaconBlue()) {
+        if(!done)
+           driveWithGyro2(0,0,60);
+        //}
 
 
 
@@ -75,5 +76,25 @@ public class TestGyroBeacon extends OpMode {
 
 
         robot.driveold(x,y,rotation,false);
+    }
+
+    public void driveWithGyro2(double x, double y, int targetAngle){
+        int currentAngle = robot.getGyroAngle();
+
+        double rotation = -.3;
+
+        telemetry.addData("1:", "Heading: " + robot.getGyroAngle());
+        telemetry.addData("3: ", "Speed: " +rotation);
+        telemetry.addData("4: ",  "Target: " + targetAngle);
+
+        telemetry.update();
+
+        if(Math.abs(robot.getGyroAngle() - targetAngle) <= 3) {
+            robot.driveold(x, y, 0, false);
+            done = true;
+        }
+        else {
+            robot.driveold(x, y, rotation, false);
+        }
     }
 }

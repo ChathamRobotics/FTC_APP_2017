@@ -195,12 +195,12 @@ public class Robot11248 extends OmniWheelDriver {
     }
 
     public void conveyorOn(){
-        conveyor.setPower(-1);
+        conveyor.setPower(1);
         conveyorOn = true;
     }
 
     public void conveyorReverse(){
-        conveyor.setPower(1);
+        conveyor.setPower(-1);
         conveyorOn = true;
     }
 
