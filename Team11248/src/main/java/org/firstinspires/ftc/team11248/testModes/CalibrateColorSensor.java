@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.team11248;
+package org.firstinspires.ftc.team11248.testModes;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -22,7 +22,8 @@ import java.util.concurrent.locks.Lock;
  * calibration. You can also use the X/Y buttons to turn the sensor's LED
  * on and off, respectively.
  */
-@TeleOp(name = "pkklkjk")
+@TeleOp(name = "ColorCalibrate")
+@Disabled
 public class CalibrateColorSensor extends OpMode implements I2cPortReadyCallback {
 
     // IMPORTANT!
@@ -34,7 +35,8 @@ public class CalibrateColorSensor extends OpMode implements I2cPortReadyCallback
     I2cController controller;
 
     // Variable to track the read/write mode of the sensor
-    I2CMode controller_mode = I2CMode.READ;
+    CalibrateColorSensor.I2CMode controller_mode = CalibrateColorSensor.I2CMode.READ;
+
 
     // Variables to prevent repeat calibration
     boolean isWorking = false;
@@ -42,6 +44,7 @@ public class CalibrateColorSensor extends OpMode implements I2cPortReadyCallback
 
     // I2C address, registers, and commands
     public byte COLOR_SENSOR_ADDR = 0x3C;
+    public byte COLOR_SENSOR_ADDR2 = 0x3D;
     public byte COMMAND_CODE_BLACK = 0x42;
     public byte COMMAND_CODE_WHITE = 0x43;
     public byte COMMAND_CODE_LED_ON = 0x00;
@@ -203,7 +206,7 @@ public class CalibrateColorSensor extends OpMode implements I2cPortReadyCallback
 
             // During reset, we move back to read mode.
             case RESET:
-                controller.enableI2cReadMode(port, I2cAddr.create8bit(COLOR_SENSOR_ADDR), 0x03, 6);
+                controller.enableI2cReadMode(port, I2cAddr.create8bit(COLOR_SENSOR_ADDR2), 0x03, 6);
                 controller.writeI2cCacheToController(port);
                 controller_mode = I2CMode.READ;
                 break;

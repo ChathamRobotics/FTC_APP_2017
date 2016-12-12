@@ -1,10 +1,13 @@
-package org.firstinspires.ftc.team11248;
+package org.firstinspires.ftc.team11248.Teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+
+import org.firstinspires.ftc.team11248.OmniWheelDriver;
+import org.firstinspires.ftc.team11248.Robot11248;
 
 import java.util.Map;
 
@@ -32,6 +35,7 @@ public class DriverOmni extends OpMode {
                 hardwareMap.dcMotor.get("FrontRight"),
                 hardwareMap.dcMotor.get("BackLeft"),
                 hardwareMap.dcMotor.get("BackRight"),
+                hardwareMap.gyroSensor.get("gyro"),
                 telemetry
         );
     }

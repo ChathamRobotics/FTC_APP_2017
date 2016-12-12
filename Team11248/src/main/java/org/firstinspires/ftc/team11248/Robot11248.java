@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.team11248;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.chathamrobotics.ftcutils.MRColorSensorV2;
@@ -13,6 +15,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Robot11248 extends OmniWheelDriver {
 
+    //Debouncing Variables
+
+
     private boolean shooterOn, conveyorOn;
 
     //Angles
@@ -23,15 +28,36 @@ public class Robot11248 extends OmniWheelDriver {
 //    public static final double MAX_SPEED = .70;
     public static final double SHOOTER_SPEED = 1;
 
+    //GYRO ROTATION
+    private static final double GYRO_ROTATION = -.25;
+    private static final int DEGREE_THRESHOLD = 3;
+
     //Servo constants
-    private static final double LIFT_UP = .35;
+    private static final double LIFT_UP = .30;
     private static final double LIFT_DOWN = 1;
+
+    private static final double BEACON_OUT = 0;
+    private static final double BEACON_IN = 1;
+
+    //Beacon Setup
+    MRColorSensorV3 colorYellow, colorBeacon;
+
+    // I2C address, registers, and commands
+    private final byte COLOR_SENSOR_GREEN_ADDR = 0x3A; //Green
+    private final byte COLOR_SENSOR_YELLOW_ADDR = 0x3C; //Yellow
+    private final byte COLOR_SENSOR_BEACON_ADDR = 0x3E; //Beacon
+
+    private final int BLUE_LOW_THRESHOLD = 2;
+    private final int BLUE_HIGH_THRESHOLD = 3;
+    private final int RED_LOW_THRESHOLD = 10;
+    private final int RED_HIGH_THRESHOLD = 11;
+    private final int LINE_LOW_THRESHOLD = 15;
+    private final int LINE_HIGH_THRESHOLD = 16;
 
     //Motors, Sensors, Telemetry
     private DcMotor shooterL, shooterR, lift, conveyor;
-    private Servo liftArm;
+    private Servo liftArm, beaconPusher;
     private boolean isLiftArmUp = false;
-    private MRColorSensorV2 color1, color2, color3;
 
     //hardware map
     public static final String[] MOTOR_LIST =
@@ -39,21 +65,24 @@ public class Robot11248 extends OmniWheelDriver {
                     "ShooterL","ShooterR","Lift","Conveyor"};
 
     public static final String[] SERVO_LIST =
-            {"servo1"};
+            {"servo1", "servo2"};
 
     public static final String[] COLOR_LIST =
-            {"color1","color2","color3"};
+            {"color1", "color2"};
+
+    public static final String GYRO = "gyro";
 
     /**
      * Initializes using a list of motors.
      * @param motors
      * @param servos
+     * @param color
+     * @param gyro
      * @param telemetry
      */
-    public Robot11248(DcMotor[] motors, Servo[] servos,
-                      MRColorSensorV2[] colors, Telemetry telemetry) {
-        this(motors[0],motors[1],motors[2],motors[3],motors[4],motors[5],
-                motors[6],motors[7],servos[0],colors[0],colors[1],colors[2],telemetry);
+    public Robot11248(DcMotor[] motors, Servo[] servos, I2cDevice[] color, GyroSensor gyro, Telemetry telemetry) {
+        this(motors[0], motors[1], motors[2], motors[3], motors[4], motors[5], motors[6],
+                motors[7], servos[0], servos[1], color[0], color[1], gyro, telemetry);
     }
 
     /**
@@ -67,22 +96,28 @@ public class Robot11248 extends OmniWheelDriver {
      * @param conveyor - conveyor motor
      * @param lift - lift motor
      * @param liftArm - lift release servo
+     * @param beaconPusher - beacon pusher servo
+     * @param colorYellow - color sensor on the yellow side 0x3C
+     * @param colorBeacon - color sensor for beacons 0x3E
+     * @param gyro - gyroscopic sensor
      * @param telemetry
      */
-    public Robot11248(DcMotor frontLeft,DcMotor frontRight,DcMotor backLeft,DcMotor backRight,
-                      DcMotor shooterL,DcMotor shooterR,DcMotor lift, DcMotor conveyor,
-                      Servo liftArm, MRColorSensorV2 color1, MRColorSensorV2 color2,
-                      MRColorSensorV2 color3, Telemetry telemetry) {
-        super(frontLeft, frontRight, backLeft, backRight, telemetry);
+    public Robot11248(DcMotor frontLeft, DcMotor frontRight, DcMotor backLeft, DcMotor backRight,
+                      DcMotor shooterL, DcMotor shooterR, DcMotor lift, DcMotor conveyor,
+                      Servo liftArm, Servo beaconPusher, I2cDevice colorYellow,
+                      I2cDevice colorBeacon, GyroSensor gyro, Telemetry telemetry) {
+
+        super(frontLeft, frontRight, backLeft, backRight, gyro, telemetry);
         this.shooterL = shooterL;
         this.shooterR = shooterR;
         this.lift = lift;
         this.liftArm = liftArm;
         this.conveyor = conveyor;
+        this.beaconPusher = beaconPusher;
 
-        this.color1 = color1;
-        this.color2 = color2;
-        this.color3 = color3;
+        this.colorYellow = new MRColorSensorV3(colorYellow, COLOR_SENSOR_YELLOW_ADDR);
+        this.colorBeacon = new MRColorSensorV3(colorBeacon, COLOR_SENSOR_BEACON_ADDR);
+
         //this.shooterL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //this.shooterR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
@@ -92,6 +127,8 @@ public class Robot11248 extends OmniWheelDriver {
      */
     public void init() {
         moveLiftArmUp();
+        moveBeaconIn();
+
     }
 
     public void moveLiftArmUp() {
@@ -109,6 +146,14 @@ public class Robot11248 extends OmniWheelDriver {
             moveLiftArmDown();
         else
             moveLiftArmUp();
+    }
+
+    public void moveBeaconOut(){
+        beaconPusher.setPosition(BEACON_OUT);
+    }
+
+    public void moveBeaconIn(){
+        beaconPusher.setPosition(BEACON_IN);
     }
 
     public void setShooter(double SHOOTER_SPEED) {
@@ -154,12 +199,12 @@ public class Robot11248 extends OmniWheelDriver {
     }
 
     public void conveyorOn(){
-        conveyor.setPower(-1);
+        conveyor.setPower(1);
         conveyorOn = true;
     }
 
     public void conveyorReverse(){
-        conveyor.setPower(1);
+        conveyor.setPower(-1);
         conveyorOn = true;
     }
 
@@ -176,11 +221,49 @@ public class Robot11248 extends OmniWheelDriver {
         return shooterOn;
     }
 
-    public MRColorSensorV2 getColor(int n) {
-        switch (n) {
-            case 2: return color2;
-            case 1: return color1;
-            default: return color3;
-        }
+    //BEACONS
+
+    public void activateColorSensors(){
+        colorYellow.setActiveMode();
+        colorBeacon.setPassiveMode();
+    }
+
+    public void deactivateColorSensors(){
+        colorYellow.setPassiveMode();
+        colorBeacon.setPassiveMode();
+    }
+
+    public int getColorYellow(){
+        return colorYellow.getColorNumber();
+    }
+
+    public int getColorBeacon(){
+        return colorBeacon.getColorNumber();
+    }
+
+    public boolean isBeaconBlue(){
+        int color = colorBeacon.getColorNumber();
+        return (BLUE_LOW_THRESHOLD <= color && color <= BLUE_HIGH_THRESHOLD);
+    }
+
+    public boolean isBeaconRed(){
+        int color = colorBeacon.getColorNumber();
+        return (RED_LOW_THRESHOLD <= color && color <= RED_HIGH_THRESHOLD);
+    }
+
+    public boolean hitLine(){
+        int color = colorYellow.getColorNumber();
+        return (LINE_LOW_THRESHOLD <= color && color <= LINE_HIGH_THRESHOLD);
+    }
+
+    public void driveWithGyro2(double x, double y, int targetAngle){
+        if(angleWithinThreshold(getGyroAngle(),targetAngle))
+            driveold(x,y,0,false);
+        else
+            driveold(x,y,GYRO_ROTATION,false);
+    }
+
+    public static boolean angleWithinThreshold(double current, double target) {
+        return Math.abs(current - target) <= DEGREE_THRESHOLD;
     }
 }

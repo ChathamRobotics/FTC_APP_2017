@@ -1,17 +1,20 @@
-package org.firstinspires.ftc.team11248;
+package org.firstinspires.ftc.team11248.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.chathamrobotics.ftcutils.MRColorSensorV2;
+import org.firstinspires.ftc.team11248.Robot11248;
 
 /**
  * Team 11248 Shooter Autonomous
  */
-@Autonomous(name = "AutoShootBLUE")
-public class AutoShootBLUE extends LinearOpMode{
+@Autonomous(name = "AutoShootRED")
+public class AutoShootRED extends LinearOpMode{
 
     /**
      * The robot being controlled.
@@ -26,24 +29,27 @@ public class AutoShootBLUE extends LinearOpMode{
 
     @Override
     public void runOpMode() throws InterruptedException {
-
         //Initializes all sensors and motors
         DcMotor[] motors = new DcMotor[8];
-        Servo[] servos = new Servo[1];
-        MRColorSensorV2[] colors = new MRColorSensorV2[3];
+        Servo[] servos = new Servo[2];
+        I2cDevice[] color = new I2cDevice[2];
+        GyroSensor gyro = hardwareMap.gyroSensor.get("gyro");
+
         for(int i = 0; i < motors.length; i++)
             motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
         for(int i = 0; i < servos.length; i++)
             servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
-        robot = new Robot11248(motors,servos,colors,telemetry);
+        for(int i = 0; i < color.length; i++)
+            color[i] = hardwareMap.i2cDevice.get(Robot11248.COLOR_LIST[i]);
 
-        robot.moveLiftArmUp();
+        robot = new Robot11248(motors,servos, color, gyro, telemetry);
+        robot.init(); //Sets servos to right position.
 
         waitForStart();
 
         while (opModeIsActive()) {
 
-           sleep(10000);
+            sleep(10000);
 
             //drive(1,.5);
             robot.driveold(0,.8,0,false);

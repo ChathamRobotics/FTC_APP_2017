@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.team11248;
+package org.firstinspires.ftc.team11248.testModes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 /**
  * Created by Tony_Air on 10/6/16.
  */
+@Disabled
 public class Beacon extends LinearOpMode{
 
     DcMotor FrontLeft;

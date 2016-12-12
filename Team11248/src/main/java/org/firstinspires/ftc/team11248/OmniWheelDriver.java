@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.team11248;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -16,7 +17,7 @@ public class OmniWheelDriver {
     public static final double BACK_OFFSET = Math.PI;
     public static final double RIGHT_OFFSET = 3* Math.PI / 2;
 
-    public static final double SLOW_SPEED = .1;
+    public static final double SLOW_SPEED = .25;
 
     // Stateful
     private Telemetry telemetry;
@@ -24,6 +25,8 @@ public class OmniWheelDriver {
     private DcMotor frontRight;
     private DcMotor backLeft;
     private DcMotor backRight;
+
+    private GyroSensor gyro;
 
 
     public static double MAX_TURN = .20;
@@ -52,6 +55,7 @@ public class OmniWheelDriver {
                 hardwareMap.dcMotor.get("FrontRight"),
                 hardwareMap.dcMotor.get("BackLeft"),
                 hardwareMap.dcMotor.get("BackRight"),
+                hardwareMap.gyroSensor.get("gyro"),
                 telemetry
         );
     }
@@ -65,11 +69,12 @@ public class OmniWheelDriver {
      * @param {Telemetry} telemetry
      */
     public OmniWheelDriver(DcMotor frontLeft, DcMotor frontRight, DcMotor backLeft,
-                           DcMotor backRight, Telemetry telemetry) {
+                           DcMotor backRight, GyroSensor gyro, Telemetry telemetry) {
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
         this.backLeft = backLeft;
         this.backRight = backRight;
+        this.gyro = gyro;
         this.telemetry = telemetry;
     }
 
@@ -143,6 +148,13 @@ public class OmniWheelDriver {
         }
     }
 
+    public void stop(){
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+    }
+
     /*
      * TODO: 11/7/2016 write this
      */
@@ -205,6 +217,59 @@ public class OmniWheelDriver {
             backRight.setPower(-BR); //+
         }
     }
+
+
+
+    public void moveToAngle(double speed, int angle){
+
+        //int currentHeading = gyro.getHeading();
+
+        while(gyro.getHeading() != angle) {
+
+            if (angle > gyro.getHeading()){
+                speed *= -1;
+            }
+            frontLeft.setPower(speed); // -rot fl br y
+            frontRight.setPower(speed); // -
+            backLeft.setPower(speed); // +
+            backRight.setPower(speed);
+        }
+
+        frontLeft.setPower(0); // -rot fl br y
+        frontRight.setPower(0); // -
+        backLeft.setPower(0); // +
+        backRight.setPower(0);
+
+    }
+
+    public int getGyroAngle(){
+        return gyro.getHeading();
+    }
+
+    public void calibrateGyro(){
+        gyro.calibrate();
+        while(gyro.isCalibrating());
+    }
+
+    public void driveWithGyro(double x, double y, double rotationSpeed){
+
+        int startAngle = getGyroAngle();
+//
+//        long start = System.currentTimeMillis();
+//        long end = start + time; // 60 seconds * 1000 ms/sec
+//
+//        while (System.currentTimeMillis() < end) {
+
+            if (startAngle != getGyroAngle())
+                moveToAngle(rotationSpeed, startAngle);
+
+            else driveold(x, y, 0, false);
+
+        //}
+
+    }
+
+
 
     public void setOffsetAngle(double angle) {
         offsetAngle = angle;
