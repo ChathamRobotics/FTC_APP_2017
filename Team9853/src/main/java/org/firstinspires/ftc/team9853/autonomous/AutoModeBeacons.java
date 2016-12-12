@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.team9853;
+package org.firstinspires.ftc.team9853.autonomous;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 

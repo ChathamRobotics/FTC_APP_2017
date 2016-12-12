@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.team9853;
+package org.firstinspires.ftc.team9853.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -14,7 +14,7 @@ import org.opencv.core.Size;
  * Created by storm on 11/5/2016.
  */
 
-@TeleOp(name = "VisionTest", group = "Test")
+@TeleOp(name = "Test: Vision", group = "Test")
 
 @Disabled
 

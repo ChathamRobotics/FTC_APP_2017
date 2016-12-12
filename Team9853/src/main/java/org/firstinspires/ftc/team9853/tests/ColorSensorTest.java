@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.team9853;
+package org.firstinspires.ftc.team9853.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -14,7 +14,7 @@ import java.util.Map;
  * Created by storm on 12/5/2016.
  */
 
-@TeleOp(name = "ColorSensorTest", group = "Test")
+@TeleOp(name = "Test: ColorSensor", group = "Test")
 
 @Disabled
 
