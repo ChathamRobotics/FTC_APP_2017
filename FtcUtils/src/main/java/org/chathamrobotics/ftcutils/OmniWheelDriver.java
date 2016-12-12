@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  * Driving with omni wheels
  */
 public class OmniWheelDriver {
-    // Constants
+//    CONSTANTS     //
     public static final double OMNI_WHEEL_ANGLE_CORRECTION = Math.PI/4;
     public static final double FRONT_OFFSET = 0;
     public static final double LEFT_OFFSET = Math.PI/2;
@@ -20,7 +20,7 @@ public class OmniWheelDriver {
 
     public static final double SLOW_SPEED = .1;
 
-    // Stateful
+//    STATEFUl      //
     private Telemetry telemetry;
     private DcMotor frontLeft;
     private DcMotor frontRight;
@@ -28,6 +28,7 @@ public class OmniWheelDriver {
     private DcMotor backRight;
 
 
+    // TODO: 12/11/2016 oz add some comments about this stuff. Also u might want to make is slow public for simplicities sake
     public static double MAX_TURN = .20;
     public static double MAX_SPEED = .80;
     private boolean isSlow = false;
@@ -75,6 +76,10 @@ public class OmniWheelDriver {
         this.telemetry = telemetry;
     }
 
+    /*
+     * Legacy version of the driving method
+     *
+     */
     public void driveold(double x, double y, double rotate, boolean smooth){
         double FL, FR, BL, BR, angle, r;
         //## CALCULATE VALUES ##
@@ -176,8 +181,28 @@ public class OmniWheelDriver {
             angle = (3 * Math.PI) / 2;
         }
 
-//        move(Math.atan2(y, x), rotation, modifier);
         move(angle, rotation, modifier);
+    }
+
+    /*
+     * returns the value for isSlow
+     */
+    public boolean getIsSlow() {
+        return isSlow;
+    }
+
+    /*
+     * Sets the value for isSlow
+     */
+    public void setIsSlow(boolean isSlow) {
+        this.isSlow = isSlow;
+    }
+
+    /*
+     * Toggle isSlow
+     */
+    public void switchSlow() {
+        isSlow = !isSlow;
     }
 
     /*
@@ -185,31 +210,6 @@ public class OmniWheelDriver {
      * @param {double} angle
      * @param {double} rotation
      * @param {double} modifier
-=======
-        //Using the quadratic function on the magnitude
-        // will smooth out the slow values but still give full range
-        if(smooth)
-            magnitude = magnitude*magnitude;
-        move(angle, rotation, magnitude);
-        //TODO: TRY THIS
-        //move(Math.atan2(y, x), rotation, magnitude);
-    }
-
-    public boolean getIsSlow() {
-        return isSlow;
-    }
-
-    public void setIsSlow(boolean isSlow) {
-        this.isSlow = isSlow;
-    }
-
-    public void switchSlow() {
-        isSlow = !isSlow;
-    }
-
-    /*
-     * Controls the wheel motors based on angle, rotation, and magnitude
->>>>>>> b46745c2dbfdff26d0efa057ca47a14cb09e9ded
      */
     public void move(double angle, double rotation, double modifier) {
         if(!silent) {
@@ -243,10 +243,18 @@ public class OmniWheelDriver {
         return Range.clip(power, -1, 1);
     }
 
+    /*
+     * Sets the offset angle
+     * @param angle     the angle to offset by
+     */
     public void setOffsetAngle(double angle) {
         offsetAngle = angle;
     }
 
+    /*
+     * Set the telemetry to silent or not
+     * @param telemetry     whether or not to silence telemetry
+     */
     public void setTelemetry(boolean telemetry) {
         silent = telemetry;
     }
