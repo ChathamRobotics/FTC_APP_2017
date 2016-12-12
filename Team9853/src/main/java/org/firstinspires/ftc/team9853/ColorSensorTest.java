@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.team9853;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 
 import org.chathamrobotics.ftcutils.MRColorSensorV2;
@@ -12,8 +14,12 @@ import java.util.Map;
  * Created by storm on 12/5/2016.
  */
 
+@TeleOp(name = "ColorSensorTest", group = "Test")
+
+@Disabled
+
 public class ColorSensorTest extends TeleOpMode {
-    public HashMap<String, MRColorSensorV2> sensors;
+    private HashMap<String, MRColorSensorV2> sensors;
 
     public ColorSensorTest() {
         int address = 0x3c;

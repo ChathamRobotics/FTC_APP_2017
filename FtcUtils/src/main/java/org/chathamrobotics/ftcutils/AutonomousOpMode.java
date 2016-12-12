@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * basic autonomous
  */
-public abstract class AutonomousOpMode extends LinearOpMode {
+public abstract class  AutonomousOpMode extends LinearOpMode {
     // State
     public OmniWheelDriver driver;
 
@@ -77,6 +77,15 @@ public abstract class AutonomousOpMode extends LinearOpMode {
      */
     public void debug() {
         OpModeTools.debug(this);
+    }
+
+    /*
+     * Will pause the OpMode for the give time
+     */
+    public void waitFor(long time) throws StoppedException{
+        for(long endTime = System.currentTimeMillis() + time; System.currentTimeMillis() < endTime;){
+            statusCheck();
+        }
     }
 
     /*

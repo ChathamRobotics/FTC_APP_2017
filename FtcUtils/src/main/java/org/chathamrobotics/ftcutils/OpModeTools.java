@@ -22,8 +22,10 @@ public final class OpModeTools {
     public static void debug(OpMode opMode, boolean update) {
         // For each motor
         for (Map.Entry<String, DcMotor> entry : opMode.hardwareMap.dcMotor.entrySet()) {
-            opMode.telemetry.addData("Motor Power", entry.getKey() + "="
-                    + entry.getValue().getController().getMotorPower(entry.getValue().getPortNumber()));
+
+            if(entry.getValue().isBusy())
+
+            opMode.telemetry.addData("Motor" + entry.getKey() + "Power", entry.getValue().getController().getMotorPower(entry.getValue().getPortNumber()));
         }
 
         // Servos

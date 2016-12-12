@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.team9853;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+
 import org.chathamrobotics.ftcutils.AutonomousOpMode;
 import org.chathamrobotics.ftcutils.AutonomousVisionOpMode;
 import org.chathamrobotics.ftcutils.MRColorSensorV2;
@@ -11,9 +13,13 @@ import static org.lasarobotics.vision.opmode.VisionOpMode.beacon;
  * beacon pressing autonomous
  */
 
-public class AutoModeBeacons extends AutonomousVisionOpMode {
+public class AutoModeBeacons extends AutonomousOpMode {
     // State
     private MRColorSensorV2 lineSensor;
+    private DcMotor shooter, belt;
+
+    long shootTime = 1000;
+    long reloadTime = 1000;
 
     /*
      * Setup OpMode
@@ -30,6 +36,9 @@ public class AutoModeBeacons extends AutonomousVisionOpMode {
     public void initRobot() {
         super.initRobot();
 
+        belt = hardwareMap.dcMotor.get("Belt");
+        shooter = hardwareMap.dcMotor.get("Shooter");
+
         lineSensor = new MRColorSensorV2(hardwareMap.i2cDevice.get("LineSensor"), MRColorSensorV2.DEFAULT_I2C_ADDRESS);
         lineSensor.enableLed(true);
     }
@@ -38,18 +47,25 @@ public class AutoModeBeacons extends AutonomousVisionOpMode {
      * called on start
      */
     public void runRobot() throws StoppedException, InterruptedException {
+        for(long endTime = System.currentTimeMillis() + shootTime; System.currentTimeMillis() < endTime;) {
+            statusCheck();
+            shooter.setPower(-.7);
+        }
+
+        for(long endTime = System.currentTimeMillis() + reloadTime; System.currentTimeMillis() < endTime;) {
+            statusCheck();
+            belt.setPower(.7);
+        }
+
+        for(long endTime = System.currentTimeMillis() + shootTime; System.currentTimeMillis() < endTime;) {
+            statusCheck();
+            shooter.setPower(-.7);
+        }
+
         // Drive to beacon
         while (! lineSensor.isWhite()) {
             statusCheck();
             driver.drive(isRedTeam ? -5/12d : 5/12d, 6/12d, 0, .5, false);
-        }
-
-        // drive forward until the beacon is in view
-        while (beacon.getAnalysis().getConfidence() < 80) {
-            statusCheck();
-            driver.move(Math.PI/2, 0, .3);
-
-            waitOneFullHardwareCycle();
         }
     }
 }

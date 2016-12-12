@@ -1,16 +1,26 @@
 package org.firstinspires.ftc.team9853;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+
 import org.chathamrobotics.ftcutils.AutonomousOpMode;
+import org.chathamrobotics.ftcutils.OmniWheelDriver;
 import org.chathamrobotics.ftcutils.StoppedException;
 
 
 /**
- * backup autonomous
+ * charger autonomous - hits cap ball and shoots
  */
 public class AutoModeCharge extends AutonomousOpMode {
-    static final long waitTime = 10000;
-    static final long driveTime = 3000;
+//    CONSTANTS     //
+    private static final long waitTime = 10000;
+    private static final long driveTime = 2500;
+    private static final long shootTime = 500;
+    private static final long reloadTime = 2500;
 
+//    HARDWARE      //
+    private DcMotor sweeper, belt, shooter;
+
+//    CONSTRUCTORS  //
     /*
      * Setup OpMode
      * @param {boolean} isRedTeam   Whether the current team is red
@@ -19,19 +29,61 @@ public class AutoModeCharge extends AutonomousOpMode {
         this.isRedTeam = isRedTeam;
     }
 
-    /*
+//    METHODS       //
+    /**
+     * initializes the robot
+     */
+    @Override
+    public void initRobot() {
+        super.initRobot();
+
+        sweeper = hardwareMap.dcMotor.get("Sweeper");
+        belt = hardwareMap.dcMotor.get("Belt");
+        shooter = hardwareMap.dcMotor.get("Shooter");
+    }
+
+    /**
      * called on start
      */
     public void runRobot() throws StoppedException {
-        for(long endTime = System.currentTimeMillis() + waitTime; System.currentTimeMillis() < endTime;) {
-            statusCheck();
-            // Do nothing
-        }
+        driver.offsetAngle = OmniWheelDriver.BACK_OFFSET;
 
-        for(long endTime = System.currentTimeMillis() + driveTime; System.currentTimeMillis() < endTime;) {
+        // Waits a little bit before starting autonomous
+        waitFor(waitTime);
+
+        // Drives to the shooting point
+        for(long endTime = System.currentTimeMillis() + (3 * driveTime / 4); System.currentTimeMillis() < endTime;) {
             statusCheck();
-            driver.move(Math.toRadians(isRedTeam ? 135 : 45), 0, .7);
-            driver.drive(isRedTeam ? -1 : 1, 1, .7, false);
+            driver.move(Math.toRadians(90), 0, .7);
         }
+        driver.move(0, 0, 0);
+
+        // Shoots twice
+        for(long endTime = System.currentTimeMillis() + shootTime; System.currentTimeMillis() < endTime;) {
+            statusCheck();
+            shooter.setPower(-.7);
+        }
+        shooter.setPower(0);
+
+        for(long endTime = System.currentTimeMillis() + reloadTime; System.currentTimeMillis() < endTime;) {
+            statusCheck();
+            belt.setPower(1);
+            sweeper.setPower(11);
+        }
+        belt.setPower(0);
+        sweeper.setPower(0);
+
+        for(long endTime = System.currentTimeMillis() + shootTime; System.currentTimeMillis() < endTime;) {
+            statusCheck();
+            shooter.setPower(-.7);
+        }
+        shooter.setPower(0);
+
+        // Drives to center
+        for(long endTime = System.currentTimeMillis() + (driveTime / 4); System.currentTimeMillis() < endTime;) {
+            statusCheck();
+            driver.move(Math.toRadians(90), 0, .7);
+        }
+        driver.move(0, 0, 0);
     }
 }

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.team9853;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -13,6 +14,8 @@ import java.util.Map;
  */
 
 @TeleOp(name = "ServoTest", group = "Test")
+
+@Disabled
 
 public class ServoTest extends TeleOpMode {
     public Servo[] servos;
@@ -30,6 +33,19 @@ public class ServoTest extends TeleOpMode {
                 Servo servo = entry.getValue();
 
                 servo.setPosition(Range.clip(servo.getPosition() + .1, 0, 1));
+                telemetry.addData(entry.getKey(), servo.getPosition());
+            }
+        }
+
+        if(gamepad1.b) {
+            for (long endtime = System.currentTimeMillis() + 250; System.currentTimeMillis() < endtime;) {
+
+            }
+
+            for (Map.Entry<String, Servo> entry : hardwareMap.servo.entrySet()) {
+                Servo servo = entry.getValue();
+
+                servo.setPosition(Range.clip(servo.getPosition() - .1, 0, 1));
                 telemetry.addData(entry.getKey(), servo.getPosition());
             }
         }

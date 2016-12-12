@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.team9853;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.lasarobotics.vision.android.Cameras;
@@ -14,6 +15,8 @@ import org.opencv.core.Size;
  */
 
 @TeleOp(name = "VisionTest", group = "Test")
+
+@Disabled
 
 public class VisionTest extends VisionOpMode {
     @Override

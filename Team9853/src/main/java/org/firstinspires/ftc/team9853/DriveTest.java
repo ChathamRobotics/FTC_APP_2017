@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.team9853;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.chathamrobotics.ftcutils.TeleOpMode;
@@ -10,6 +11,7 @@ import org.chathamrobotics.ftcutils.TeleOpMode;
 
 @TeleOp(name = "DrivingTest", group = "Test")
 
+@Disabled
 
 public class DriveTest extends TeleOpMode {
     DriveTest() {
