@@ -148,6 +148,10 @@ public class OmniWheelDriver {
         }
     }
 
+    public void driveold(double x, double y,double rotate){
+        this.driveold(x, y, rotate, false);
+    }
+
     public void stop(){
         frontLeft.setPower(0);
         frontRight.setPower(0);

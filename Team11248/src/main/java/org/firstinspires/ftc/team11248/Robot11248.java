@@ -29,8 +29,8 @@ public class Robot11248 extends OmniWheelDriver {
     public static final double SHOOTER_SPEED = 1;
 
     //GYRO ROTATION
-    private static final double GYRO_ROTATION = -.25;
-    private static final int DEGREE_THRESHOLD = 3;
+    private static final double GYRO_ROTATION_BLUE = -.25;
+    private static final int DEGREE_THRESHOLD = 4;
 
     //Servo constants
     private static final double LIFT_UP = .30;
@@ -257,10 +257,13 @@ public class Robot11248 extends OmniWheelDriver {
     }
 
     public void driveWithGyro2(double x, double y, int targetAngle){
+        getTelemetry().addData("angle", getGyroAngle());
+        getTelemetry().addData("angle2", targetAngle);
+
         if(angleWithinThreshold(getGyroAngle(),targetAngle))
             driveold(x,y,0,false);
         else
-            driveold(x,y,GYRO_ROTATION,false);
+            driveold(x,y,GYRO_ROTATION_BLUE,false);
     }
 
     public static boolean angleWithinThreshold(double current, double target) {

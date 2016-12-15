@@ -51,27 +51,26 @@ public class AutoShootRED extends LinearOpMode{
 
             sleep(10000);
 
-            //drive(1,.5);
-            robot.driveold(0,.8,0,false);
-            sleep(1500);
+            robot.driveold(0,.8,0);
+            sleep(1200);
 
             //drive(0,0);
-            robot.driveold(0,0,0,false);
-            sleep(1000);
+            robot.stop();
+            sleep(500);
 
             robot.shooterOn();
-            sleep(1500);
+            sleep(750);
 
-            robot.conveyorOn();
-            sleep(5000);
+            robot.setConveyor(.3f);
+            sleep(2500);
 
             robot.conveyorOff();
             robot.shooterOff();
 
-            robot.driveold(0,1,0,false);
+            robot.driveold(0,1,0);
             sleep(1500);
 
-            robot.driveold(0,0,0,false);
+            robot.stop();
             break;
 
         }
