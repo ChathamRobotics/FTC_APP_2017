@@ -21,9 +21,6 @@ public class BLUE_100pt extends LinearOpMode {
 
     Robot11248 robot;
     int A_SHOOT_TO_BEACON = 38;
-    OpticalDistanceSensor lineSensor;
-    private static final double OPTICAL_THRESHOLD_LOW = .9;
-    private static final double OPTICAL_THRESHOLD_HIGH = 1;
     double rotationRatio = .004 ;
 
     int TIME_TO_FIRST_COLOR = 250;
@@ -37,18 +34,18 @@ public class BLUE_100pt extends LinearOpMode {
         //Initializes all sensors and motors
         DcMotor[] motors = new DcMotor[8];
         Servo[] servos = new Servo[2];
-        I2cDevice[] color = new I2cDevice[2];
-        GyroSensor gyro = hardwareMap.gyroSensor.get("gyro");
-        lineSensor = hardwareMap.opticalDistanceSensor.get("sensor_ods");
+        I2cDevice color = hardwareMap.i2cDevice.get(Robot11248.COLOR);
+        GyroSensor gyro = hardwareMap.gyroSensor.get(Robot11248.GYRO);
+        OpticalDistanceSensor line = hardwareMap.opticalDistanceSensor.get(Robot11248.LINE);
 
         for (int i = 0; i < motors.length; i++)
             motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
         for (int i = 0; i < servos.length; i++)
             servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
-        for (int i = 0; i < color.length; i++)
-            color[i] = hardwareMap.i2cDevice.get(Robot11248.COLOR_LIST[i]);
 
-        robot = new Robot11248(motors, servos, color, gyro, telemetry);
+
+
+        robot = new Robot11248(motors, servos, color, gyro, line,  telemetry);
         robot.init(); //Sets servos to right position.
 
         robot.activateColorSensors();
@@ -74,7 +71,7 @@ public class BLUE_100pt extends LinearOpMode {
 //                        robot.stop(); //STOP MOVING
 //                    }
                     robot.driveold(.5, .4, 0); //DRIVE DIAGONAL
-                    if(hitLine()) { //WHEN WHITE LINE FOUND
+                    if(robot.hitLine()) { //WHEN WHITE LINE FOUND
                         state++; //NEXT STATE
                         robot.stop(); //STOP MOVING
                     }
@@ -103,10 +100,10 @@ public class BLUE_100pt extends LinearOpMode {
                 //SECOND BEACON
                 case 3:
                     robot.driveold(0, .5, 0); //MOVE FORWARD
-                    if(hitLine()) { //WHEN WHITE LINE FOUND
+                    if(robot.hitLine()) { //WHEN WHITE LINE FOUND
                         state++; //NEXT STATE
                         robot.stop(); //STOP MOVING
-                    }
+                    }else doNothing();
                     break;
                 case 4: //STOPS OP MODE
 //                    robot.driveold(0,.4,0);
@@ -148,10 +145,6 @@ public class BLUE_100pt extends LinearOpMode {
         //4.95 seconds
     }
 
-    public boolean hitLine(){
-        return (lineSensor.getLightDetected() < OPTICAL_THRESHOLD_HIGH &&
-                lineSensor.getLightDetected() >= OPTICAL_THRESHOLD_LOW);
-    }
 
     public void retrieveBeacon(long x, long y, double speed){
 
@@ -181,12 +174,14 @@ public class BLUE_100pt extends LinearOpMode {
             robot.moveBeaconIn();
 
         }else{
-
         }
 
 
     }
 
+    private void doNothing(){
+        doNothing();
+    }
 //    public void driveWithGyro(double x, double y, int targetAngle){
 //
 //        int currentAngle = robot.getGyroAngle();

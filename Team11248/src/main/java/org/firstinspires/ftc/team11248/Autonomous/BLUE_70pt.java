@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.robot.Robot;
 
@@ -23,18 +24,16 @@ public class BLUE_70pt extends OpMode {
         //Initializes all sensors and motors
         DcMotor[] motors = new DcMotor[8];
         Servo[] servos = new Servo[2];
-        I2cDevice[] color = new I2cDevice[2];
-        GyroSensor gyro = hardwareMap.gyroSensor.get("gyro");
-        //lineSensor = hardwareMap.opticalDistanceSensor.get("sensor_ods");
+        I2cDevice color = hardwareMap.i2cDevice.get(Robot11248.COLOR);
+        GyroSensor gyro = hardwareMap.gyroSensor.get(Robot11248.GYRO);
+        OpticalDistanceSensor line = hardwareMap.opticalDistanceSensor.get(Robot11248.LINE);
 
         for (int i = 0; i < motors.length; i++)
             motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
         for (int i = 0; i < servos.length; i++)
             servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
-        for (int i = 0; i < color.length; i++)
-            color[i] = hardwareMap.i2cDevice.get(Robot11248.COLOR_LIST[i]);
 
-        robot = new Robot11248(motors, servos, color, gyro, telemetry);
+        robot = new Robot11248(motors, servos, color, gyro, line,  telemetry);
         robot.init(); //Sets servos to right position.
 
        // robot.activateColorSensors();
@@ -52,7 +51,7 @@ public class BLUE_70pt extends OpMode {
 
         int currentAngle = robot.getGyroAngle();
         int net = currentAngle - targetAngle;
-        double rotation = .3;
+        double rotation = -.3;
 
         if(net > 180) { // if passes 0
             if(currentAngle > 180) //counterclockwise past 0
@@ -62,9 +61,9 @@ public class BLUE_70pt extends OpMode {
                 net = (360 - targetAngle) + currentAngle;
         }
 
-        if(net<0){
-            rotation *= -1;
-        }
+        if(net<0) rotation *= -1;
+
+        if(net == 0) robot.stop();
 
         //rotation = -.25;//net * rotationRatio + .25;
 
