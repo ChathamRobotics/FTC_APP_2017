@@ -92,6 +92,8 @@ public class BLUE_100pt extends LinearOpMode {
                         robot.stop();
                         robot.driveold(.25,0,0);
                         sleep(1100);
+                        robot.driveold(-.25,0,0);
+                        sleep(100);
                         robot.stop(); //STOP
                         state++; //NEXT STATE
                         sleep(1000); //WAIT A SECOND
