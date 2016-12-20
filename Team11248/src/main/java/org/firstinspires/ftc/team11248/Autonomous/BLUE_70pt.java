@@ -43,7 +43,7 @@ public class BLUE_70pt extends OpMode {
     @Override
     public void loop() {
 
-        driveWithGyro(0,0,0);
+        driveWithGyro(0,0,60);
 
     }
 
@@ -51,26 +51,28 @@ public class BLUE_70pt extends OpMode {
 
         int currentAngle = robot.getGyroAngle();
         int net = currentAngle - targetAngle;
-        double rotation = -.3;
+        double rotation = .3;
 
         if(net > 180) { // if passes 0
             if(currentAngle > 180) //counterclockwise past 0
-                net = (currentAngle - 360) + targetAngle;
+                net = (360 - currentAngle) + targetAngle;
 
             else
-                net = (360 - targetAngle) + currentAngle;
+                net = (targetAngle - 360) - currentAngle;
         }
+
+
+
+        rotation = Math.abs(net) * .004 + .25;
 
         if(net<0) rotation *= -1;
 
-        if(net == 0) robot.stop();
-
-        //rotation = -.25;//net * rotationRatio + .25;
+        // if(net == 0) robot.stop();
 
         telemetry.addData("1:", "Heading: " + robot.getGyroAngle());
         telemetry.addData("2:", "Net: " + net);
         telemetry.addData("3: ", "Speed: " +rotation);
-        telemetry.addData("4: ",  "Target: " + targetAngle);
+        telemetry.addData("4: ", "Target: " + targetAngle);
 
         telemetry.update();
 

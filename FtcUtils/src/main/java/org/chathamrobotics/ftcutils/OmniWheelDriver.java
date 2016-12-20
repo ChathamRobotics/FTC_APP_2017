@@ -2,6 +2,7 @@ package org.chathamrobotics.ftcutils;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
@@ -76,10 +77,15 @@ public class OmniWheelDriver {
         this.telemetry = telemetry;
     }
 
+
     /*
      * Legacy version of the driving method
      *
      */
+
+    public void stop(){
+        driveold(0,0,0);
+    }
     public void driveold(double x, double y, double rotate, boolean smooth){
         double FL, FR, BL, BR, angle, r;
         //## CALCULATE VALUES ##
@@ -146,6 +152,11 @@ public class OmniWheelDriver {
      * @param {double} [modifier]      The modifier for the power.
      * @param {boolean} [smooth]        Whether or not to smooth the modifier
      */
+
+    public void driveold(double x, double y,double rotate){
+        this.driveold(x, y, rotate, false);
+    }
+
     public void drive(double x, double y, double rotation) {
         //Default modifier
         drive(x,y,rotation,Math.sqrt((x*x) + (y*y)), true);

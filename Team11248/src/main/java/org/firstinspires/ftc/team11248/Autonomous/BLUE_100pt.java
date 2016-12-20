@@ -29,6 +29,8 @@ public class BLUE_100pt extends LinearOpMode {
 @Override
     public void runOpMode() throws InterruptedException {
 
+    //team11248.goTo(fearthegear.com);
+
         //STAYS HERE UNTIL INIT BUTTON
 
         //Initializes all sensors and motors
@@ -77,14 +79,14 @@ public class BLUE_100pt extends LinearOpMode {
                     }
                     break;
                 case 1:
-                    robot.driveWithGyro2(0, 0, 2); //ROTATE TO 90 deg
-                    if(Robot11248.angleWithinThreshold(robot.getGyroAngle(),2)) {
-                          state++; //NEXT STATE
-                        sleep(1000); //WAIT A SECOND
-                        robot.stop(); //STOP MOVING
-                    }
+                    robot.driveWithGyro(0, 0, 2); //ROTATE TO 90 deg
+//                    if(Robot11248.angleWithinThreshold(robot.getGyroAngle(),2)) {
+//                          state++; //NEXT STATE
+//                        sleep(1000); //WAIT A SECOND
+//                        robot.stop(); //STOP MOVING
+//                    }
                 case 2: //DOES THIS UNTIL IT REACHES A LINE
-                    robot.driveWithGyro2(.25, 0, 2); //ROTATE TO 90 deg
+                    robot.driveWithGyro(.25, 0, 2); //ROTATE TO 90 deg
                     if(robot.isBeaconBlue()||robot.isBeaconRed()) {
                         robot.stop();
                         robot.driveold(.25,0,0);
@@ -103,7 +105,7 @@ public class BLUE_100pt extends LinearOpMode {
                     if(robot.hitLine()) { //WHEN WHITE LINE FOUND
                         state++; //NEXT STATE
                         robot.stop(); //STOP MOVING
-                    }else doNothing();
+                    }
                     break;
                 case 4: //STOPS OP MODE
 //                    robot.driveold(0,.4,0);
@@ -175,12 +177,27 @@ public class BLUE_100pt extends LinearOpMode {
 
         }else{
         }
-
-
     }
 
-    private void doNothing(){
-        doNothing();
+    public void driveWithGyro(double x, double y, int targetAngle){
+
+        int currentAngle = robot.getGyroAngle();
+        int net = currentAngle - targetAngle;
+        double rotation = .3;
+
+        if(net > 180) { // if passes 0
+            if(currentAngle > 180) //counterclockwise past 0
+                net = (currentAngle - 360) + targetAngle;
+
+            else
+                net = (360 - targetAngle) + currentAngle;
+        }
+
+        rotation = Math.abs(net) * .004 + .25;
+
+        if(net<0) rotation *= -1;
+        // if(net == 0) robot.stop();
+        robot.driveold(x,y,rotation,false);
     }
 //    public void driveWithGyro(double x, double y, int targetAngle){
 //

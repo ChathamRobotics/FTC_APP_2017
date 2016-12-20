@@ -6,8 +6,10 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cController;
@@ -19,11 +21,12 @@ import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.chathamrobotics.ftcutils.MRColorSensorV2;
+import org.chathamrobotics.ftcutils.UltrasonicSensor_HCSR04;
 
 import java.util.concurrent.locks.Lock;
 
-@TeleOp(name = "BeaconValTest")
-public class BeaconValTest extends OpMode {
+@TeleOp(name = "SensorValTest")
+public class SensorValTest extends OpMode {
 
     // I2C address, registers, and commands
     private final byte COLOR_SENSOR_GREEN_ADDR = 0x3A; //Green
@@ -32,54 +35,47 @@ public class BeaconValTest extends OpMode {
 
     public Robot11248 robot;
 
-   // OpticalDistanceSensor odsSensor;
+    private UltrasonicSensor_HCSR04 ultrasonic;
 
-    /* In init(), we get a handle on the color sensor itself and its controller.
-     * We need access to the cycle of events on the sensor (when the port is
-     * ready for read/write activity). The portIsReady() method is registered
-     * as a callback.
-     */
+
+
     public void init() {
 
         //Initializes all sensors and motors
         DcMotor[] motors = new DcMotor[8];
         Servo[] servos = new Servo[2];
-        I2cDevice[] color = new I2cDevice[2];
-        GyroSensor gyro = hardwareMap.gyroSensor.get("gyro");
+        I2cDevice color = hardwareMap.i2cDevice.get(Robot11248.COLOR);
+        GyroSensor gyro = hardwareMap.gyroSensor.get(Robot11248.GYRO);
+        OpticalDistanceSensor line = hardwareMap.opticalDistanceSensor.get(Robot11248.LINE);
 
-        for(int i = 0; i < motors.length; i++)
+        for (int i = 0; i < motors.length; i++)
             motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
-        for(int i = 0; i < servos.length; i++)
+        for (int i = 0; i < servos.length; i++)
             servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
-        for(int i = 0; i < color.length; i++)
-            color[i] = hardwareMap.i2cDevice.get(Robot11248.COLOR_LIST[i]);
 
-        robot = new Robot11248(motors,servos, color, gyro, telemetry);
+        robot = new Robot11248(motors, servos, color, gyro, line,  telemetry);
         robot.init(); //Sets servos to right position.
         robot.activateColorSensors();
         robot.calibrateGyro();
 
-        //gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
 
-
-     //   gyro.calibrate();
-
-       // odsSensor = hardwareMap.opticalDistanceSensor.get("sensor_ods");
+       ultrasonic = new UltrasonicSensor_HCSR04(
+               hardwareMap.digitalChannel.get("US_echo"),
+               hardwareMap.digitalChannel.get("US_trig"));
     }
 
     // Respond to gamepad input.
     public void loop() {
 
-        telemetry.addData("02: ", "ColorYellow: " + robot.getColorYellow());
+        telemetry.addData("01: ", "Line Sensor: " + robot.getLineSensorValue());
+        telemetry.addData("02: ", "hitLine: " + robot.hitLine());
         telemetry.addData("03: ", "ColorBeacon: " + robot.getColorBeacon());
         telemetry.addData("04: ", "isBlue: " + robot.isBeaconBlue());
         telemetry.addData("05: ", "isRed: " + robot.isBeaconRed());
-
         telemetry.addData("06: ", "Heading: " + robot.getGyroAngle());
-//        telemetry.addData("Int. Ang. %03d", angleZ);
-//        telemetry.addData("X av. %03d", xVal);
-//        telemetry.addData("Y av. %03d", yVal);
-//        telemetry.addData("Z av. %03d", zVal);
+        telemetry.addData("07: ", "UltrasonicRaw: " + ultrasonic.getRawValue());
+        telemetry.addData("08: ", "UltrasonicIn: " + ultrasonic.distanceIn());
+        telemetry.addData("09: ", "UltrasonicCm: " + ultrasonic.distanceCm());
 
 
     }

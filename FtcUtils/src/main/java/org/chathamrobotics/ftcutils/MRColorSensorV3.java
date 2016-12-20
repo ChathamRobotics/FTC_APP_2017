@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.team11248;
+package org.chathamrobotics.ftcutils;
 
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
@@ -16,6 +16,14 @@ public class MRColorSensorV3 {
 
     private int colorNumber;
 
+
+        /*
+         * Creates an MRColorSensorV3 object (connects to a Modern Robotics Color Sensor as an I2C device)
+         * colorSynch holds and updates all values of the sensor through its I2C registry
+         *
+         * @param color_sensor - a color sensor declared from the hardwareMap as an I2C device
+         * @param COLOR_SENSOR_ADDR - the I2C address of the color sensor
+         */
 
     public MRColorSensorV3(I2cDevice color_sensor, byte COLOR_SENSOR_ADDR){
 

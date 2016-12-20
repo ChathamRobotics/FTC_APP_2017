@@ -2,12 +2,12 @@ package org.firstinspires.ftc.team11248;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.chathamrobotics.ftcutils.MRColorSensorV2;
+import org.chathamrobotics.ftcutils.MRColorSensorV3;
+import org.chathamrobotics.ftcutils.OmniWheelDriver;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
@@ -25,8 +25,6 @@ public class Robot11248 extends OmniWheelDriver {
     public static final double RIGHT_ANGLE = Math.PI/2;
 
     //Driving constants
-//    public static final double MAX_TURN = .30;
-//    public static final double MAX_SPEED = .70;
     public static final double SHOOTER_SPEED = 1;
 
     //GYRO ROTATION
@@ -44,10 +42,6 @@ public class Robot11248 extends OmniWheelDriver {
     private static final double BEACON_OUT = 0;
     private static final double BEACON_IN = 1;
 
-    //Beacon Setup
-    MRColorSensorV3 colorBeacon;
-    OpticalDistanceSensor lineSensor;
-
     // I2C address, registers, and commands
     private final byte COLOR_SENSOR_GREEN_ADDR = 0x3A; //Green
     private final byte COLOR_SENSOR_YELLOW_ADDR = 0x3C; //Yellow
@@ -63,6 +57,9 @@ public class Robot11248 extends OmniWheelDriver {
     //Motors, Sensors, Telemetry
     private DcMotor shooterL, shooterR, lift, conveyor;
     private Servo liftArm, beaconPusher;
+    private MRColorSensorV3 colorBeacon;
+    private OpticalDistanceSensor lineSensor;
+    private GyroSensor gyro;
     private boolean isLiftArmUp = false;
 
     //hardware map
@@ -115,7 +112,7 @@ public class Robot11248 extends OmniWheelDriver {
                       Servo liftArm, Servo beaconPusher, I2cDevice colorBeacon, GyroSensor gyro,
                       OpticalDistanceSensor line, Telemetry telemetry) {
 
-        super(frontLeft, frontRight, backLeft, backRight, gyro, telemetry);
+        super(frontLeft, frontRight, backLeft, backRight, telemetry);
         this.shooterL = shooterL;
         this.shooterR = shooterR;
         this.lift = lift;
@@ -123,6 +120,7 @@ public class Robot11248 extends OmniWheelDriver {
         this.conveyor = conveyor;
         this.beaconPusher = beaconPusher;
         this.lineSensor = line;
+        this.gyro = gyro;
 
         this.colorBeacon = new MRColorSensorV3(colorBeacon, COLOR_SENSOR_BEACON_ADDR);
 
@@ -137,6 +135,32 @@ public class Robot11248 extends OmniWheelDriver {
         moveLiftArmUp();
         moveBeaconIn();
 
+    }
+
+
+     /*
+     * BEACON PUSHER SERVO METHODS
+     */
+
+    public void moveBeaconOut(){
+        beaconPusher.setPosition(BEACON_OUT);
+    }
+
+    public void moveBeaconIn(){
+        beaconPusher.setPosition(BEACON_IN);
+    }
+
+
+    /*
+    * LIFT METHODS
+    */
+
+    public void setLiftSpeed(double speed) {
+        if(speed > 1)
+            speed = 1;
+        if(speed < -1)
+            speed = -1;
+        lift.setPower(speed);
     }
 
     public void moveLiftArmUp() {
@@ -156,13 +180,10 @@ public class Robot11248 extends OmniWheelDriver {
             moveLiftArmUp();
     }
 
-    public void moveBeaconOut(){
-        beaconPusher.setPosition(BEACON_OUT);
-    }
 
-    public void moveBeaconIn(){
-        beaconPusher.setPosition(BEACON_IN);
-    }
+    /*
+    * SHOOTER METHODS
+    */
 
     public void setShooter(double SHOOTER_SPEED) {
         shooterL.setPower(SHOOTER_SPEED);
@@ -178,7 +199,6 @@ public class Robot11248 extends OmniWheelDriver {
         shooterOn = true;
     }
 
-    //Overload
     public void shooterOn() {
         shooterL.setPower(SHOOTER_SPEED);
         shooterR.setPower(-SHOOTER_SPEED);
@@ -191,13 +211,14 @@ public class Robot11248 extends OmniWheelDriver {
         shooterOn = false;
     }
 
-    public void setLiftSpeed(double speed) {
-        if(speed > 1)
-            speed = 1;
-        if(speed < -1)
-            speed = -1;
-        lift.setPower(speed);
+    public boolean getShooterOn() {
+        return shooterOn;
     }
+
+
+     /*
+     * COLLECTOR METHODS
+     */
 
     public void setConveyor(float f){
         conveyor.setPower(f);
@@ -225,11 +246,11 @@ public class Robot11248 extends OmniWheelDriver {
         return conveyorOn;
     }
 
-    public boolean getShooterOn() {
-        return shooterOn;
-    }
 
-    //BEACONS
+
+    /*
+     * COLOR SENSOR METHODS
+     */
 
     public void activateColorSensors(){
         colorBeacon.setPassiveMode();
@@ -238,7 +259,6 @@ public class Robot11248 extends OmniWheelDriver {
     public void deactivateColorSensors(){
         colorBeacon.setPassiveMode();
     }
-
 
     public int getColorBeacon(){
         return colorBeacon.getColorNumber();
@@ -254,22 +274,62 @@ public class Robot11248 extends OmniWheelDriver {
         return (RED_LOW_THRESHOLD <= color && color <= RED_HIGH_THRESHOLD);
     }
 
+
+    /*
+     * OPTICAL DISTANCE SENSOR METHODS
+     */
+
     public boolean hitLine(){
         return (lineSensor.getLightDetected() < OPTICAL_THRESHOLD_HIGH &&
                 lineSensor.getLightDetected() >= OPTICAL_THRESHOLD_LOW);
     }
 
-    public void driveWithGyro2(double x, double y, int targetAngle){
-        getTelemetry().addData("angle", getGyroAngle());
-        getTelemetry().addData("angle2", targetAngle);
-
-        if(angleWithinThreshold(getGyroAngle(),targetAngle))
-            driveold(x,y,0,false);
-        else
-            driveold(x,y,GYRO_ROTATION_BLUE,false);
+    public double getLineSensorValue(){
+        return lineSensor.getLightDetected();
     }
 
-    public static boolean angleWithinThreshold(double current, double target) {
-        return Math.abs(current - target) <= DEGREE_THRESHOLD;
+
+    /*
+     * GYRO SENSOR METHODS
+     */
+
+    public void calibrateGyro(){
+        gyro.calibrate();
+        while(gyro.isCalibrating());
+    }
+
+    public int getGyroAngle(){
+        return gyro.getHeading();
+    }
+
+    public void driveWithGyro(double x, double y, int targetAngle){
+
+        int currentAngle = getGyroAngle();
+        int net = currentAngle - targetAngle; //finds distance to target angle
+        double rotation = -1;
+
+        if(net > 180) { // if shortest path passes 0
+            if(currentAngle > 180) //if going counterclockwise
+                net = (360 - currentAngle) + targetAngle;
+
+            else //if going counterclockwise
+                net = (targetAngle - 360) - currentAngle;
+        }
+
+        rotation *= (Math.abs(net) * .004 + .25); // slows down as approaches angle
+
+        if(net<0) rotation *= -1; //if going clockwise, set rotation clockwise (-)
+
+        driveold(x,y,rotation); //Drive with gyros rotation
+
+//        telemetry.addData("1:", "Heading: " + getGyroAngle());
+//        telemetry.addData("2:", "Net: " + net);
+//        telemetry.addData("3: ", "Speed: " +rotation);
+//        telemetry.addData("4: ", "Target: " + targetAngle);
+//        telemetry.update();
+    }
+
+    public void moveToAngle(int targetAngle){
+        driveWithGyro(0,0,targetAngle);
     }
 }
