@@ -22,17 +22,17 @@ public class TestOpMode extends OpMode {
 
     }
 
-    //Run continuously in INIT phase
-    @Override
-    public void init_loop(){
+//    //Run continuously in INIT phase
+//    @Override
+//    public void init_loop(){
+//
+//    }
 
-    }
-
-    //Run once at the start of the loop cycle
-    @Override
-    public void start(){
-
-    }
+//    //Run once at the start of the loop cycle
+//    @Override
+//    public void start(){
+//
+//    }
 
     //Main loop
     @Override
@@ -40,9 +40,9 @@ public class TestOpMode extends OpMode {
 
     }
 
-    //Run once at the end of the loop cycle
-    @Override
-    public void stop(){
-
-    }
+//    //Run once at the end of the loop cycle
+//    @Override
+//    public void stop(){
+//
+//    }
 }

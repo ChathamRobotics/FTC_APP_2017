@@ -43,7 +43,7 @@ public class SensorValTest extends OpMode {
 
         //Initializes all sensors and motors
         DcMotor[] motors = new DcMotor[8];
-        Servo[] servos = new Servo[2];
+        Servo[] servos = new Servo[4];
         I2cDevice color = hardwareMap.i2cDevice.get(Robot11248.COLOR);
         GyroSensor gyro = hardwareMap.gyroSensor.get(Robot11248.GYRO);
         OpticalDistanceSensor line = hardwareMap.opticalDistanceSensor.get(Robot11248.LINE);
@@ -67,15 +67,20 @@ public class SensorValTest extends OpMode {
     // Respond to gamepad input.
     public void loop() {
 
+
+        ultrasonic.setTriggerState(true);
         telemetry.addData("01: ", "Line Sensor: " + robot.getLineSensorValue());
         telemetry.addData("02: ", "hitLine: " + robot.hitLine());
         telemetry.addData("03: ", "ColorBeacon: " + robot.getColorBeacon());
         telemetry.addData("04: ", "isBlue: " + robot.isBeaconBlue());
         telemetry.addData("05: ", "isRed: " + robot.isBeaconRed());
         telemetry.addData("06: ", "Heading: " + robot.getGyroAngle());
-        telemetry.addData("07: ", "UltrasonicRaw: " + ultrasonic.getRawValue());
-        telemetry.addData("08: ", "UltrasonicIn: " + ultrasonic.distanceIn());
-        telemetry.addData("09: ", "UltrasonicCm: " + ultrasonic.distanceCm());
+        //telemetry.addData("07: ", "UltrasonicRaw: " + ultrasonic.getRawValue());
+       // telemetry.addData("08: ", "UltrasonicIN: " + ultrasonic.distanceIN());
+     //   telemetry.addData("09: ", "UltrasonicCM: " + ultrasonic.distanceCM());
+     //   telemetry.addData("10: ", "UltrasonicMM: " + ultrasonic.distanceMM());
+        telemetry.addData("07: ", "EchoState: " + ultrasonic.getEchoState());
+
 
 
     }

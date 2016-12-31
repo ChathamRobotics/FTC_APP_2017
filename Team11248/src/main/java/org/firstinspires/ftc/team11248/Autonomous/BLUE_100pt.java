@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.team11248.Autonomous;
 
+import android.os.PowerManager;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -8,6 +10,7 @@ import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.robot.Robot;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -29,13 +32,11 @@ public class BLUE_100pt extends LinearOpMode {
 @Override
     public void runOpMode() throws InterruptedException {
 
-    //team11248.goTo(fearthegear.com);
-
         //STAYS HERE UNTIL INIT BUTTON
 
         //Initializes all sensors and motors
         DcMotor[] motors = new DcMotor[8];
-        Servo[] servos = new Servo[2];
+        Servo[] servos = new Servo[4];
         I2cDevice color = hardwareMap.i2cDevice.get(Robot11248.COLOR);
         GyroSensor gyro = hardwareMap.gyroSensor.get(Robot11248.GYRO);
         OpticalDistanceSensor line = hardwareMap.opticalDistanceSensor.get(Robot11248.LINE);
@@ -79,21 +80,15 @@ public class BLUE_100pt extends LinearOpMode {
                     }
                     break;
                 case 1:
-                    robot.driveWithGyro(0, 0, 2); //ROTATE TO 90 deg
-//                    if(Robot11248.angleWithinThreshold(robot.getGyroAngle(),2)) {
-//                          state++; //NEXT STATE
-//                        sleep(1000); //WAIT A SECOND
-//                        robot.stop(); //STOP MOVING
-//                    }
+                    robot.driveWithGyro(.25, 0, 2); //move up
+                    sleep(1300);
+                    robot.stop();
+                    sleep(100);
+                    robot.driveWithGyro(0, -.25, 2); //move up
+                    sleep(1100);
+                    state++;
                 case 2: //DOES THIS UNTIL IT REACHES A LINE
-                    robot.driveWithGyro(.25, 0, 2); //ROTATE TO 90 deg
                     if(robot.isBeaconBlue()||robot.isBeaconRed()) {
-                        robot.stop();
-                        robot.driveold(.25,0,0);
-                        sleep(1100);
-                        robot.driveold(-.25,0,0);
-                        sleep(100);
-                        robot.stop(); //STOP
                         state++; //NEXT STATE
                         sleep(1000); //WAIT A SECOND
                         retrieveBeacon(500,750,.25); //SEE FOR MORE

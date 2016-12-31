@@ -35,7 +35,7 @@ public class RED_100pt extends LinearOpMode {
 
         //Initializes all sensors and motors
         DcMotor[] motors = new DcMotor[8];
-        Servo[] servos = new Servo[2];
+        Servo[] servos = new Servo[4];
         I2cDevice color = hardwareMap.i2cDevice.get(Robot11248.COLOR);
         GyroSensor gyro = hardwareMap.gyroSensor.get(Robot11248.GYRO);
         OpticalDistanceSensor line = hardwareMap.opticalDistanceSensor.get(Robot11248.LINE);

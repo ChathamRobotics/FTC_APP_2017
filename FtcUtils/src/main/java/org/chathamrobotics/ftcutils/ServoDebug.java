@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.team11248.testModes;
+package org.chathamrobotics.ftcutils;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -15,16 +15,17 @@ import com.qualcomm.robotcore.hardware.Servo;
  * Created by Tony_Air on 12/11/15.
  */
 
-@TeleOp(name = "SERVO")
-@Disabled
+@TeleOp(name = "Servo Debugger")
+//@Disabled
 
 public class ServoDebug extends OpMode {
 
-    Servo servo1, servo2, servo3, servo4;
+    Servo servo1, servo2, servo3, servo4, servo5, servo6;
 
     int servo = 1;
     double servoPosition = 0;
     double increment = .05;
+    boolean prevA, prevDPU, prevDPD;
 
     @Override
     public void init() {
@@ -33,29 +34,25 @@ public class ServoDebug extends OpMode {
         servo2 = hardwareMap.servo.get("servo2");
         servo3 = hardwareMap.servo.get("servo3");
         servo4 = hardwareMap.servo.get("servo4");
-
-
+        servo5 = hardwareMap.servo.get("servo5");
+        servo6 = hardwareMap.servo.get("servo6");
 
     }
 
     @Override
     public void loop() {
 
-        int x = 1;
+        if(gamepad1.a && gamepad1.a != prevA) servo++;
+        prevA = gamepad1.a;
 
-        if(gamepad1.a) {
-            x++;
-        }
-        if(x == 5){
-            x=1;
-        }
+        if(servo == 7) servo=1;
 
-        if(gamepad1.dpad_down && servoPosition >= 0){
-            servoPosition =- increment;
-        }
-        if(gamepad1.dpad_up && servoPosition <= 1){
-            servoPosition =+ increment;
-        }
+
+        if(gamepad1.dpad_down && gamepad1.dpad_down != prevDPD && servoPosition >= 0) servoPosition -= increment;
+        prevDPD = gamepad1.dpad_down;
+
+        if(gamepad1.dpad_up && gamepad1.dpad_up != prevDPU && servoPosition <= 1) servoPosition += increment;
+        prevDPU = gamepad1.dpad_up;
 
 
         switch (servo){
@@ -75,10 +72,18 @@ public class ServoDebug extends OpMode {
                 servo4.setPosition(servoPosition);
                 break;
 
+            case 5:
+                servo5.setPosition(servoPosition);
+                break;
+
+            case 6:
+                servo6.setPosition(servoPosition);
+                break;
+
 
         }
 
-        telemetry.addData("01:", "Servo: " + x);
+        telemetry.addData("01:", "Servo: " + servo);
         telemetry.addData("02:", "Position: " + servoPosition);
 
 

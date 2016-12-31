@@ -1,7 +1,7 @@
 package org.chathamrobotics.ftcutils;
 
 /**
- * thrown when the stopp button is called and the robot needs to be interupted
+ * thrown when the stop button is called and the robot needs to be interupted
  */
 public class StoppedException extends Exception {
 

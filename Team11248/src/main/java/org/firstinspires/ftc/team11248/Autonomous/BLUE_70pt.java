@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.robot.Robot;
 
 import org.firstinspires.ftc.team11248.Robot11248;
@@ -19,11 +20,12 @@ import org.firstinspires.ftc.team11248.Robot11248;
 public class BLUE_70pt extends OpMode {
 
     Robot11248 robot;
+    VoltageSensor voltageSensor;
     @Override
     public void init() {
         //Initializes all sensors and motors
         DcMotor[] motors = new DcMotor[8];
-        Servo[] servos = new Servo[2];
+        Servo[] servos = new Servo[4];
         I2cDevice color = hardwareMap.i2cDevice.get(Robot11248.COLOR);
         GyroSensor gyro = hardwareMap.gyroSensor.get(Robot11248.GYRO);
         OpticalDistanceSensor line = hardwareMap.opticalDistanceSensor.get(Robot11248.LINE);
@@ -35,47 +37,16 @@ public class BLUE_70pt extends OpMode {
 
         robot = new Robot11248(motors, servos, color, gyro, line,  telemetry);
         robot.init(); //Sets servos to right position.
-
-       // robot.activateColorSensors();
+        //robot.activateColorSensors();
         robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
+
+
     }
 
     @Override
     public void loop() {
 
-        driveWithGyro(0,0,60);
+        robot.driveWithGyro(.3,0,0);
 
-    }
-
-    public void driveWithGyro(double x, double y, int targetAngle){
-
-        int currentAngle = robot.getGyroAngle();
-        int net = currentAngle - targetAngle;
-        double rotation = .3;
-
-        if(net > 180) { // if passes 0
-            if(currentAngle > 180) //counterclockwise past 0
-                net = (360 - currentAngle) + targetAngle;
-
-            else
-                net = (targetAngle - 360) - currentAngle;
-        }
-
-
-
-        rotation = Math.abs(net) * .004 + .25;
-
-        if(net<0) rotation *= -1;
-
-        // if(net == 0) robot.stop();
-
-        telemetry.addData("1:", "Heading: " + robot.getGyroAngle());
-        telemetry.addData("2:", "Net: " + net);
-        telemetry.addData("3: ", "Speed: " +rotation);
-        telemetry.addData("4: ", "Target: " + targetAngle);
-
-        telemetry.update();
-
-        robot.driveold(x,y,rotation,false);
     }
 }

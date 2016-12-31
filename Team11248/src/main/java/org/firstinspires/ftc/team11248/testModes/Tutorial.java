@@ -97,6 +97,8 @@ public class Tutorial extends OpMode{
             Digital controls like buttons, d_pad buttons, and bumpers return booleans
         */
 
+
+
         x = gamepad1.left_stick_x; //Float
         y = gamepad1.left_stick_y;
 
@@ -119,8 +121,10 @@ public class Tutorial extends OpMode{
 
         /*
         (You're servo).setPosition uses a double from -1 to 1 to set its position
-         */
-        servo1.setPosition(1);
+         */if(a)
+            servo1.setPosition(1);
+        else
+            servo1.setPosition(0);
 
     }
 }

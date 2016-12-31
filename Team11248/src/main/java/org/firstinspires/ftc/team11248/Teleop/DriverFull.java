@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.team11248.Teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
@@ -18,14 +20,14 @@ public class DriverFull extends DriverOmni {
 
     public Robot11248 robot;
 
-     private boolean prevGP1y, prevGP2a, prevGP2x, prevGP2y;
+     Gamepad prevGP1, prevGP2;
 
 
     @Override
     public void init() {
         //Initializes all sensors and motors
         DcMotor[] motors = new DcMotor[8];
-        Servo[] servos = new Servo[2];
+        Servo[] servos = new Servo[4];
         I2cDevice color = hardwareMap.i2cDevice.get(Robot11248.COLOR);
         GyroSensor gyro = hardwareMap.gyroSensor.get(Robot11248.GYRO);
         OpticalDistanceSensor line = hardwareMap.opticalDistanceSensor.get(Robot11248.LINE);
@@ -38,13 +40,24 @@ public class DriverFull extends DriverOmni {
         robot = new Robot11248(motors, servos, color, gyro, line,  telemetry);
         robot.init(); //Sets servos to right position.
 
+        prevGP1 = new Gamepad();
+        prevGP2 = new Gamepad();
+
+        try {
+            prevGP1.copy(gamepad1);
+            prevGP2.copy(gamepad2);
+        } catch (RobotCoreException e) {
+            e.printStackTrace();
+        }
+
         robot.deactivateColorSensors();
+        robot.setTelemetry(true);
     }
 
     @Override
     public void loop() {
 
-       // ##GAMEPAD 1 CONTROLS ##
+        // ##GAMEPAD 1 CONTROLS ##
 
         //Controls Wheels
         if (gamepad1.dpad_up)
@@ -60,9 +73,9 @@ public class DriverFull extends DriverOmni {
 
         //Sets liftarm up and down
         if (gamepad1.a)
-            robot.moveLiftArmDown();
-        else
             robot.moveLiftArmUp();
+        else
+            robot.moveLiftArmDown();
 
 
         if(gamepad1.b)
@@ -71,10 +84,10 @@ public class DriverFull extends DriverOmni {
             robot.moveBeaconIn();
 
 
-        if (gamepad1.y && (gamepad1.y!=prevGP1y) )
+        if (gamepad1.y && (gamepad1.y!=prevGP1.y) )
             robot.switchSlow();
 
-        prevGP1y = gamepad1.y;
+        prevGP1.y = gamepad1.y;
 
         //Sets arm motor to whatever right trigger is
         if (gamepad1.right_trigger > 0)
@@ -85,37 +98,45 @@ public class DriverFull extends DriverOmni {
             robot.setLiftSpeed(0);
 
 
+        //Recaptures all previous values of Gampad 1 for debouncing
+        try {
+            prevGP1.copy(gamepad1);
+        } catch (RobotCoreException e) {
+            e.printStackTrace();
+        }
+
 
 
 
 
         //## GAMEPAD 2 CONTROLS ##
-        if (gamepad2.a && gamepad2.a != prevGP2a) {
+        if (gamepad2.a && gamepad2.a != prevGP2.a) {
             if(robot.getShooterOn())
                 robot.shooterOff();
             else
                 robot.shooterOn();
         }
-        prevGP2a = gamepad2.a;
 
-
-        if (gamepad2.b && gamepad2.y != prevGP2y) {
+        if (gamepad2.y && gamepad2.y != prevGP2.y) {
             if(robot.getShooterOn())
                 robot.shooterOff();
             else
                 robot.shooterReverse();
         }
-        prevGP2y = gamepad2.y;
 
+        if (gamepad2.b && gamepad2.x != prevGP2.b) {
 
-        if (gamepad2.x && gamepad2.x != prevGP2x) {
-
-            if(robot.getShooterOn())
+            if (robot.getShooterOn())
                 robot.shooterOff();
             else
-                robot.setShooter(-.5);
+                robot.setShooter(-.375);
         }
-        prevGP2x = gamepad2.x;
+
+
+        if (gamepad2.x && gamepad2.x != prevGP2.x)
+            robot.switchCollectorServo();
+
+        telemetry.addData("DriverFull: ", "Collector Closed: " + robot.collectorClosed);
 
 
         if (gamepad2.right_trigger > 0)
@@ -124,6 +145,15 @@ public class DriverFull extends DriverOmni {
             robot.setConveyor(gamepad2.left_trigger);
         else
             robot.setConveyor(0);
+
+
+        //Recaptures all previous values of Gampad 1 for debouncing
+        try {
+            prevGP2.copy(gamepad2);
+        } catch (RobotCoreException e) {
+            e.printStackTrace();
+        }
+
 
     }
 }

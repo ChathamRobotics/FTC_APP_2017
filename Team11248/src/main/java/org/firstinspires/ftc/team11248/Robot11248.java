@@ -19,7 +19,7 @@ public class Robot11248 extends OmniWheelDriver {
     //Debouncing Variables
 
 
-    private boolean shooterOn, conveyorOn;
+    public boolean shooterOn, conveyorOn, collectorClosed, isLiftArmUp;
 
     //Angles
     public static final double RIGHT_ANGLE = Math.PI/2;
@@ -29,18 +29,23 @@ public class Robot11248 extends OmniWheelDriver {
 
     //GYRO ROTATION
     private static final double GYRO_ROTATION_BLUE = -.25;
-    private static final int DEGREE_THRESHOLD = 4;
+    private static final int GYRO_THRESHOLD = 2;
 
     //LINE SENSOR THRESHOLDS
     private static final double OPTICAL_THRESHOLD_LOW = .9;
     private static final double OPTICAL_THRESHOLD_HIGH = 1;
 
     //Servo constants
-    private static final double LIFT_UP = .30;
-    private static final double LIFT_DOWN = 1;
+    private static final double LIFT_DOWN = .26;
+    private static final double LIFT_UP = 1;
 
     private static final double BEACON_OUT = 0;
     private static final double BEACON_IN = 1;
+
+    private static final double COLLECTOR_L_OPEN = .85;
+    private static final double COLLECTOR_L_CLOSED = .425;
+    private static final double COLLECTOR_R_OPEN = .425;
+    private static final double COLLECTOR_R_CLOSED = .85;
 
     // I2C address, registers, and commands
     private final byte COLOR_SENSOR_GREEN_ADDR = 0x3A; //Green
@@ -56,11 +61,11 @@ public class Robot11248 extends OmniWheelDriver {
 
     //Motors, Sensors, Telemetry
     private DcMotor shooterL, shooterR, lift, conveyor;
-    private Servo liftArm, beaconPusher;
+    private Servo liftArm, beaconPusher, collectorServoL, collectorServoR;
     private MRColorSensorV3 colorBeacon;
     private OpticalDistanceSensor lineSensor;
     private GyroSensor gyro;
-    private boolean isLiftArmUp = false;
+    private Telemetry telemetry;
 
     //hardware map
     public static final String[] MOTOR_LIST =
@@ -68,7 +73,7 @@ public class Robot11248 extends OmniWheelDriver {
                     "ShooterL","ShooterR","Lift","Conveyor"};
 
     public static final String[] SERVO_LIST =
-            {"servo1", "servo2"};
+            {"servo1", "servo2","servo3","servo4"};
 
     public static final String COLOR = "color2";
 
@@ -87,7 +92,7 @@ public class Robot11248 extends OmniWheelDriver {
      */
     public Robot11248(DcMotor[] motors, Servo[] servos, I2cDevice color, GyroSensor gyro, OpticalDistanceSensor line, Telemetry telemetry) {
         this(motors[0], motors[1], motors[2], motors[3], motors[4], motors[5], motors[6],
-                motors[7], servos[0], servos[1], color, gyro, line, telemetry);
+                motors[7], servos[0], servos[1], servos[2], servos[3], color, gyro, line, telemetry);
     }
 
     /**
@@ -102,6 +107,8 @@ public class Robot11248 extends OmniWheelDriver {
      * @param lift - lift motor
      * @param liftArm - lift release servo
      * @param beaconPusher - beacon pusher servo
+     * @param collectorServoL - servo for collecting on the left side
+     * @param collectorServoR - servo for collecting on the right side
      * @param colorBeacon - color sensor for beacons 0x3E
      * @param gyro - gyroscopic sensor
      * @param line - optical distance sensor for the line
@@ -109,7 +116,7 @@ public class Robot11248 extends OmniWheelDriver {
      */
     public Robot11248(DcMotor frontLeft, DcMotor frontRight, DcMotor backLeft, DcMotor backRight,
                       DcMotor shooterL, DcMotor shooterR, DcMotor lift, DcMotor conveyor,
-                      Servo liftArm, Servo beaconPusher, I2cDevice colorBeacon, GyroSensor gyro,
+                      Servo liftArm, Servo beaconPusher, Servo collectorServoL, Servo collectorServoR, I2cDevice colorBeacon, GyroSensor gyro,
                       OpticalDistanceSensor line, Telemetry telemetry) {
 
         super(frontLeft, frontRight, backLeft, backRight, telemetry);
@@ -119,22 +126,32 @@ public class Robot11248 extends OmniWheelDriver {
         this.liftArm = liftArm;
         this.conveyor = conveyor;
         this.beaconPusher = beaconPusher;
+        this.collectorServoL = collectorServoL;
+        this.collectorServoR = collectorServoR;
         this.lineSensor = line;
         this.gyro = gyro;
 
         this.colorBeacon = new MRColorSensorV3(colorBeacon, COLOR_SENSOR_BEACON_ADDR);
 
-        //this.shooterL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //this.shooterR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            this.shooterL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            this.shooterR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     /**
      * Initializes the robot. (In this case it just sets servo positions to default)
      */
     public void init() {
-        moveLiftArmUp();
+        moveLiftArmDown();
         moveBeaconIn();
+        closeCollector();
 
+    }
+
+    /*
+     * TELEMETRY METHODS
+     */
+
+    public void showMotorValues(){
     }
 
 
@@ -194,8 +211,8 @@ public class Robot11248 extends OmniWheelDriver {
     }
 
     public void shooterReverse() {
-        shooterL.setPower(SHOOTER_SPEED);
-        shooterR.setPower(-SHOOTER_SPEED);
+        shooterL.setPower(-SHOOTER_SPEED);
+        shooterR.setPower(SHOOTER_SPEED);
         shooterOn = true;
     }
 
@@ -244,6 +261,23 @@ public class Robot11248 extends OmniWheelDriver {
 
     public boolean getConveyerOn() {
         return conveyorOn;
+    }
+
+    public void openCollector(){
+        collectorServoL.setPosition(COLLECTOR_L_OPEN);
+        collectorServoR.setPosition(COLLECTOR_R_OPEN);
+    }
+
+    public void closeCollector(){
+        collectorServoL.setPosition(COLLECTOR_L_CLOSED);
+        collectorServoR.setPosition(COLLECTOR_R_CLOSED);
+    }
+
+    public void switchCollectorServo(){
+        if(collectorClosed)
+            closeCollector();
+        else
+            openCollector();
     }
 
 
@@ -302,34 +336,46 @@ public class Robot11248 extends OmniWheelDriver {
         return gyro.getHeading();
     }
 
-    public void driveWithGyro(double x, double y, int targetAngle){
+    public boolean driveWithGyro(double x, double y, int targetAngle) {
 
+        boolean atAngle = false;
         int currentAngle = getGyroAngle();
         int net = currentAngle - targetAngle; //finds distance to target angle
-        double rotation = -1;
+        double rotation;
 
-        if(net > 180) { // if shortest path passes 0
-            if(currentAngle > 180) //if going counterclockwise
-                net = (360 - currentAngle) + targetAngle;
+        if (Math.abs(net) > 180) { // if shortest path passes 0
+            if (currentAngle > 180) //if going counterclockwise
+                net = (currentAngle - 360) - targetAngle;
 
-            else //if going counterclockwise
-                net = (targetAngle - 360) - currentAngle;
+            else //if going clockwise
+                net = (360 - targetAngle) + currentAngle;
         }
 
-        rotation *= (Math.abs(net) * .004 + .25); // slows down as approaches angle
+        // slows down as approaches angle with min threshold of .05
+        // each degree adds/subtracts .95/180 values of speed
+        rotation = Math.abs(net) * .85 / 180 + .15;
 
-        if(net<0) rotation *= -1; //if going clockwise, set rotation clockwise (-)
+        if (net < 0) rotation *= -1; //if going clockwise, set rotation clockwise (-)
 
-        driveold(x,y,rotation); //Drive with gyros rotation
+        if (Math.abs(net) > GYRO_THRESHOLD) {
+            driveold(x, y, rotation); //Drive with gyros rotation
+            atAngle =  true;
 
-//        telemetry.addData("1:", "Heading: " + getGyroAngle());
-//        telemetry.addData("2:", "Net: " + net);
-//        telemetry.addData("3: ", "Speed: " +rotation);
-//        telemetry.addData("4: ", "Target: " + targetAngle);
-//        telemetry.update();
+        } else
+            driveold(x, y, 0);
+
+        if(silent) {
+            telemetry.addData("ROBOT11248", "Heading: " + getGyroAngle());
+            telemetry.addData("ROBOT11248", "Net: " + net);
+            telemetry.addData("ROBOT11248", "Speed: " + rotation);
+            telemetry.addData("ROBOT11248", "Target: " + targetAngle);
+            telemetry.update();
+        }
+
+        return atAngle;
     }
 
-    public void moveToAngle(int targetAngle){
-        driveWithGyro(0,0,targetAngle);
+    public boolean moveToAngle(int targetAngle){
+        return driveWithGyro(0,0,targetAngle);
     }
 }

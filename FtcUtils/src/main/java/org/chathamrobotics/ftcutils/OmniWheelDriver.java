@@ -19,8 +19,6 @@ public class OmniWheelDriver {
     public static final double BACK_OFFSET = Math.PI;
     public static final double RIGHT_OFFSET = 3* Math.PI / 2;
 
-    public static final double SLOW_SPEED = .1;
-
 //    STATEFUl      //
     private Telemetry telemetry;
     private DcMotor frontLeft;
@@ -30,8 +28,9 @@ public class OmniWheelDriver {
 
 
     // TODO: 12/11/2016 oz add some comments about this stuff. Also u might want to make is slow public for simplicities sake
-    public static double MAX_TURN = .20;
-    public static double MAX_SPEED = .80;
+    public static double MAX_TURN = .3;
+    public static double MAX_SPEED = .7;
+    public static final double SLOW_SPEED = .35;
     private boolean isSlow = false;
 
     /*
@@ -78,36 +77,77 @@ public class OmniWheelDriver {
     }
 
 
-    /*
-     * Legacy version of the driving method
-     *
-     */
+
 
     public void stop(){
         driveold(0,0,0);
     }
+
+
+    /**
+     * Team 11248's driving method for omni wheel drive
+     * @param x - values of x to drive (double -1 to +1)
+     * @param y - values of y to drive (double -1 to +1)
+     * @param rotate - values for rotation to drive (double -1 to +1)
+     * @param smooth - boolean declaring if driving values are smoothed (low values easier to control)
+     */
+
     public void driveold(double x, double y, double rotate, boolean smooth){
         double FL, FR, BL, BR, angle, r;
+        double MAX_TURN, MAX_SPEED;
         //## CALCULATE VALUES ##
+
+        /* This makes the rotation and speed ratios relative to the rotation value
+         * So when we don't have a rotation we can drive at full speed instead of a fraction of speed
+         * If rotation is being used, a ratio is induced to prevent a value greater than 1
+         */
+
+        if (smooth) {
+            MAX_TURN = Math.abs(rotate) * this.MAX_TURN;
+            MAX_SPEED = 1 - MAX_TURN;
+
+        } else {
+            MAX_SPEED = this.MAX_SPEED;
+            MAX_TURN = this.MAX_TURN;
+        }
+
+
+        //Using a function on variable rotate will smooth out the slow values but still give full range
+        if((smooth || isSlow) && rotate !=0) rotate = rotate * rotate * rotate/Math.abs(rotate);
 
         rotate *= MAX_TURN;
 
-        // Takes regular x,y coordinates and converts them into polar (angle radius) cooridnates
-        // Then turns angle by 90 degrees (Pi/4) to accommodate omni wheel axis
 
-        // if x is 0, atan comes out undefined instead of PI/2 or 3PI/2
+        angle = Math.atan2(y, x);
+//
+//        // Takes regular x,y coordinates and converts them into polar (angle radius) cooridnates
+//        // Then turns angle by 45 degrees (Pi/4) to accommodate omni wheel axis
+//
+//        // if x is 0, atan comes out undefined instead of PI/2 or 3PI/2
+//
+//        if (x != 0) {
+//            angle = Math.atan(y / x);
+//
+//        }else if(y > 0){//if it's 90 degrees use PI/2
+//            angle = Math.PI/2;
+//
+//        }else{
+//            angle = (3 * Math.PI)/2;
+//        }
+//
+//        // BUG FIX atan() assumes x is always positive and angle in standard position
+//        // add PI to go to quadrant 2 or 3
+//        if(x<0) {
+//            angle += Math.PI;
+//        }
 
-        if (x != 0) {
-            angle = Math.atan(y / x);
 
-        }else if(y > 0){//if it's 90 degrees use PI/2
-            angle = Math.PI/2;
+        /* Gets the radius of our left joystick to vary our total speed
+        * Checks if r is greater than 1 (cannot assume joystick gives perfect circular values)
+        */
+        r = Math.sqrt( (x*x) + (y*y) );
+        if(r>1) r=1;
 
-        }else{
-            angle = (3 * Math.PI)/2;
-        }
-
-        r = Math.sqrt( (x*x) + (y*y) ) ;//get the radius (hypotenuse)
         angle += (Math.PI/4);//take our angle and shift it 90 deg (PI/4)
 
 
@@ -115,20 +155,8 @@ public class OmniWheelDriver {
 
         //TODO: r = -(4/3*r-2)/((4/3*r)*(4/3*r)); Cooler more impressive function
 
-        // BUG FIX atan() assumes x is always positive and angle in standard position
-        // add PI to go to quadrant 2 or 3
-        if(x<0) {
-            angle += Math.PI;
-        }
 
 
-        FL = BR =  Math.sin(angle + offsetAngle) * MAX_SPEED * r; //takes new angle and radius and converts them into the motor values
-        FR = BL = Math.cos(angle + offsetAngle) * MAX_SPEED * r;
-
-        FL -= rotate; // implements rotation
-        FR -= rotate;
-        BL += rotate;
-        BR += rotate;
 
         double SPEED = 1;
 
@@ -136,13 +164,53 @@ public class OmniWheelDriver {
             SPEED = SLOW_SPEED;
 
 
-        if(FL<=1 & FR<=1 & BR <=1 & BL<=1) {// Prevent fatal error
-            frontLeft.setPower(FL*SPEED); // -rot fl br y
-            frontRight.setPower(FR*SPEED); // -
-            backLeft.setPower(-BL*SPEED); // +
-            backRight.setPower(-BR*SPEED); //+
+        /* Takes new angle and radius and converts them into the motor values
+         * Multiples by our speed reduction ratio and our slow speed ratio
+         */
+        FL = BR =  Math.sin(angle + offsetAngle) * MAX_SPEED * r;
+        FR = BL = Math.cos(angle + offsetAngle) * MAX_SPEED * r ;
+
+        FL -= rotate; // implements rotation
+        FR -= rotate;
+        BL += rotate;
+        BR += rotate;
+
+
+        /* Prevent fatal error cause by slightly impefect joystick values
+         * Will drive in aproxamite direction if true
+         */
+        if(Math.abs(FL) >1 || Math.abs(FR) >1 ||
+                Math.abs(BR) >1 || Math.abs(BL) >1) {
+
+            FL /=  Math.abs(FL);
+            FR /=  Math.abs(FR);
+            BR /=  Math.abs(BR);
+            BL /=  Math.abs(BL);
         }
+
+
+            frontLeft.setPower(FL * SPEED); // -rot fl br y
+            frontRight.setPower(FR * SPEED); // -
+            backLeft.setPower(-BL * SPEED); // +
+            backRight.setPower(-BR * SPEED); //+
+
+
+        if (silent) {
+            telemetry.addData("OMNI_DRIVER", "radius: " + r);
+            telemetry.addData("OMNI_DRIVER", "x: " + x);
+            telemetry.addData("OMNI_DRIVER", "y: " + y);
+            telemetry.addData("OMNI_DRIVER", "rotate: " + rotate);
+            telemetry.addData("OMNI_DRIVER", "FL: " + frontLeft.getPower());
+            telemetry.addData("OMNI_DRIVER", "FR: " + frontRight.getPower());
+            telemetry.addData("OMNI_DRIVER", "BR: " + backRight.getPower());
+            telemetry.addData("OMNI_DRIVER", "BL: " + backLeft.getPower());
+            telemetry.update();
+        }
+
+
+
     }
+
 
     /*
      * moves the robot based off of analogue inputs
