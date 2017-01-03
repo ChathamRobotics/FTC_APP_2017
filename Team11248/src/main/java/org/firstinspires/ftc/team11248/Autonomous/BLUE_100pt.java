@@ -65,28 +65,27 @@ public class BLUE_100pt extends LinearOpMode {
             switch (state) {
                 case -1://6 seconds
                     shootBallsStart(); //MOVES FORWARD AND SHOOT BALLS
-                    sleep(1000); //WAITS 2 SECONDS
+                    sleep(1000);
                     state++;
-                case 0: //DOES THIS UNTIL ANGLE GETS TO A_SHOOT_BEACON (60 deg)
-//                    robot.driveWithGyro2(0, 0, A_SHOOT_TO_BEACON); //ROTATE TO A_SHOOT_TO_BEACON
-//                    if(Robot11248.angleWithinThreshold(robot.getGyroAngle(),A_SHOOT_TO_BEACON)) { //WHEN ANGLE REACHED
-//                        state++; //NEXT STATE
-//                        robot.stop(); //STOP MOVING
-//                    }
+                    break;
+
+                case 0:
                     robot.driveold(.5, .4, 0); //DRIVE DIAGONAL
                     if(robot.hitLine()) { //WHEN WHITE LINE FOUND
                         state++; //NEXT STATE
                         robot.stop(); //STOP MOVING
                     }
                     break;
+
                 case 1:
-                    robot.driveWithGyro(.25, 0, 2); //move up
+                    robot.driveWithGyro(.25, 0, 0); //move up
                     sleep(1300);
                     robot.stop();
                     sleep(100);
-                    robot.driveWithGyro(0, -.25, 2); //move up
+                    robot.driveWithGyro(0, -.25, 0); //move up
                     sleep(1100);
                     state++;
+
                 case 2: //DOES THIS UNTIL IT REACHES A LINE
                     if(robot.isBeaconBlue()||robot.isBeaconRed()) {
                         state++; //NEXT STATE
@@ -170,8 +169,7 @@ public class BLUE_100pt extends LinearOpMode {
             sleep(1000);//PUSH BEACON
             robot.moveBeaconIn();
 
-        }else{
-        }
+        }else{}
     }
 
     public void driveWithGyro(double x, double y, int targetAngle){

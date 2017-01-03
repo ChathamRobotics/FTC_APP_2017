@@ -52,6 +52,8 @@ public class Robot11248 extends OmniWheelDriver {
     private final byte COLOR_SENSOR_YELLOW_ADDR = 0x3C; //Yellow
     private final byte COLOR_SENSOR_BEACON_ADDR = 0x3E; //Beacon
 
+
+    //Color sensor color thresholds
     private final int BLUE_LOW_THRESHOLD = 2;
     private final int BLUE_HIGH_THRESHOLD = 3;
     private final int RED_LOW_THRESHOLD = 10;
@@ -357,12 +359,13 @@ public class Robot11248 extends OmniWheelDriver {
 
         if (net < 0) rotation *= -1; //if going clockwise, set rotation clockwise (-)
 
-        if (Math.abs(net) > GYRO_THRESHOLD) {
+        if (Math.abs(net) > GYRO_THRESHOLD)
             driveold(x, y, rotation); //Drive with gyros rotation
-            atAngle =  true;
 
-        } else
+        else {
+            atAngle = true;
             driveold(x, y, 0);
+        }
 
         if(silent) {
             telemetry.addData("ROBOT11248", "Heading: " + getGyroAngle());
