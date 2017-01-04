@@ -19,6 +19,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import org.chathamrobotics.ftcutils.MRColorSensorV2;
 import org.chathamrobotics.ftcutils.UltrasonicSensor_HCSR04;
@@ -35,8 +36,6 @@ public class SensorValTest extends OpMode {
 
     public Robot11248 robot;
 
-    private UltrasonicSensor_HCSR04 ultrasonic;
-
 
 
     public void init() {
@@ -47,39 +46,33 @@ public class SensorValTest extends OpMode {
         I2cDevice color = hardwareMap.i2cDevice.get(Robot11248.COLOR);
         GyroSensor gyro = hardwareMap.gyroSensor.get(Robot11248.GYRO);
         OpticalDistanceSensor line = hardwareMap.opticalDistanceSensor.get(Robot11248.LINE);
+        UltrasonicSensor sonar = hardwareMap.ultrasonicSensor.get(Robot11248.SONAR);
 
         for (int i = 0; i < motors.length; i++)
             motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
         for (int i = 0; i < servos.length; i++)
             servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
 
-        robot = new Robot11248(motors, servos, color, gyro, line,  telemetry);
+        robot = new Robot11248(motors, servos, color, gyro, line, sonar, telemetry);
         robot.init(); //Sets servos to right position.
         robot.activateColorSensors();
         robot.calibrateGyro();
 
-
-       ultrasonic = new UltrasonicSensor_HCSR04(
-               hardwareMap.digitalChannel.get("US_echo"),
-               hardwareMap.digitalChannel.get("US_trig"));
     }
 
     // Respond to gamepad input.
     public void loop() {
 
-
-        ultrasonic.setTriggerState(true);
         telemetry.addData("01: ", "Line Sensor: " + robot.getLineSensorValue());
         telemetry.addData("02: ", "hitLine: " + robot.hitLine());
         telemetry.addData("03: ", "ColorBeacon: " + robot.getColorBeacon());
         telemetry.addData("04: ", "isBlue: " + robot.isBeaconBlue());
         telemetry.addData("05: ", "isRed: " + robot.isBeaconRed());
         telemetry.addData("06: ", "Heading: " + robot.getGyroAngle());
-        //telemetry.addData("07: ", "UltrasonicRaw: " + ultrasonic.getRawValue());
-       // telemetry.addData("08: ", "UltrasonicIN: " + ultrasonic.distanceIN());
-     //   telemetry.addData("09: ", "UltrasonicCM: " + ultrasonic.distanceCM());
-     //   telemetry.addData("10: ", "UltrasonicMM: " + ultrasonic.distanceMM());
-        telemetry.addData("07: ", "EchoState: " + ultrasonic.getEchoState());
+        telemetry.addData("07: ", "UltrasonicRaw: " + robot.getSonarValue());
+        telemetry.addData("08: ", "UltrasonicIN: " + robot.getDistanceIN());
+        telemetry.addData("09: ", "UltrasonicCM: " + robot.getDistanceCM());
+        telemetry.addData("10: ", "UltrasonicMM: " + robot.getDistanceMM());
 
 
 

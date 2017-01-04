@@ -45,7 +45,7 @@ public class RED_100pt extends LinearOpMode {
         for (int i = 0; i < servos.length; i++)
             servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
 
-        robot = new Robot11248(motors, servos, color, gyro, line,  telemetry);
+        robot = new Robot11248(motors, servos, color, gyro, line, null, telemetry);
         robot.init(); //Sets servos to right position.
 
         robot.activateColorSensors();

@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import org.chathamrobotics.ftcutils.MRColorSensorV3;
 import org.chathamrobotics.ftcutils.OmniWheelDriver;
@@ -25,7 +26,7 @@ public class Robot11248 extends OmniWheelDriver {
     public static final double RIGHT_ANGLE = Math.PI/2;
 
     //Driving constants
-    public static final double SHOOTER_SPEED = 1;
+    public static final double SHOOTER_SPEED = .8;
 
     //GYRO ROTATION
     private static final double GYRO_ROTATION_BLUE = -.25;
@@ -44,8 +45,8 @@ public class Robot11248 extends OmniWheelDriver {
 
     private static final double COLLECTOR_L_OPEN = .85;
     private static final double COLLECTOR_L_CLOSED = .425;
-    private static final double COLLECTOR_R_OPEN = .425;
-    private static final double COLLECTOR_R_CLOSED = .85;
+    private static final double COLLECTOR_R_OPEN = .05;
+    private static final double COLLECTOR_R_CLOSED = .425;
 
     // I2C address, registers, and commands
     private final byte COLOR_SENSOR_GREEN_ADDR = 0x3A; //Green
@@ -67,6 +68,7 @@ public class Robot11248 extends OmniWheelDriver {
     private MRColorSensorV3 colorBeacon;
     private OpticalDistanceSensor lineSensor;
     private GyroSensor gyro;
+    private UltrasonicSensor sonar;
     private Telemetry telemetry;
 
     //hardware map
@@ -83,6 +85,8 @@ public class Robot11248 extends OmniWheelDriver {
 
     public static final String LINE = "sensor_ods";
 
+    public static final String SONAR = "sonar";
+
     /**
      * Initializes using a list of motors.
      * @param motors
@@ -90,11 +94,12 @@ public class Robot11248 extends OmniWheelDriver {
      * @param color
      * @param gyro
      * @param line
+     * @param sonar
      * @param telemetry
      */
-    public Robot11248(DcMotor[] motors, Servo[] servos, I2cDevice color, GyroSensor gyro, OpticalDistanceSensor line, Telemetry telemetry) {
+    public Robot11248(DcMotor[] motors, Servo[] servos, I2cDevice color, GyroSensor gyro, OpticalDistanceSensor line, UltrasonicSensor sonar, Telemetry telemetry) {
         this(motors[0], motors[1], motors[2], motors[3], motors[4], motors[5], motors[6],
-                motors[7], servos[0], servos[1], servos[2], servos[3], color, gyro, line, telemetry);
+                motors[7], servos[0], servos[1], servos[2], servos[3], color, gyro, line, sonar,telemetry);
     }
 
     /**
@@ -114,12 +119,13 @@ public class Robot11248 extends OmniWheelDriver {
      * @param colorBeacon - color sensor for beacons 0x3E
      * @param gyro - gyroscopic sensor
      * @param line - optical distance sensor for the line
+     * @param sonar - ultrasonic sensor through legacy module
      * @param telemetry
      */
     public Robot11248(DcMotor frontLeft, DcMotor frontRight, DcMotor backLeft, DcMotor backRight,
                       DcMotor shooterL, DcMotor shooterR, DcMotor lift, DcMotor conveyor,
                       Servo liftArm, Servo beaconPusher, Servo collectorServoL, Servo collectorServoR, I2cDevice colorBeacon, GyroSensor gyro,
-                      OpticalDistanceSensor line, Telemetry telemetry) {
+                      OpticalDistanceSensor line, UltrasonicSensor sonar,Telemetry telemetry) {
 
         super(frontLeft, frontRight, backLeft, backRight, telemetry);
         this.shooterL = shooterL;
@@ -132,11 +138,12 @@ public class Robot11248 extends OmniWheelDriver {
         this.collectorServoR = collectorServoR;
         this.lineSensor = line;
         this.gyro = gyro;
+        this.sonar = sonar;
 
         this.colorBeacon = new MRColorSensorV3(colorBeacon, COLOR_SENSOR_BEACON_ADDR);
 
-            this.shooterL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            this.shooterR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //this.shooterL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //this.shooterR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     /**
@@ -173,7 +180,6 @@ public class Robot11248 extends OmniWheelDriver {
     /*
     * LIFT METHODS
     */
-
     public void setLiftSpeed(double speed) {
         if(speed > 1)
             speed = 1;
@@ -275,11 +281,14 @@ public class Robot11248 extends OmniWheelDriver {
         collectorServoR.setPosition(COLLECTOR_R_CLOSED);
     }
 
-    public void switchCollectorServo(){
-        if(collectorClosed)
-            closeCollector();
-        else
+    public void switchCollectorServo() {
+        if (collectorClosed){
             openCollector();
+        collectorClosed = false;
+    }else{
+            closeCollector();
+            collectorClosed = true;
+        }
     }
 
 
@@ -381,4 +390,37 @@ public class Robot11248 extends OmniWheelDriver {
     public boolean moveToAngle(int targetAngle){
         return driveWithGyro(0,0,targetAngle);
     }
+
+
+    /*
+     * SONAR SENSOR METHODS
+     */
+
+    public double lastVal = 1;
+    public double getSonarValue(){
+        double val = sonar.getUltrasonicLevel();
+        if(Math.abs(val) <= .1)
+            return lastVal;
+        return val;
+    }
+
+    public double getDistanceIN(){
+        //TODO: Calibrate
+        int unitsPerIn = 1023;
+        return sonar.getUltrasonicLevel()/unitsPerIn;
+    }
+
+    public double getDistanceCM(){
+        //TODO: Calibrate
+        int unitsPerCm = 1023;
+        return sonar.getUltrasonicLevel()/unitsPerCm;
+    }
+
+    public double getDistanceMM(){
+        //TODO: Calibrate
+        int unitsPerMm = 1023;
+        return sonar.getUltrasonicLevel()/unitsPerMm;
+    }
+
+
 }

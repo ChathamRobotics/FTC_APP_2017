@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.team11248.Teleop;
 
+import com.google.gson.internal.UnsafeAllocator;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import org.firstinspires.ftc.team11248.Robot11248;
 
@@ -31,13 +33,14 @@ public class DriverFull extends DriverOmni {
         I2cDevice color = hardwareMap.i2cDevice.get(Robot11248.COLOR);
         GyroSensor gyro = hardwareMap.gyroSensor.get(Robot11248.GYRO);
         OpticalDistanceSensor line = hardwareMap.opticalDistanceSensor.get(Robot11248.LINE);
+        UltrasonicSensor sonar = hardwareMap.ultrasonicSensor.get(Robot11248.SONAR);
 
         for (int i = 0; i < motors.length; i++)
             motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
         for (int i = 0; i < servos.length; i++)
             servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
 
-        robot = new Robot11248(motors, servos, color, gyro, line,  telemetry);
+        robot = new Robot11248(motors, servos, color, gyro, line, sonar,telemetry);
         robot.init(); //Sets servos to right position.
 
         prevGP1 = new Gamepad();
@@ -51,7 +54,6 @@ public class DriverFull extends DriverOmni {
         }
 
         robot.deactivateColorSensors();
-        robot.setTelemetry(true);
     }
 
     @Override
@@ -124,8 +126,7 @@ public class DriverFull extends DriverOmni {
                 robot.shooterReverse();
         }
 
-        if (gamepad2.b && gamepad2.x != prevGP2.b) {
-
+        if (gamepad2.b && gamepad2.b != prevGP2.b) {
             if (robot.getShooterOn())
                 robot.shooterOff();
             else
@@ -137,17 +138,18 @@ public class DriverFull extends DriverOmni {
             robot.switchCollectorServo();
 
         telemetry.addData("DriverFull: ", "Collector Closed: " + robot.collectorClosed);
+        telemetry.update();
 
 
         if (gamepad2.right_trigger > 0)
-            robot.setConveyor(-gamepad2.right_trigger);
+            robot.setConveyor(gamepad2.right_trigger);
         else if (gamepad2.left_trigger > 0)
-            robot.setConveyor(gamepad2.left_trigger);
+            robot.setConveyor(-gamepad2.left_trigger);
         else
             robot.setConveyor(0);
 
 
-        //Recaptures all previous values of Gampad 1 for debouncing
+        //Recaptures all previous values of Gamepad 1 for debouncing
         try {
             prevGP2.copy(gamepad2);
         } catch (RobotCoreException e) {

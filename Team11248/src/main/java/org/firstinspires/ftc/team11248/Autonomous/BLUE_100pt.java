@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.robot.Robot;
 
@@ -23,6 +24,8 @@ import org.firstinspires.ftc.team11248.Robot11248;
 public class BLUE_100pt extends LinearOpMode {
 
     Robot11248 robot;
+
+    final int STOP_DELAY = 500;
     int A_SHOOT_TO_BEACON = 38;
     double rotationRatio = .004 ;
 
@@ -40,15 +43,14 @@ public class BLUE_100pt extends LinearOpMode {
         I2cDevice color = hardwareMap.i2cDevice.get(Robot11248.COLOR);
         GyroSensor gyro = hardwareMap.gyroSensor.get(Robot11248.GYRO);
         OpticalDistanceSensor line = hardwareMap.opticalDistanceSensor.get(Robot11248.LINE);
+        UltrasonicSensor sonar = hardwareMap.ultrasonicSensor.get(Robot11248.SONAR);
 
         for (int i = 0; i < motors.length; i++)
             motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
         for (int i = 0; i < servos.length; i++)
             servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
 
-
-
-        robot = new Robot11248(motors, servos, color, gyro, line,  telemetry);
+        robot = new Robot11248(motors, servos, color, gyro, line, sonar,telemetry);
         robot.init(); //Sets servos to right position.
 
         robot.activateColorSensors();
@@ -72,47 +74,36 @@ public class BLUE_100pt extends LinearOpMode {
                 case 0:
                     robot.driveold(.5, .4, 0); //DRIVE DIAGONAL
                     if(robot.hitLine()) { //WHEN WHITE LINE FOUND
-                        state++; //NEXT STATE
                         robot.stop(); //STOP MOVING
+                        state++; //NEXT STATE
                     }
                     break;
 
                 case 1:
-                    robot.driveWithGyro(.25, 0, 0); //move up
-                    sleep(1300);
                     robot.stop();
-                    sleep(100);
-                    robot.driveWithGyro(0, -.25, 0); //move up
-                    sleep(1100);
+                    sleep(STOP_DELAY);
+
+                    retrieveBeacon(1300, .25, 100);
                     state++;
+                    break;
 
                 case 2: //DOES THIS UNTIL IT REACHES A LINE
-                    if(robot.isBeaconBlue()||robot.isBeaconRed()) {
-                        state++; //NEXT STATE
-                        sleep(1000); //WAIT A SECOND
-                        retrieveBeacon(500,750,.25); //SEE FOR MORE
-                    }
-                    break;
-                //SECOND BEACON
-                case 3:
-                    robot.driveold(0, .5, 0); //MOVE FORWARD
+                    driveAgainstWall(1, 0, 5); //MOVE FORWARD
                     if(robot.hitLine()) { //WHEN WHITE LINE FOUND
                         state++; //NEXT STATE
                         robot.stop(); //STOP MOVING
                     }
                     break;
-                case 4: //STOPS OP MODE
-//                    robot.driveold(0,.4,0);
-//                    if(robot.isBeaconRed()||robot.isBeaconBlue()){
-//                        robot.stop();
-//                        state++;
-//                    }
-                    state++;
-                  break;
-//                case 5:
-//                    retrieveBeacon(TIME_TO_FIRST_COLOR,750,.25);
-//                    state++;
-//                    break;
+
+                //SECOND BEACON
+                case 3:
+                    robot.stop();
+                    sleep(STOP_DELAY);
+
+                    retrieveBeacon(1300, .25, 100);
+                    break;
+
+
                 default:
                     robot.stop();
                     idle();
@@ -129,6 +120,7 @@ public class BLUE_100pt extends LinearOpMode {
         robot.stop();
         sleep(500);
 
+        robot.openCollector();
         robot.shooterOn();
         sleep(1000);
 
@@ -137,34 +129,41 @@ public class BLUE_100pt extends LinearOpMode {
 
         robot.conveyorOff();
         robot.shooterOff();
+        robot.closeCollector();
 
         //4.95 seconds
     }
 
 
-    public void retrieveBeacon(long x, long y, double speed){
+    public void retrieveBeacon(long x, double speed, int distance){
 
-//        //X ADJUSTMENT
-//        robot.driveold(0,-speed,0);
-//        sleep(x);
-//        robot.stop();
-//        sleep(500);
-//
-//        //Y ADJUSTMENT
-//        robot.driveold(speed,0,0);
-//        sleep(y);
-//        robot.stop();
+        //Y ADJUSTMENT
+        robot.driveWithGyro(speed, 0, 0);
+        if(robot.getDistanceCM() < distance)
+            robot.stop();
+        else
+            return;
+
+
+        //X ADJUSTMENT
+        robot.driveWithGyro(0, -speed, 0);
+        sleep(x);
+        robot.stop();
+        sleep(STOP_DELAY);
+
 
         if (robot.isBeaconBlue()) { //WHEN BEACON IS BLUE
             robot.moveBeaconOut(); //PUSH BEACON
             sleep(1000);
             robot.moveBeaconIn();
-
         }
+
         else if (robot.isBeaconRed()){ //BEACON IS NOT BLUE (AKA ITS RED)
-            robot.driveold(0, -speed, 0); //MOVE UP .5
+
+            robot.driveWithGyro(0, -speed, 0); //MOVE UP .5
             sleep(TIME_TO_OTHER_COLOR); //WAIT .5 SECONDS
             robot.stop(); //STOP MOVING
+
             robot.moveBeaconOut();
             sleep(1000);//PUSH BEACON
             robot.moveBeaconIn();
@@ -172,25 +171,18 @@ public class BLUE_100pt extends LinearOpMode {
         }else{}
     }
 
-    public void driveWithGyro(double x, double y, int targetAngle){
+    public void driveAgainstWall(double speed, int angle, int distance){
 
-        int currentAngle = robot.getGyroAngle();
-        int net = currentAngle - targetAngle;
-        double rotation = .3;
+        double netDist = robot.getDistanceCM() - distance;
+        double y =0;
 
-        if(net > 180) { // if passes 0
-            if(currentAngle > 180) //counterclockwise past 0
-                net = (currentAngle - 360) + targetAngle;
+        if(netDist > 2)
+            y = speed;
+        else if (netDist < 2)
+            y = -speed;
 
-            else
-                net = (360 - targetAngle) + currentAngle;
-        }
+        robot.driveWithGyro(speed, y, angle);
 
-        rotation = Math.abs(net) * .004 + .25;
-
-        if(net<0) rotation *= -1;
-        // if(net == 0) robot.stop();
-        robot.driveold(x,y,rotation,false);
     }
 //    public void driveWithGyro(double x, double y, int targetAngle){
 //
