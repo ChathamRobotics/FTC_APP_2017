@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import org.firstinspires.ftc.team11248.Robot11248;
 
@@ -18,7 +19,7 @@ import org.firstinspires.ftc.team11248.Robot11248;
  */
 
 @TeleOp(name = "GyroDriveTest")
-@Disabled
+//@Disabled
 public class TestGyroBeacon extends OpMode {
 
    Robot11248 robot;
@@ -36,13 +37,14 @@ public class TestGyroBeacon extends OpMode {
         I2cDevice color = hardwareMap.i2cDevice.get(Robot11248.COLOR);
         GyroSensor gyro = hardwareMap.gyroSensor.get(Robot11248.GYRO);
         OpticalDistanceSensor line = hardwareMap.opticalDistanceSensor.get(Robot11248.LINE);
+        UltrasonicSensor sonar = hardwareMap.ultrasonicSensor.get(Robot11248.SONAR);
 
         for (int i = 0; i < motors.length; i++)
             motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
         for (int i = 0; i < servos.length; i++)
             servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
 
-        robot = new Robot11248(motors, servos, color, gyro, line, null, telemetry);
+        robot = new Robot11248(motors, servos, color, gyro, line, sonar, telemetry);
         robot.init(); //Sets servos to right position.
         robot.activateColorSensors();
         robot.calibrateGyro();
@@ -53,10 +55,7 @@ public class TestGyroBeacon extends OpMode {
     public void loop() {
 
 
-       // while(!robot.isBeaconBlue()) {
-        if(!done)
-           driveWithGyro2(0,0,60);
-        //}
+       driveAgainstWall(.4,0,50);
 
 
 
@@ -98,5 +97,20 @@ public class TestGyroBeacon extends OpMode {
         else {
             robot.driveold(x, y, rotation, false);
         }
+    }
+
+    public void driveAgainstWall(double speed, int angle, int distance){
+
+        int SONAR_THRESHOLD = 5;
+        double netDist = robot.getSonarValue() - distance;
+        double y =0;
+
+        if(Math.abs(netDist)> SONAR_THRESHOLD) {
+            y = Math.abs(netDist) * .003 + .25;
+            if(netDist<0) y*=-1;
+        }
+
+        robot.driveWithGyro( y , speed, angle);
+
     }
 }

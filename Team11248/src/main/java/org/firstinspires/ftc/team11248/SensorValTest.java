@@ -70,9 +70,9 @@ public class SensorValTest extends OpMode {
         telemetry.addData("05: ", "isRed: " + robot.isBeaconRed());
         telemetry.addData("06: ", "Heading: " + robot.getGyroAngle());
         telemetry.addData("07: ", "UltrasonicRaw: " + robot.getSonarValue());
-        telemetry.addData("08: ", "UltrasonicIN: " + robot.getDistanceIN());
-        telemetry.addData("09: ", "UltrasonicCM: " + robot.getDistanceCM());
-        telemetry.addData("10: ", "UltrasonicMM: " + robot.getDistanceMM());
+//        telemetry.addData("08: ", "UltrasonicIN: " + robot.getDistanceIN());
+//        telemetry.addData("09: ", "UltrasonicCM: " + robot.getDistanceCM());
+//        telemetry.addData("10: ", "UltrasonicMM: " + robot.getDistanceMM());
 
 
 

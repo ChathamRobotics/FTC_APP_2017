@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
+import com.qualcomm.robotcore.util.Range;
 
 import org.chathamrobotics.ftcutils.MRColorSensorV3;
 import org.chathamrobotics.ftcutils.OmniWheelDriver;
@@ -33,7 +34,7 @@ public class Robot11248 extends OmniWheelDriver {
     private static final int GYRO_THRESHOLD = 2;
 
     //LINE SENSOR THRESHOLDS
-    private static final double OPTICAL_THRESHOLD_LOW = .9;
+    private static final double OPTICAL_THRESHOLD_LOW = .6;
     private static final double OPTICAL_THRESHOLD_HIGH = 1;
 
     //Servo constants
@@ -396,12 +397,20 @@ public class Robot11248 extends OmniWheelDriver {
      * SONAR SENSOR METHODS
      */
 
-    public double lastVal = 1;
+    public double lastVal = 255;
     public double getSonarValue(){
-        double val = sonar.getUltrasonicLevel();
-        if(Math.abs(val) <= .1)
-            return lastVal;
-        return val;
+
+
+        return Range.clip(sonar.getUltrasonicLevel(), 0, 255);
+
+       // double val = sonar.getUltrasonicLevel();
+        // if(val != 0  && val != 255 ) {
+//        val = lastVal;
+//        return val;
+
+       // }else
+            //return lastVal;
+
     }
 
     public double getDistanceIN(){
