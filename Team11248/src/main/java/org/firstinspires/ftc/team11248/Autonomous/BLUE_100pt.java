@@ -62,7 +62,10 @@ public class BLUE_100pt extends LinearOpMode {
 
         while (opModeIsActive() && !isStopRequested()) {
             //BEGIN AUTONOMOUS
-
+            telemetry.update();
+            telemetry.addData("isBlue", robot.isBeaconBlue());
+            telemetry.addData("isRed", robot.isBeaconRed());
+            telemetry.addData("sonar", robot.getSonarValue());
 
             switch (state) {
                 case -1://6 seconds
@@ -79,47 +82,35 @@ public class BLUE_100pt extends LinearOpMode {
                         state++; //NEXT STATE
                     }
                     break;
-
                 case 1:
-
                     if(robot.moveToAngle(0)) state++;
                     break;
-
                 case 2:
-
                     //Y ADJUSTMENT
                     robot.driveold(.3, 0, 0);
-                    if (robot.getSonarValue() < 10){
+                    if (robot.getSonarValue() < 12){
                         robot.stop();
                         sleep(STOP_DELAY);
                         state++;
                     }
-                     break;
-
-                case 3:
-
-                    retrieveBeacon(2200, .3);
-                    //state++;
                     break;
-
+                case 3:
+                    retrieveBeacon(1400, .4);
+                    state++;
+                    break;
                 case 4: //DOES THIS UNTIL IT REACHES A LINE
-                    driveAgainstWall(1, 0, 50); //MOVE FORWARD
+                    driveAgainstWall(1, 0, 25); //MOVE FORWARD
                     if(robot.hitLine()) { //WHEN WHITE LINE FOUND
                         robot.stop(); //STOP MOVING
                         sleep(STOP_DELAY);
                         state++; //NEXT STATE
                     }
                     break;
-
                 //SECOND BEACON
                 case 5:
-                    robot.stop();
-                    sleep(STOP_DELAY);
-
                     retrieveBeacon(1300, .25);
+                    state++;
                     break;
-
-
                 default:
                     robot.stop();
                     idle();
@@ -149,10 +140,10 @@ public class BLUE_100pt extends LinearOpMode {
 
         //4.95 seconds
     }
-    
+
     public void retrieveBeacon(long x, double speed) {
 
-        //telemetry.addData("", distance);
+
 
 
         //X ADJUSTMENT
@@ -178,9 +169,10 @@ public class BLUE_100pt extends LinearOpMode {
             robot.moveBeaconIn();
 
 
-        }else{}
-
-        state++;
+        }
+//      else{}
+//
+//        state++;
     }
 
     public void driveAgainstWall(double speed, int angle, int distance){
