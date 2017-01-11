@@ -5,7 +5,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.chathamrobotics.ftcutils.AutonomousOpMode;
 import org.chathamrobotics.ftcutils.AutonomousVisionOpMode;
 import org.chathamrobotics.ftcutils.MRColorSensorV2;
+import org.chathamrobotics.ftcutils.Robot;
 import org.chathamrobotics.ftcutils.StoppedException;
+import org.firstinspires.ftc.team9853.Robot9853;
 
 import static org.lasarobotics.vision.opmode.VisionOpMode.beacon;
 
@@ -14,12 +16,17 @@ import static org.lasarobotics.vision.opmode.VisionOpMode.beacon;
  */
 
 public class AutoModeBeacons extends AutonomousOpMode {
-    // State
-    private MRColorSensorV2 lineSensor;
-    private DcMotor shooter, belt;
+//    CONSTANTS     //
+    private static final long shootTime = 1000;
+    private static final long reloadTime = 1000;
 
-    long shootTime = 1000;
-    long reloadTime = 1000;
+//    COMPONENTS    //
+    public Robot9853 robot;
+
+//    HARDWARE      //
+    private MRColorSensorV2 lineSensor;
+
+//    CONSTRUCTORS  //
 
     /*
      * Setup OpMode
@@ -29,15 +36,22 @@ public class AutoModeBeacons extends AutonomousOpMode {
         this.isRedTeam = isRedTeam;
     }
 
-    /*
-     * Initializes the robot
+//     METHODS       //
+    /**
+     * Builds the robot
+     * @return
      */
+    @Override
+    public Robot buildRobot() {
+        return new Robot9853(hardwareMap, telemetry);
+    }
+
+    /*
+         * Initializes the robot
+         */
     @Override
     public void initRobot() {
         super.initRobot();
-
-        belt = hardwareMap.dcMotor.get("Belt");
-        shooter = hardwareMap.dcMotor.get("Shooter");
 
         lineSensor = new MRColorSensorV2(hardwareMap.i2cDevice.get("LineSensor"), MRColorSensorV2.DEFAULT_I2C_ADDRESS);
         lineSensor.enableLed(true);
@@ -49,23 +63,23 @@ public class AutoModeBeacons extends AutonomousOpMode {
     public void runRobot() throws StoppedException, InterruptedException {
         for(long endTime = System.currentTimeMillis() + shootTime; System.currentTimeMillis() < endTime;) {
             statusCheck();
-            shooter.setPower(-.7);
+            robot.shooter.setPower(-.7);
         }
 
         for(long endTime = System.currentTimeMillis() + reloadTime; System.currentTimeMillis() < endTime;) {
             statusCheck();
-            belt.setPower(.7);
+            robot.belt.setPower(.7);
         }
 
         for(long endTime = System.currentTimeMillis() + shootTime; System.currentTimeMillis() < endTime;) {
             statusCheck();
-            shooter.setPower(-.7);
+            robot.shooter.setPower(-.7);
         }
 
         // Drive to beacon
         while (! lineSensor.isWhite()) {
             statusCheck();
-            driver.drive(isRedTeam ? -5/12d : 5/12d, 6/12d, 0, .5, false);
+            robot.driveAtPoint(isRedTeam ? -5/12d : 5/12d, 6/12d, .5);
         }
     }
 }

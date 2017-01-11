@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 /**
  * Driving with omni wheels
  */
-public class OmniWheelDriver {
+public class OmniWheelDriver implements Driver{
 //    CONSTANTS     //
     public static final double OMNI_WHEEL_ANGLE_CORRECTION = Math.PI/4;
     public static final double FRONT_OFFSET = 0;
@@ -58,6 +58,16 @@ public class OmniWheelDriver {
                 opMode.telemetry
         );
     }
+    public static  OmniWheelDriver build(HardwareMap hardwareMap, Telemetry telemetry) {
+        return new OmniWheelDriver(
+                hardwareMap.dcMotor.get("FrontLeft"),
+                hardwareMap.dcMotor.get("FrontRight"),
+                hardwareMap.dcMotor.get("BackLeft"),
+                hardwareMap.dcMotor.get("BackRight"),
+                telemetry
+        );
+    }
+
 
     /*
      * creates new OmniWheelDriver.
@@ -232,6 +242,9 @@ public class OmniWheelDriver {
     public void drive(double x, double y, double rotation, boolean smooth) {
         //Default modifier
         drive(x,y,rotation,Math.sqrt((x*x) + (y*y)), smooth);
+    }
+    public void drive(double x, double y, double rotation, double modifier) {
+        drive(x, y, rotation, modifier, false);
     }
     public void drive(double x, double y, double rotation, double modifier, boolean smooth) {
         Range.throwIfRangeIsInvalid(x, -1, 1);

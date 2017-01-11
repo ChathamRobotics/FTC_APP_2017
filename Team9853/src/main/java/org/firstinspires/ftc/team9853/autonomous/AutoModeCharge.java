@@ -4,7 +4,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.chathamrobotics.ftcutils.AutonomousOpMode;
 import org.chathamrobotics.ftcutils.OmniWheelDriver;
+import org.chathamrobotics.ftcutils.Robot;
 import org.chathamrobotics.ftcutils.StoppedException;
+import org.firstinspires.ftc.team9853.Robot9853;
 
 
 /**
@@ -17,8 +19,8 @@ public class AutoModeCharge extends AutonomousOpMode {
     private static final long shootTime = 500;
     private static final long reloadTime = 2500;
 
-//    HARDWARE      //
-    private DcMotor sweeper, belt, shooter;
+//    COMPONENTS    //
+    public Robot9853 robot;
 
 //    CONSTRUCTORS  //
     /*
@@ -30,23 +32,21 @@ public class AutoModeCharge extends AutonomousOpMode {
     }
 
 //    METHODS       //
+
     /**
-     * initializes the robot
+     * Builds team specific robot
+     * @return  the robot
      */
     @Override
-    public void initRobot() {
-        super.initRobot();
-
-        sweeper = hardwareMap.dcMotor.get("Sweeper");
-        belt = hardwareMap.dcMotor.get("Belt");
-        shooter = hardwareMap.dcMotor.get("Shooter");
+    public Robot buildRobot() {
+        return new Robot9853(hardwareMap, telemetry);
     }
 
     /**
      * called on start
      */
     public void runRobot() throws StoppedException {
-        driver.offsetAngle = OmniWheelDriver.BACK_OFFSET;
+        robot.changeFront(Robot9853.SideOfRobot.BACK);
 
         // Waits a little bit before starting autonomous
         waitFor(waitTime);
@@ -54,36 +54,36 @@ public class AutoModeCharge extends AutonomousOpMode {
         // Drives to the shooting point
         for(long endTime = System.currentTimeMillis() + (3 * driveTime / 4); System.currentTimeMillis() < endTime;) {
             statusCheck();
-            driver.move(Math.toRadians(90), 0, .7);
+            robot.driveForward(.7);
         }
-        driver.move(0, 0, 0);
+        robot.stopDriving();
 
         // Shoots twice
         for(long endTime = System.currentTimeMillis() + shootTime; System.currentTimeMillis() < endTime;) {
             statusCheck();
-            shooter.setPower(-.7);
+            robot.shooter.setPower(-.7);
         }
-        shooter.setPower(0);
+        robot.shooter.setPower(0);
 
         for(long endTime = System.currentTimeMillis() + reloadTime; System.currentTimeMillis() < endTime;) {
             statusCheck();
-            belt.setPower(1);
-            sweeper.setPower(11);
+            robot.belt.setPower(1);
+            robot.sweeper.setPower(11);
         }
-        belt.setPower(0);
-        sweeper.setPower(0);
+        robot.belt.setPower(0);
+        robot.sweeper.setPower(0);
 
         for(long endTime = System.currentTimeMillis() + shootTime; System.currentTimeMillis() < endTime;) {
             statusCheck();
-            shooter.setPower(-.7);
+            robot.shooter.setPower(-.7);
         }
-        shooter.setPower(0);
+        robot.shooter.setPower(0);
 
         // Drives to center
         for(long endTime = System.currentTimeMillis() + (driveTime / 4); System.currentTimeMillis() < endTime;) {
             statusCheck();
-            driver.move(Math.toRadians(90), 0, .7);
+            robot.driveForward(.7);
         }
-        driver.move(0, 0, 0);
+        robot.stopDriving();
     }
 }

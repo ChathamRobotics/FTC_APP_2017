@@ -10,27 +10,36 @@ import java.util.Map;
  */
 
 public abstract class TeleOpMode extends OpMode {
-    // State
-    public OmniWheelDriver driver;
+//    COMPONENTS    //
+    public Robot robot;
 
+
+//    STATEFUL      //
+
+    /*
+     * Whether the current team is red
+     */
+    public boolean isRedTeam;
+
+
+//    METHODS       //
+
+    /**
+     * returns the team specific robot
+     * @return the robot object
+     */
+    abstract public Robot buildRobot();
     /*
      * Initializes robot
      */
     public void init() {
-        driver = OmniWheelDriver.build(this);
+        this.robot.initHardware();
     }
 
     /*
      * called on stop
      */
     public void stop() {
-        OpModeTools.stop(this);
-    }
-
-    /*
-     * Updates telemetry readings
-     */
-    public void debug() {
-        OpModeTools.debug(this);
+        this.robot.stop();
     }
 }

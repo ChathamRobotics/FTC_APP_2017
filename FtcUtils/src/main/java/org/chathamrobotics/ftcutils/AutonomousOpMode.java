@@ -11,22 +11,24 @@ import java.util.Map;
  * basic autonomous
  */
 public abstract class  AutonomousOpMode extends LinearOpMode {
-    // State
-    public OmniWheelDriver driver;
+//    COMPONENTS    //
+    public Robot robot;
 
+
+//    STATEFUL      //
     /*
      * Whether the current team is red
      */
     public boolean isRedTeam;
 
 
+//    METHODS       //
 
-    /*
-     * Initializes robot
+    /**
+     * returns the team specific robot
+     * @return the robot object
      */
-    public void initRobot() {
-        driver = OmniWheelDriver.build(this);
-    }
+    abstract public Robot buildRobot();
 
     /*
      * Called on start
@@ -34,10 +36,17 @@ public abstract class  AutonomousOpMode extends LinearOpMode {
     abstract public void runRobot() throws StoppedException, InterruptedException;
 
     /*
+     * Initializes robot
+     */
+    public void initRobot() {
+        this.robot.initHardware();
+    }
+
+    /*
      * called on stop
      */
     public void stopRobot() {
-        OpModeTools.stop(this);
+        this.robot.stop();
     }
 
     /*
@@ -45,12 +54,14 @@ public abstract class  AutonomousOpMode extends LinearOpMode {
      */
     @Override
     public void runOpMode() throws InterruptedException {
+        buildRobot();
+
         initRobot();
 
         // Wait for start call
         waitForStart();
 
-        debug();
+        this.robot.debug();
 
         try {
             runRobot();
@@ -59,7 +70,7 @@ public abstract class  AutonomousOpMode extends LinearOpMode {
             //Just continue to robot stop
         }
         finally {
-            debug();
+            this.robot.debug();
             stopRobot();
         }
     }
@@ -68,15 +79,8 @@ public abstract class  AutonomousOpMode extends LinearOpMode {
      * periodically checks for stop and updates telemetry
      */
     public void statusCheck() throws StoppedException {
-        debug();
+        this.robot.debug();
         checkForStop();
-    }
-
-    /*
-     * Updates telemetry readings
-     */
-    public void debug() {
-        OpModeTools.debug(this);
     }
 
     /*

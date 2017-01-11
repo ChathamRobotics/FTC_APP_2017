@@ -14,25 +14,34 @@ import org.opencv.core.Size;
  */
 
 public abstract class AutonomousVisionOpMode extends LinearVisionOpMode {
-    // Config
+//    CONSTANTS         //
     final static Size defaultFrameSize = new Size(900, 900);
     final static ScreenOrientation defaultOrientation = ScreenOrientation.LANDSCAPE;
 
-    // State
-    public OmniWheelDriver driver;
+//    COMPONENTS        //
+    public Robot robot;
 
+//    Stateful          //
     /*
      * Whether the current team is red
      */
     public boolean isRedTeam;
 
 
+//    ABSTRACT METHODS  //
+    abstract public Robot buildRobot();
 
+    /*
+     * Called on start
+     */
+    abstract public void runRobot() throws StoppedException, InterruptedException;
+
+//    METHODS           //
     /*
      * Initializes robot
      */
     public void initRobot() {
-        driver = OmniWheelDriver.build(this);
+        robot.initHardware();
 
         // Set to front facing camera
         this.setCamera(Cameras.PRIMARY);
@@ -65,15 +74,10 @@ public abstract class AutonomousVisionOpMode extends LinearVisionOpMode {
     }
 
     /*
-     * Called on start
-     */
-    abstract public void runRobot() throws StoppedException, InterruptedException;
-
-    /*
      * called on stop
      */
     public void stopRobot() {
-        OpModeTools.stop(this);
+        this.robot.stop();
     }
 
     /*
@@ -82,6 +86,8 @@ public abstract class AutonomousVisionOpMode extends LinearVisionOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         waitForVisionStart();
+
+        buildRobot();
 
         initRobot();
 
@@ -122,7 +128,7 @@ public abstract class AutonomousVisionOpMode extends LinearVisionOpMode {
         telemetry.addData("Frame Rate", fps.getFPSString() + " FPS");
         telemetry.addData("Frame Size", "Width: " + width + " Height: " + height);
 
-        OpModeTools.debug(this, false);
+        this.robot.debug(false);
 
         telemetry.update();
     }
