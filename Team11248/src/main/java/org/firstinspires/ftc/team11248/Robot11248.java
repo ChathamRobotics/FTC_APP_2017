@@ -2,6 +2,7 @@ package org.firstinspires.ftc.team11248;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -19,8 +20,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Robot11248 extends OmniWheelDriver {
 
     //Debouncing Variables
-
-
     public boolean shooterOn, conveyorOn, collectorClosed, isLiftArmUp;
 
     //Angles
@@ -29,8 +28,7 @@ public class Robot11248 extends OmniWheelDriver {
     //Driving constants
     public static final double SHOOTER_SPEED = .8;
 
-    //GYRO ROTATION
-    private static final double GYRO_ROTATION_BLUE = -.25;
+    //Gyro Thresholds
     private static final int GYRO_THRESHOLD = 2;
 
     //LINE SENSOR THRESHOLDS
@@ -60,8 +58,7 @@ public class Robot11248 extends OmniWheelDriver {
     private final int BLUE_HIGH_THRESHOLD = 4;
     private final int RED_LOW_THRESHOLD = 10;
     private final int RED_HIGH_THRESHOLD = 11;
-    private final int LINE_LOW_THRESHOLD = 15;
-    private final int LINE_HIGH_THRESHOLD = 16;
+
 
     //Motors, Sensors, Telemetry
     private DcMotor shooterL, shooterR, lift, conveyor;
@@ -72,80 +69,56 @@ public class Robot11248 extends OmniWheelDriver {
     private UltrasonicSensor sonar;
     private Telemetry telemetry;
 
-    //hardware map
-    public static final String[] MOTOR_LIST =
-            {"FrontLeft","FrontRight","BackLeft","BackRight",
-                    "ShooterL","ShooterR","Lift","Conveyor"};
 
-    public static final String[] SERVO_LIST =
-            {"servo1", "servo2","servo3","servo4"};
+    public Robot11248(HardwareMap hardwareMap, Telemetry telemetry){
 
-    public static final String COLOR = "color2";
+        /*
+         * MOTOR INITS
+         */
 
-    public static final String GYRO = "gyro";
+        super(hardwareMap.dcMotor.get("FrontLeft"),
+                hardwareMap.dcMotor.get("FrontRight"),
+                hardwareMap.dcMotor.get("BackLeft"),
+                hardwareMap.dcMotor.get("BackRight"),
+                telemetry);
 
-    public static final String LINE = "sensor_ods";
+        this.shooterL = hardwareMap.dcMotor.get("ShooterL");
+        this.shooterR = hardwareMap.dcMotor.get("ShooterR");
+        this.lift = hardwareMap.dcMotor.get("Lift");
+        this.conveyor = hardwareMap.dcMotor.get("Conveyor");
 
-    public static final String SONAR = "sonar";
+        //this.shooterL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //this.shooterR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-    /**
-     * Initializes using a list of motors.
-     * @param motors
-     * @param servos
-     * @param color
-     * @param gyro
-     * @param line
-     * @param sonar
-     * @param telemetry
-     */
-    public Robot11248(DcMotor[] motors, Servo[] servos, I2cDevice color, GyroSensor gyro, OpticalDistanceSensor line, UltrasonicSensor sonar, Telemetry telemetry) {
-        this(motors[0], motors[1], motors[2], motors[3], motors[4], motors[5], motors[6],
-                motors[7], servos[0], servos[1], servos[2], servos[3], color, gyro, line, sonar,telemetry);
-    }
 
-    /**
-     * Creates a model of the robot and initializes sensors, motors, and telemetry
-     * @param frontLeft - wheel motor
-     * @param frontRight - wheel motor
-     * @param backLeft - wheel motor
-     * @param backRight - wheel motor
-     * @param shooterL - shooter motor
-     * @param shooterR - shooter motor
-     * @param conveyor - conveyor motor
-     * @param lift - lift motor
-     * @param liftArm - lift release servo
-     * @param beaconPusher - beacon pusher servo
-     * @param collectorServoL - servo for collecting on the left side
-     * @param collectorServoR - servo for collecting on the right side
-     * @param colorBeacon - color sensor for beacons 0x3E
-     * @param gyro - gyroscopic sensor
-     * @param line - optical distance sensor for the line
-     * @param sonar - ultrasonic sensor through legacy module
-     * @param telemetry
-     */
-    public Robot11248(DcMotor frontLeft, DcMotor frontRight, DcMotor backLeft, DcMotor backRight,
-                      DcMotor shooterL, DcMotor shooterR, DcMotor lift, DcMotor conveyor,
-                      Servo liftArm, Servo beaconPusher, Servo collectorServoL, Servo collectorServoR, I2cDevice colorBeacon, GyroSensor gyro,
-                      OpticalDistanceSensor line, UltrasonicSensor sonar,Telemetry telemetry) {
+        /*
+         * SERVO INITS
+         */
 
-        super(frontLeft, frontRight, backLeft, backRight, telemetry);
-        this.shooterL = shooterL;
-        this.shooterR = shooterR;
-        this.lift = lift;
-        this.liftArm = liftArm;
-        this.conveyor = conveyor;
-        this.beaconPusher = beaconPusher;
-        this.collectorServoL = collectorServoL;
-        this.collectorServoR = collectorServoR;
-        this.lineSensor = line;
-        this.gyro = gyro;
-        this.sonar = sonar;
+        this.liftArm = hardwareMap.servo.get("servo1");
+        this.beaconPusher = hardwareMap.servo.get("servo2");
+        this.collectorServoL = hardwareMap.servo.get("servo3");
+        this.collectorServoR = hardwareMap.servo.get("servo4");
 
+
+        /*
+         * SENSOR INITS
+         */
+
+        this.lineSensor = hardwareMap.opticalDistanceSensor.get("sensor_ods");
+        this.gyro = hardwareMap.gyroSensor.get("gyro");
+        this.sonar = hardwareMap.ultrasonicSensor.get("sonar");
+
+        I2cDevice colorBeacon = hardwareMap.i2cDevice.get("color2");
         this.colorBeacon = new MRColorSensorV3(colorBeacon, COLOR_SENSOR_BEACON_ADDR);
 
-            //this.shooterL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            //this.shooterR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        //TELEMETRY
+        this.telemetry = telemetry;
+
     }
+
+
 
     /**
      * Initializes the robot. (In this case it just sets servo positions to default)
@@ -157,12 +130,15 @@ public class Robot11248 extends OmniWheelDriver {
 
     }
 
+
+
     /*
      * TELEMETRY METHODS
      */
 
     public void showMotorValues(){
     }
+
 
 
      /*
@@ -178,9 +154,11 @@ public class Robot11248 extends OmniWheelDriver {
     }
 
 
+
     /*
     * LIFT METHODS
     */
+
     public void setLiftSpeed(double speed) {
         if(speed > 1)
             speed = 1;
@@ -205,6 +183,7 @@ public class Robot11248 extends OmniWheelDriver {
         else
             moveLiftArmUp();
     }
+
 
 
     /*
@@ -240,6 +219,7 @@ public class Robot11248 extends OmniWheelDriver {
     public boolean getShooterOn() {
         return shooterOn;
     }
+
 
 
      /*
@@ -321,6 +301,7 @@ public class Robot11248 extends OmniWheelDriver {
     }
 
 
+
     /*
      * OPTICAL DISTANCE SENSOR METHODS
      */
@@ -333,6 +314,7 @@ public class Robot11248 extends OmniWheelDriver {
     public double getLineSensorValue(){
         return lineSensor.getLightDetected();
     }
+
 
 
     /*
@@ -391,6 +373,7 @@ public class Robot11248 extends OmniWheelDriver {
     public boolean moveToAngle(int targetAngle){
         return driveWithGyro(0,0,targetAngle);
     }
+
 
 
     /*
