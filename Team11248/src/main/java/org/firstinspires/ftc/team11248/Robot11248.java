@@ -56,8 +56,8 @@ public class Robot11248 extends OmniWheelDriver {
 
 
     //Color sensor color thresholds
-    private final int BLUE_LOW_THRESHOLD = 2;
-    private final int BLUE_HIGH_THRESHOLD = 3;
+    private final int BLUE_LOW_THRESHOLD = 1;
+    private final int BLUE_HIGH_THRESHOLD = 4;
     private final int RED_LOW_THRESHOLD = 10;
     private final int RED_HIGH_THRESHOLD = 11;
     private final int LINE_LOW_THRESHOLD = 15;
