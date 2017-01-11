@@ -16,7 +16,6 @@ import java.util.Map;
 
 public abstract class Robot {
 //    CONSTANTS         //
-
     protected static final String TAG = "RobotLog";
 
 //    TOOLS             //
