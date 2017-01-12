@@ -46,7 +46,7 @@ public class AutoModeCharge extends AutonomousOpMode {
      * called on start
      */
     public void runRobot() throws StoppedException {
-        robot.changeFront(Robot9853.SideOfRobot.BACK);
+        robot.changeFront(Robot9853.Side.BACK);
 
         // Waits a little bit before starting autonomous
         waitFor(waitTime);

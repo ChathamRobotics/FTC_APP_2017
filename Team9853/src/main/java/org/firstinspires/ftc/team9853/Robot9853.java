@@ -34,14 +34,6 @@ public class Robot9853 extends Robot {
         super(hw, tele);
     }
 
-//    ENUMS         //
-    public enum SideOfRobot {
-        FRONT,
-        LEFT,
-        RIGHT,
-        BACK
-    }
-
 //    METHODS       //
 
     /**
@@ -58,6 +50,7 @@ public class Robot9853 extends Robot {
     @Override
     public void initHardware() {
         driver = OmniWheelDriver.build(this.hardwareMap, this.telemetry);
+        driver.silent = false;
 
         lift = hardwareMap.dcMotor.get("Lift");
         sweeper = hardwareMap.dcMotor.get("Sweeper");
@@ -72,24 +65,8 @@ public class Robot9853 extends Robot {
      * Changes the referenced front of the robot.
      * @param newFront  the front that should be referenced. (ex: if the left side of the robot should be the front call (changeFront(
      */
-    public void changeFront(SideOfRobot newFront) {
-        switch (newFront) {
-            case FRONT:
-                this.driver.offsetAngle = OmniWheelDriver.FRONT_OFFSET;
-                break;
-
-            case LEFT:
-                this.driver.offsetAngle = OmniWheelDriver.LEFT_OFFSET;
-                break;
-
-            case RIGHT:
-                this.driver.offsetAngle = OmniWheelDriver.RIGHT_OFFSET;
-                break;
-
-            case BACK:
-                this.driver.offsetAngle = OmniWheelDriver.BACK_OFFSET;
-                break;
-        }
+    public void changeFront(Side newFront) {
+        this.driver.offsetAngle = newFront.angle;
     }
 
     /**
@@ -102,7 +79,7 @@ public class Robot9853 extends Robot {
 
     /**
      * Drives a specified angle
-     * @param angle         the angle to drive in. Relative to the front
+     * @param angle         the angle to drive in. Relative to the front in radians
      * @param speedModifier the speed modifier to use
      */
     public void driveAtAngle(double angle, double speedModifier) {

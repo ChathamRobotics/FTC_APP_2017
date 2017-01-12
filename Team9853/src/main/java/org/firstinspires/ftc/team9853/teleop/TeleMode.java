@@ -34,10 +34,10 @@ public class TeleMode extends TeleOpMode {
     @Override
     public void loop() {
         // Drive
-        if(gamepad1.dpad_up){robot.changeFront(Robot9853.SideOfRobot.FRONT);}
-        if(gamepad1.dpad_left){robot.changeFront(Robot9853.SideOfRobot.LEFT);}
-        if(gamepad1.dpad_down){robot.changeFront(Robot9853.SideOfRobot.BACK);}
-        if(gamepad1.dpad_right){robot.changeFront(Robot9853.SideOfRobot.RIGHT);}
+        if(gamepad1.dpad_up){robot.changeFront(Robot.Side.FRONT);}
+        if(gamepad1.dpad_left){robot.changeFront(Robot.Side.LEFT);}
+        if(gamepad1.dpad_down){robot.changeFront(Robot.Side.BACK);}
+        if(gamepad1.dpad_right){robot.changeFront(Robot.Side.RIGHT);}
 
         robot.teleopDrive(gamepad1);
 

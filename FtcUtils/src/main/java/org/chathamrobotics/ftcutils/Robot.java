@@ -16,7 +16,7 @@ import java.util.Map;
 
 public abstract class Robot {
 //    CONSTANTS         //
-    protected static final String TAG = "RobotLog";
+//    private static final String TAG = "RobotLog";
 
 //    TOOLS             //
 
@@ -24,11 +24,30 @@ public abstract class Robot {
     protected Telemetry telemetry;
     protected Driver driver;
 
+//    STATEFUL          //
+    private String TAG;
+
 //    CONSTRUCTORS      //
 
     public Robot(HardwareMap hardwareMap, Telemetry telemetry) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
+        this.TAG = this.getClass().getSimpleName();
+    }
+
+//    ENUMS         //
+
+    public enum Side {
+        FRONT (OmniWheelDriver.FRONT_OFFSET),
+        LEFT (OmniWheelDriver.LEFT_OFFSET),
+        RIGHT (OmniWheelDriver.RIGHT_OFFSET),
+        BACK (OmniWheelDriver.BACK_OFFSET);
+
+        public double angle;
+
+        Side(double angle) {
+            this.angle = angle;
+        }
     }
 
 //    ABSTRACT METHODS  //
@@ -57,41 +76,50 @@ public abstract class Robot {
 
     /**
      * This method is used to update the telemetry and robot log
+     * @param update    whether or not to update the telemetry
+     * @param teleOut  whether or not to output the data to the telemetry
      */
-    public void debug() {
-        debug(true); // This is here just to make debug easier to call instead of having to do debug(true). If you don't want the telemetry to update when debug is called then do debug(false)
-    }
-    public void debug(boolean update) {
-        String currentLine; //This is so that a new variable isn't created for each loop
+    public void debug(boolean update, boolean teleOut) {
 
         // Debug motor values
         for (Map.Entry<String, DcMotor> entry : this.hardwareMap.dcMotor.entrySet()) {
             // if the motor is moving
 //            if(entry.getValue().isBusy()) {}
 
-            currentLine = Double.toString(entry.getValue().getController().getMotorPower(entry.getValue().getPortNumber()));
-
-            // Write to telemetry
-            this.telemetry.addData("Motor " + entry.getKey() + " Power", currentLine);
-
-            // Write to android log
-            Log.d(this.TAG, "Motor" + entry.getKey() + "Power = " + currentLine);
+            log("Motor " + entry.getKey() + " Power",
+                    entry.getValue().getController().getMotorPower(entry.getValue().getPortNumber()), teleOut);
         }
 
         // Debug servo values
         for (Map.Entry<String, Servo> entry: this.hardwareMap.servo.entrySet()) {
-            currentLine = Double.toString(entry.getValue().getController().getServoPosition(entry.getValue().getPortNumber()));
-
-            // Write to telemetry
-            this.telemetry.addData("Servo" + entry.getKey() + " Position", currentLine);
-
-            // Write to android log
-            Log.d(this.TAG, "Servo" + entry.getKey() + " Position = " + currentLine);
+            log("Servo" + entry.getKey() + " Position",
+                    entry.getValue().getController().getServoPosition(entry.getValue().getPortNumber()), teleOut);
         }
 
         // update telemetry values if needed
         if(update) {
             this.telemetry.update();
         }
+    }
+    public void debug() {
+        debug(true, true); // This is here just to make debug easier to call instead of having to do debug(true). If you don't want the telemetry to update when debug is called then do debug(false)
+    }
+
+
+    /**
+     * logs to the android log facilities
+     * @param caption   the caption for the message.
+     * @param value     the message
+     * @param teleOut   whether or not to output to the telemetry as well as the log facility
+     */
+    public void log(String caption, Object value, boolean teleOut) {
+        Log.d(this.TAG, caption + ": " + value.toString());
+
+        if(teleOut) {
+            this.telemetry.addData(caption, value);
+        }
+    }
+    public void log(String caption, Object value) {
+        log(caption, value, true);
     }
 }
