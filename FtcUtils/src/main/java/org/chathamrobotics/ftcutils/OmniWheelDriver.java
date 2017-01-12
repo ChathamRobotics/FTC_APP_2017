@@ -21,10 +21,7 @@ public class OmniWheelDriver implements Driver{
 
 //    STATEFUl      //
     private Telemetry telemetry;
-    private DcMotor frontLeft;
-    private DcMotor frontRight;
-    private DcMotor backLeft;
-    private DcMotor backRight;
+    private DcMotor frontLeft, frontRight, backLeft, backRight;
 
 
     // TODO: 12/11/2016 oz add some comments about this stuff. Also u might want to make is slow public for simplicities sake
@@ -42,6 +39,7 @@ public class OmniWheelDriver implements Driver{
      * Whether or not to log telemetry data
      */
     public boolean silent;
+
 
     /*
      * Builds new OmniWheelDriver using default names for motors
@@ -69,13 +67,13 @@ public class OmniWheelDriver implements Driver{
     }
 
 
-    /*
+    /**
      * creates new OmniWheelDriver.
-     * @param {DcMotor} frontLeft
-     * @param {DcMotor} frontRight
-     * @param {DcMotor} backLeft
-     * @param {DcMotor} backRight
-     * @param {Telemetry} telemetry
+     * @param frontLeft {DcMotor} - front left motor
+     * @param frontRight {DcMotor} - front right motor
+     * @param backLeft {DcMotor} - back left motor
+     * @param backRight {DcMotor} - back right motor
+     * @param telemetry {Telemetry} - telemetry
      */
     public OmniWheelDriver(DcMotor frontLeft, DcMotor frontRight, DcMotor backLeft,
                            DcMotor backRight, Telemetry telemetry) {

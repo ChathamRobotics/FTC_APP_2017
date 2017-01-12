@@ -22,25 +22,14 @@ public class DriverFull extends DriverOmni {
 
     public Robot11248 robot;
 
-     Gamepad prevGP1, prevGP2;
+     private Gamepad prevGP1, prevGP2;
 
 
     @Override
     public void init() {
-        //Initializes all sensors and motors
-        DcMotor[] motors = new DcMotor[8];
-        Servo[] servos = new Servo[4];
-        I2cDevice color = hardwareMap.i2cDevice.get(Robot11248.COLOR);
-        GyroSensor gyro = hardwareMap.gyroSensor.get(Robot11248.GYRO);
-        OpticalDistanceSensor line = hardwareMap.opticalDistanceSensor.get(Robot11248.LINE);
-        UltrasonicSensor sonar = hardwareMap.ultrasonicSensor.get(Robot11248.SONAR);
 
-        for (int i = 0; i < motors.length; i++)
-            motors[i] = hardwareMap.dcMotor.get(Robot11248.MOTOR_LIST[i]);
-        for (int i = 0; i < servos.length; i++)
-            servos[i] = hardwareMap.servo.get(Robot11248.SERVO_LIST[i]);
-
-        robot = new Robot11248(motors, servos, color, gyro, line, sonar,telemetry);
+        //Initializes our Robot
+        robot = new Robot11248(hardwareMap, telemetry);
         robot.init(); //Sets servos to right position.
 
         prevGP1 = new Gamepad();
@@ -89,7 +78,6 @@ public class DriverFull extends DriverOmni {
         if (gamepad1.y && (gamepad1.y!=prevGP1.y) )
             robot.switchSlow();
 
-        prevGP1.y = gamepad1.y;
 
         //Sets arm motor to whatever right trigger is
         if (gamepad1.right_trigger > 0)
@@ -149,7 +137,7 @@ public class DriverFull extends DriverOmni {
             robot.setConveyor(0);
 
 
-        //Recaptures all previous values of Gamepad 1 for debouncing
+        //Recaptures all previous values of Gamepad 2 for debouncing
         try {
             prevGP2.copy(gamepad2);
         } catch (RobotCoreException e) {
