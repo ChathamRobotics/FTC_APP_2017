@@ -1,15 +1,10 @@
 package org.firstinspires.ftc.team9853.autonomous;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
-
 import org.chathamrobotics.ftcutils.AutonomousOpMode;
-import org.chathamrobotics.ftcutils.AutonomousVisionOpMode;
 import org.chathamrobotics.ftcutils.MRColorSensorV2;
 import org.chathamrobotics.ftcutils.Robot;
 import org.chathamrobotics.ftcutils.StoppedException;
 import org.firstinspires.ftc.team9853.Robot9853;
-
-import static org.lasarobotics.vision.opmode.VisionOpMode.beacon;
 
 /**
  * beacon pressing autonomous
@@ -28,9 +23,9 @@ public class AutoModeBeacons extends AutonomousOpMode {
 
 //    CONSTRUCTORS  //
 
-    /*
+    /**
      * Setup OpMode
-     * @param {boolean} isRedTeam   Whether the current team is red
+     * @param isRedTeam   Whether the current team is red
      */
     public AutoModeBeacons(boolean isRedTeam) {
         this.isRedTeam = isRedTeam;
@@ -39,16 +34,16 @@ public class AutoModeBeacons extends AutonomousOpMode {
 //     METHODS       //
     /**
      * Builds the robot
-     * @return
+     * @return the robot
      */
     @Override
     public Robot buildRobot() {
         return new Robot9853(hardwareMap, telemetry);
     }
 
-    /*
-         * Initializes the robot
-         */
+    /**
+     * Initializes the robot
+     */
     @Override
     public void initRobot() {
         super.initRobot();
@@ -57,7 +52,7 @@ public class AutoModeBeacons extends AutonomousOpMode {
         lineSensor.enableLed(true);
     }
 
-    /*
+    /**
      * called on start
      */
     public void runRobot() throws StoppedException, InterruptedException {
