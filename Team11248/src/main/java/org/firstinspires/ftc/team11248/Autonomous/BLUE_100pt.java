@@ -42,16 +42,17 @@ public class BLUE_100pt extends LinearOpMode {
         robot.init(); //Sets servos to right position.
         robot.activateColorSensors();
         robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
+        robot.silent = false;
 
         waitForStart(); //STAYS HERE UNTIL PLAY BUTTON
 
 
         while (opModeIsActive() && !isStopRequested()) {
             //BEGIN AUTONOMOUS
-            telemetry.update();
             telemetry.addData("isBlue", robot.isBeaconBlue());
             telemetry.addData("isRed", robot.isBeaconRed());
             telemetry.addData("sonar", robot.getSonarValue());
+            telemetry.update();
 
             switch (state) {
                 case -1://6 seconds
@@ -81,22 +82,87 @@ public class BLUE_100pt extends LinearOpMode {
                     }
                     break;
                 case 3:
-                    retrieveBeacon(1300, .4);
+                    //X ADJUSTMENT
+                    robot.driveold(0, -.35, 0);
+                    if (robot.isBeaconBlue()) {//WHEN BEACON IS BLUE
+                        robot.driveold(0, -.35, 0);
+                        sleep(300);
+                        robot.stop();
+                        sleep(1000);
+                        pushBeacon();
+                        robot.stop();
+                        sleep(1000);
+                        state += 2;
+                    }
+                    else if(robot.isBeaconRed())
+                        state++;
+                    break;
+                case 4:
+                    robot.driveold(0, -.35, 0); //MOVE LEFT .5
+                    if(robot.isBeaconBlue()) {
+                        robot.driveold(0, -.35, 0);
+                        sleep(400);
+                        robot.stop(); //STOP MOVING
+                        sleep(1000);
+                        pushBeacon();
+                        state++;
+                    }
+                    break;
+                case 5:
+                    robot.driveold(-.3, 0, 0);
+                    sleep(1000);
+                    robot.stop();
+                    sleep(200);
+                    robot.driveold(0, .3, 0); //DRIVE DIAGONAL
+                    sleep(3000);
                     state++;
                     break;
-//                case 4: //DOES THIS UNTIL IT REACHES A LINE
-//                    driveAgainstWall(1, 0, 25); //MOVE FORWARD
-//                    if(robot.hitLine()) { //WHEN WHITE LINE FOUND
-//                        robot.stop(); //STOP MOVING
-//                        sleep(STOP_DELAY);
-//                        state++; //NEXT STATE
-//                    }
-//                    break;
-//                //SECOND BEACON
-//                case 5:
-//                    retrieveBeacon(1300, .25);
-//                    state++;
-//                    break;
+                case 6:
+                    robot.driveold(0, .3, 0); //DRIVE DIAGONAL
+                    if(robot.hitLine()) { //WHEN WHITE LINE FOUND
+                        robot.stop(); //STOP MOVING
+                        sleep(STOP_DELAY);
+                        state++; //NEXT STATE
+                    }
+                case 7:
+                    if(robot.moveToAngle(0)) state++;
+                    break;
+                case 8:
+                    //Y ADJUSTMENT
+                    robot.driveold(.3, 0, 0);
+                    if (robot.getSonarValue() < 12){
+                        robot.stop();
+                        sleep(STOP_DELAY);
+                        state++;
+                    }
+                    break;
+                case 9:
+                    //X ADJUSTMENT
+                    robot.driveold(0, .35, 0);
+                    if (robot.isBeaconBlue()) {//WHEN BEACON IS BLUE
+                        robot.driveold(0, .35, 0);
+                        sleep(300);
+                        robot.stop();
+                        sleep(1000);
+                        pushBeacon();
+                        robot.stop();
+                        sleep(1000);
+                        state += 2;
+                    }
+                    else if(robot.isBeaconRed())
+                        state++;
+                    break;
+                case 10:
+                    robot.driveold(0, .35, 0); //MOVE LEFT .5
+                    if(robot.isBeaconBlue()) {
+                        robot.driveold(0, .35, 0);
+                        sleep(400);
+                        robot.stop(); //STOP MOVING
+                        sleep(1000);
+                        pushBeacon();
+                        state++;
+                    }
+                    break;
                 default:
                     robot.stop();
                     idle();
@@ -144,7 +210,7 @@ public class BLUE_100pt extends LinearOpMode {
             pushBeacon();
         else if (robot.isBeaconRed()) { //BEACON IS NOT BLUE (AKA ITS RED)
             robot.driveWithGyro(0, -speed, 0); //MOVE LEFT .5
-            sleep(TIME_TO_OTHER_COLOR); //WAIT .5 SECONDS
+            //sleep(TIME_TO_OTHER_COLOR); //WAIT .5 SECONDS
             robot.stop(); //STOP MOVING
 
             pushBeacon();

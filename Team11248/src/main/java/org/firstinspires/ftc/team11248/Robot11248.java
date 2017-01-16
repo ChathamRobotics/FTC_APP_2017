@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.team11248;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDevice;
@@ -69,6 +70,8 @@ public class Robot11248 extends OmniWheelDriver {
     private UltrasonicSensor sonar;
     private Telemetry telemetry;
 
+    private DeviceInterfaceModule dim;
+
 
     public Robot11248(HardwareMap hardwareMap, Telemetry telemetry){
 
@@ -115,6 +118,7 @@ public class Robot11248 extends OmniWheelDriver {
 
         //TELEMETRY
         this.telemetry = telemetry;
+        this.dim = hardwareMap.get(DeviceInterfaceModule.class, "dim");
 
     }
 
@@ -127,6 +131,7 @@ public class Robot11248 extends OmniWheelDriver {
         moveLiftArmDown();
         moveBeaconIn();
         closeCollector();
+        setDimLed(true,true);
 
     }
 
@@ -380,19 +385,8 @@ public class Robot11248 extends OmniWheelDriver {
      * SONAR SENSOR METHODS
      */
 
-    public double lastVal = 255;
     public double getSonarValue(){
-
-
         return Range.clip(sonar.getUltrasonicLevel(), 0, 255);
-
-       // double val = sonar.getUltrasonicLevel();
-        // if(val != 0  && val != 255 ) {
-//        val = lastVal;
-//        return val;
-
-       // }else
-            //return lastVal;
 
     }
 
@@ -414,5 +408,15 @@ public class Robot11248 extends OmniWheelDriver {
         return sonar.getUltrasonicLevel()/unitsPerMm;
     }
 
+
+
+    /*
+     * LED METHODS
+     */
+
+    public void setDimLed(boolean red, boolean blue){
+        dim.setLED(0, red);
+        dim.setLED(1, blue);
+    }
 
 }
