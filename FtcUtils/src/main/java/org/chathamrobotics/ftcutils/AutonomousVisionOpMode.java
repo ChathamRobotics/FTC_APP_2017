@@ -128,7 +128,7 @@ public abstract class AutonomousVisionOpMode extends LinearVisionOpMode {
         telemetry.addData("Frame Rate", fps.getFPSString() + " FPS");
         telemetry.addData("Frame Size", "Width: " + width + " Height: " + height);
 
-        this.robot.debug(false);
+        //this.robot.debug(false);
 
         telemetry.update();
     }

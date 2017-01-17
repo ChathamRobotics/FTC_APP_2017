@@ -70,7 +70,7 @@ public class Robot11248 extends OmniWheelDriver {
     private UltrasonicSensor sonar;
     private Telemetry telemetry;
 
-    private DeviceInterfaceModule dim;
+    //private DeviceInterfaceModule dim;
 
 
     public Robot11248(HardwareMap hardwareMap, Telemetry telemetry){
@@ -78,7 +78,6 @@ public class Robot11248 extends OmniWheelDriver {
         /*
          * MOTOR INITS
          */
-
         super(hardwareMap.dcMotor.get("FrontLeft"),
                 hardwareMap.dcMotor.get("FrontRight"),
                 hardwareMap.dcMotor.get("BackLeft"),
@@ -93,21 +92,17 @@ public class Robot11248 extends OmniWheelDriver {
         //this.shooterL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //this.shooterR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
         /*
          * SERVO INITS
          */
-
         this.liftArm = hardwareMap.servo.get("servo1");
         this.beaconPusher = hardwareMap.servo.get("servo2");
         this.collectorServoL = hardwareMap.servo.get("servo3");
         this.collectorServoR = hardwareMap.servo.get("servo4");
 
-
         /*
          * SENSOR INITS
          */
-
         this.lineSensor = hardwareMap.opticalDistanceSensor.get("sensor_ods");
         this.gyro = hardwareMap.gyroSensor.get("gyro");
         this.sonar = hardwareMap.ultrasonicSensor.get("sonar");
@@ -115,14 +110,11 @@ public class Robot11248 extends OmniWheelDriver {
         I2cDevice colorBeacon = hardwareMap.i2cDevice.get("color2");
         this.colorBeacon = new MRColorSensorV3(colorBeacon, COLOR_SENSOR_BEACON_ADDR);
 
-
         //TELEMETRY
         this.telemetry = telemetry;
-        this.dim = hardwareMap.get(DeviceInterfaceModule.class, "dim");
+        //this.dim = hardwareMap.get(DeviceInterfaceModule.class, "dim");
 
     }
-
-
 
     /**
      * Initializes the robot. (In this case it just sets servo positions to default)
@@ -135,16 +127,12 @@ public class Robot11248 extends OmniWheelDriver {
 
     }
 
-
-
     /*
      * TELEMETRY METHODS
      */
 
     public void showMotorValues(){
     }
-
-
 
      /*
      * BEACON PUSHER SERVO METHODS
@@ -158,12 +146,9 @@ public class Robot11248 extends OmniWheelDriver {
         beaconPusher.setPosition(BEACON_IN);
     }
 
-
-
     /*
     * LIFT METHODS
     */
-
     public void setLiftSpeed(double speed) {
         if(speed > 1)
             speed = 1;
@@ -189,12 +174,9 @@ public class Robot11248 extends OmniWheelDriver {
             moveLiftArmUp();
     }
 
-
-
     /*
     * SHOOTER METHODS
     */
-
     public void setShooter(double SHOOTER_SPEED) {
         shooterL.setPower(SHOOTER_SPEED);
         shooterR.setPower(-SHOOTER_SPEED);
@@ -225,12 +207,9 @@ public class Robot11248 extends OmniWheelDriver {
         return shooterOn;
     }
 
-
-
      /*
      * COLLECTOR METHODS
      */
-
     public void setConveyor(float f){
         conveyor.setPower(f);
         conveyorOn = true;
@@ -277,12 +256,9 @@ public class Robot11248 extends OmniWheelDriver {
         }
     }
 
-
-
     /*
      * COLOR SENSOR METHODS
      */
-
     public void activateColorSensors(){
         colorBeacon.setPassiveMode();
     }
@@ -305,12 +281,9 @@ public class Robot11248 extends OmniWheelDriver {
         return (RED_LOW_THRESHOLD <= color && color <= RED_HIGH_THRESHOLD);
     }
 
-
-
     /*
      * OPTICAL DISTANCE SENSOR METHODS
      */
-
     public boolean hitLine(){
         return (lineSensor.getLightDetected() < OPTICAL_THRESHOLD_HIGH &&
                 lineSensor.getLightDetected() >= OPTICAL_THRESHOLD_LOW);
@@ -319,8 +292,6 @@ public class Robot11248 extends OmniWheelDriver {
     public double getLineSensorValue(){
         return lineSensor.getLightDetected();
     }
-
-
 
     /*
      * GYRO SENSOR METHODS
@@ -379,12 +350,9 @@ public class Robot11248 extends OmniWheelDriver {
         return driveWithGyro(0,0,targetAngle);
     }
 
-
-
     /*
      * SONAR SENSOR METHODS
      */
-
     public double getSonarValue(){
         return Range.clip(sonar.getUltrasonicLevel(), 0, 255);
 
@@ -408,15 +376,12 @@ public class Robot11248 extends OmniWheelDriver {
         return sonar.getUltrasonicLevel()/unitsPerMm;
     }
 
-
-
     /*
      * LED METHODS
      */
-
     public void setDimLed(boolean red, boolean blue){
-        dim.setLED(0, red);
-        dim.setLED(1, blue);
+        //dim.setLED(0, red);
+        //dim.setLED(1, blue);
     }
 
 }
