@@ -1,53 +1,39 @@
 package org.firstinspires.ftc.team9853.tests;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.I2cDevice;
 
 import org.chathamrobotics.ftcutils.MRColorSensorV2;
-import org.chathamrobotics.ftcutils.TeleOpMode;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.firstinspires.ftc.team9853.opmodes.Tele;
 
 /**
- * Created by storm on 12/5/2016.
+ * test color sesnsors
  */
 
 @TeleOp(name = "Test: ColorSensor", group = "Test")
 
-@Disabled
+//@Disabled
 
-public class ColorSensorTest extends TeleOpMode {
-    private HashMap<String, MRColorSensorV2> sensors;
+public class ColorSensorTest extends Tele {
+    private MRColorSensorV2 sensor;
 
-    public ColorSensorTest() {
-        int address = 0x3c;
-
-        sensors = new HashMap<String, MRColorSensorV2>();
-
-        for(Map.Entry<String, I2cDevice> entry : hardwareMap.i2cDevice.entrySet()) {
-            sensors.put(entry.getKey(), new MRColorSensorV2(entry.getValue(), address));
-
-            address++;
-        }
+    @Override
+    public void init() {
+        super.init();
+        sensor = new MRColorSensorV2(hardwareMap.i2cDevice.get("color") , 0x3c);
     }
 
     @Override
     public void loop() {
         if(gamepad1.a) {
-            for (long endtime = System.currentTimeMillis() + 250; System.currentTimeMillis() < endtime;) {
-
+            try { robot.doUntil(250); } catch (Exception e) {
+                // Do nothing
             }
 
-            for(Map.Entry<String, MRColorSensorV2> entry : sensors.entrySet()) {
-                entry.getValue().enableLed(! entry.getValue().isActive());
-            }
+            sensor.enableLed(! sensor.isActive());
         }
 
 
-        for(Map.Entry<String, MRColorSensorV2> entry : sensors.entrySet()) {
-            telemetry.addData(entry.getKey(), entry.getValue().getColorNumber());
-        }
+
+            telemetry.addData(sensor.getDeviceName(), sensor.getColorNumber());
     }
 }

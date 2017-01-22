@@ -2,8 +2,11 @@ package org.chathamrobotics.ftcutils;
 
 import android.util.Log;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -33,20 +36,24 @@ public abstract class Robot {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
         this.TAG = this.getClass().getSimpleName();
+
+        this.initHardware();
     }
 
 //    ENUMS         //
 
     public enum Side {
-        FRONT (OmniWheelDriver.FRONT_OFFSET),
-        LEFT (OmniWheelDriver.LEFT_OFFSET),
-        RIGHT (OmniWheelDriver.RIGHT_OFFSET),
-        BACK (OmniWheelDriver.BACK_OFFSET);
+        FRONT (OmniWheelDriver.FRONT_OFFSET, "Front"),
+        LEFT (OmniWheelDriver.LEFT_OFFSET, "Left"),
+        RIGHT (OmniWheelDriver.RIGHT_OFFSET, "Right"),
+        BACK (OmniWheelDriver.BACK_OFFSET, "Back");
 
         public double angle;
+        public String name;
 
-        Side(double angle) {
+        Side(double angle, String name) {
             this.angle = angle;
+            this.name = name;
         }
     }
 
@@ -96,6 +103,13 @@ public abstract class Robot {
                     entry.getValue().getController().getServoPosition(entry.getValue().getPortNumber()), teleOut);
         }
 
+
+        // Optical Distance sensors
+        for (Map.Entry<String, OpticalDistanceSensor> entry: this.hardwareMap.opticalDistanceSensor.entrySet()) {
+            log("ODS " + entry.getKey() + " Light",
+                    entry.getValue().getLightDetected());
+        }
+
         // update telemetry values if needed
         if(update) {
             this.telemetry.update();
@@ -116,10 +130,27 @@ public abstract class Robot {
         Log.d(this.TAG, caption + ": " + value.toString());
 
         if(teleOut) {
-            this.telemetry.addData(caption, value);
+            this.telemetry.addData(this.TAG, caption + ": " + value.toString());
         }
     }
     public void log(String caption, Object value) {
         log(caption, value, true);
+    }
+
+    /**
+     * waits for given time duration
+     * @param endTime   the end time
+     */
+    public boolean doUntil(long endTime)  {
+        return System.currentTimeMillis() < endTime;
+    }
+
+    /**
+     * Calculates the time (in ms) until the duration will be up.
+     * @param duration  the amount of time tot add to the current
+     * @return          the end time
+     */
+    public long calcEndTime(long duration) {
+        return System.currentTimeMillis() + duration;
     }
 }

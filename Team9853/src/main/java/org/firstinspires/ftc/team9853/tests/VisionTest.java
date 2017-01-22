@@ -19,6 +19,7 @@ import org.opencv.core.Size;
 @Disabled
 
 public class VisionTest extends VisionOpMode {
+
     @Override
     public void init() {
         super.init();

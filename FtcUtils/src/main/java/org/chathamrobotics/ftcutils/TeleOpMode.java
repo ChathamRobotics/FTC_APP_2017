@@ -1,5 +1,7 @@
 package org.chathamrobotics.ftcutils;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -11,7 +13,7 @@ import java.util.Map;
 
 public abstract class TeleOpMode extends OpMode {
 //    COMPONENTS    //
-    public Robot robot;
+    protected Robot robot;
 
 
 //    STATEFUL      //
@@ -28,12 +30,18 @@ public abstract class TeleOpMode extends OpMode {
      * returns the team specific robot
      * @return the robot object
      */
-    abstract public Robot buildRobot();
+    abstract public void buildRobot();
     /*
      * Initializes robot
      */
     public void init() {
-        this.robot.initHardware();
+        buildRobot();
+
+        if(this.robot == null) {
+            Log.wtf("RobotLog", "No Robot Found");
+        }
+
+//        this.robot.initHardware();
     }
 
     /*

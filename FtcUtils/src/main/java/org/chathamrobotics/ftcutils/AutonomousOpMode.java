@@ -1,5 +1,7 @@
 package org.chathamrobotics.ftcutils;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -12,7 +14,7 @@ import java.util.Map;
  */
 public abstract class  AutonomousOpMode extends LinearOpMode {
 //    COMPONENTS    //
-    public Robot robot;
+    protected Robot robot;
 
 
 //    STATEFUL      //
@@ -28,7 +30,7 @@ public abstract class  AutonomousOpMode extends LinearOpMode {
      * returns the team specific robot
      * @return the robot object
      */
-    abstract public Robot buildRobot();
+    abstract public void buildRobot();
 
     /*
      * Called on start
@@ -39,7 +41,8 @@ public abstract class  AutonomousOpMode extends LinearOpMode {
      * Initializes robot
      */
     public void initRobot() {
-        this.robot.initHardware();
+
+//        this.robot.initHardware();
     }
 
     /*
@@ -56,7 +59,6 @@ public abstract class  AutonomousOpMode extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         buildRobot();
 
-        initRobot();
 
         // Wait for start call
         waitForStart();
@@ -81,15 +83,6 @@ public abstract class  AutonomousOpMode extends LinearOpMode {
     public void statusCheck() throws StoppedException {
         this.robot.debug();
         checkForStop();
-    }
-
-    /*
-     * Will pause the OpMode for the give time
-     */
-    public void waitFor(long time) throws StoppedException{
-        for(long endTime = System.currentTimeMillis() + time; System.currentTimeMillis() < endTime;){
-            statusCheck();
-        }
     }
 
     /*

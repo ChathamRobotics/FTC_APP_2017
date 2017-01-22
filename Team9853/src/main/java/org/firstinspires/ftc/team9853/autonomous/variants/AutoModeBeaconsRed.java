@@ -9,9 +9,9 @@ import org.firstinspires.ftc.team9853.autonomous.AutoModeBeacons;
  * autonomous beacon presser
  */
 
-@Autonomous(name = "AutoModeBeaconsRed", group = "General")
+@Autonomous(name = "Beacons: Red", group = "General")
 
-@Disabled
+//@Disabled
 
 public class AutoModeBeaconsRed extends AutoModeBeacons {
     AutoModeBeaconsRed() {

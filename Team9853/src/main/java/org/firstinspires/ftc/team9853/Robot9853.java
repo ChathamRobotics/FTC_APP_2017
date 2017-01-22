@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.team9853;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.chathamrobotics.ftcutils.OmniWheelDriver;
 import org.chathamrobotics.ftcutils.Robot;
@@ -17,9 +21,21 @@ import java.util.Map;
  */
 
 public class Robot9853 extends Robot {
+//    CONSTANTS     //
+    public static final double TOGGLE_UP_POSITION = 0.2;
+    public static final double TOGGLE_DOWN_POSITION = 1;
+
+    public static final double OPTICAL_LOW = .6;
+    public static final double OPTICAL_HIGH = 1;
+
+    public static final int GYRO_MIN_ANGLE = 2;
+
+    public static final long RELOAD_TIME = 2500;
+    public static final long SHOOT_TIME = 500;
+
 //    COMPONENTS    //
 
-    protected OmniWheelDriver driver;
+    public OmniWheelDriver driver;
 
 //    HARDWARE      //
 
@@ -27,6 +43,17 @@ public class Robot9853 extends Robot {
     public DcMotor sweeper;
     public DcMotor belt;
     public DcMotor shooter;
+    public Servo liftToggle;
+    public OpticalDistanceSensor leftLineSensor;
+    public OpticalDistanceSensor centerLineSensor;
+    public ColorSensor beaconSensor;
+    public GyroSensor gyro;
+    public TouchSensor touchSensor;
+
+//    STATEFUL      //
+    private long lastLiftToggle;
+
+    public int startingHeading;
 
 //    CONSTRUCTORS  //
 
@@ -41,7 +68,10 @@ public class Robot9853 extends Robot {
      */
     @Override
     public void start() {
+        this.calibrateGyro();
+        this.startingHeading = this.gyro.getHeading();
 
+        this.liftToggle.setPosition(TOGGLE_DOWN_POSITION);
     }
 
     /**
@@ -49,17 +79,31 @@ public class Robot9853 extends Robot {
      */
     @Override
     public void initHardware() {
-        driver = OmniWheelDriver.build(this.hardwareMap, this.telemetry);
-        driver.silent = false;
+        this.driver = OmniWheelDriver.build(this.hardwareMap, this.telemetry);
+        this.driver.silent = false;
 
-        lift = hardwareMap.dcMotor.get("Lift");
-        sweeper = hardwareMap.dcMotor.get("Sweeper");
-        belt = hardwareMap.dcMotor.get("Belt");
-        shooter = hardwareMap.dcMotor.get("Shooter");
+        this.lift = hardwareMap.dcMotor.get("Lift");
+        this.sweeper = hardwareMap.dcMotor.get("Sweeper");
+        this.belt = hardwareMap.dcMotor.get("Belt");
+        this.shooter = hardwareMap.dcMotor.get("Shooter");
 
-        telemetry.addLine("Hardware initialized");
-        telemetry.addLine("Press play to start");
+        this.liftToggle = hardwareMap.servo.get("LiftToggle");
+
+
+        leftLineSensor = hardwareMap.opticalDistanceSensor.get("LeftLineSensor");
+        centerLineSensor = hardwareMap.opticalDistanceSensor.get("CenterLineSensor");
+        gyro = hardwareMap.gyroSensor.get("Gyro");
+
+        if(hardwareMap.colorSensor.size() > 0) {
+            beaconSensor = hardwareMap.colorSensor.get("BeaconSensor");
+            touchSensor = hardwareMap.touchSensor.get("Touch");
+        }
+
+        this.telemetry.addLine("Hardware initialized");
+        this.telemetry.addLine("Press play to start");
     }
+
+
 
     /**
      * Changes the referenced front of the robot.
@@ -67,6 +111,7 @@ public class Robot9853 extends Robot {
      */
     public void changeFront(Side newFront) {
         this.driver.offsetAngle = newFront.angle;
+        this.log("NewFront", newFront.name);
     }
 
     /**
@@ -89,6 +134,69 @@ public class Robot9853 extends Robot {
         driveAtAngle(angle, 1);
     }
 
+
+    /**
+     * Drives in the direction specified by the angle and maintains heading
+     * @param angle         the direction to drive in
+     * @param speedModifier the modifier for the speed
+     * @param targetHeading the heading to follow
+     * @return              whether the heading has been achieved.
+     */
+    public boolean driveWithHeading(double angle, double speedModifier, int targetHeading) {
+        int currentHeading = gyro.getHeading();
+        boolean atHeading = false;
+        int net = currentHeading - targetHeading; //finds distance to target angle
+        double rotation;
+
+        if (Math.abs(net) > 180) { // if shortest path passes 0
+            if (currentHeading > 180) //if going counterclockwise
+                net = (currentHeading - 360) - targetHeading;
+
+            else //if going clockwise
+                net = (360 - targetHeading) + currentHeading;
+        }
+
+        // slows down as approaches angle with min threshold of .05
+        // each degree adds/subtracts .95/180 values of speed
+        rotation = Math.abs(net) * .85 / 180 + .15;
+
+        if (net < 0) rotation *= -1; //if going clockwise, set rotation clockwise (-)
+
+        this.log("Heading", currentHeading);
+        this.log("TargetHeading", targetHeading);
+
+        if (Math.abs(net) > GYRO_MIN_ANGLE)
+            driver.move(angle, rotation, speedModifier); //Drive with gyros rotation
+
+        else {
+            atHeading = true;
+            driver.move(angle, 0, speedModifier);
+        }
+
+        return atHeading;
+    }
+
+    /**
+     * Drives a angle for a period of time
+     * @param angle         the direction to drive
+     * @param speedModifier the speed modifier to use
+     * @param endTime       the end time
+     * @return              whether time is up
+     */
+    public boolean driveAtAngleFor(double angle, double speedModifier, long endTime) {
+        driveAtAngle(angle, speedModifier);
+
+        if(System.currentTimeMillis() >= endTime) {
+            stopDriving();
+            return false;
+        }
+
+        return true;
+    }
+    public boolean driveAtAngleFor(double angle, long endTime) {
+        return driveAtAngleFor(angle, 1, endTime);
+    }
+
     /**
      * Drives in the direction specified by the x and y given
      * @param x             the x part of the point
@@ -103,15 +211,53 @@ public class Robot9853 extends Robot {
     }
 
     /**
+     * Drives in the direction specified by the x and y given for the given time
+     * @param x             the x part of the direction
+     * @param y             the y part of the direction
+     * @param speedModifier the speed modifier to use
+     * @param endTime       the end time
+     * @return              whether the time is up
+     */
+    public boolean driveAtPointFor(double x, double y, double speedModifier, long endTime) {
+        driveAtPoint(x, y, speedModifier);
+
+        if(System.currentTimeMillis() >= endTime) {
+            stopDriving();
+            return false;
+        }
+
+        return true;
+    }
+    public boolean driveAtPointFor(double x, double y, long endTime) {return driveAtPointFor(x, y, 1, endTime);}
+
+    /**
      * Drives forward.
      * @param speedModifier the speed modifier to use
      */
     public void driveForward(double speedModifier) {
-        this.driveAtAngle(Math.PI / 2);
+        this.driveAtAngle(Math.PI / 2, speedModifier);
     }
     public void driveForward() {
         driveForward(1);
     }
+
+    /**
+     * Drives forward for the specified time
+     * @param speedModifier the speed modifier to use
+     * @param endTime       the time to end
+     * @return              whether time is up
+     */
+    public boolean driveForwardFor(double speedModifier, long endTime) {
+        driveForward(speedModifier);
+
+        if(System.currentTimeMillis() >= endTime) {
+            stopDriving();
+            return false;
+        }
+
+        return true;
+    }
+    public boolean driveForwardFor(long endTime) {return driveForwardFor(1, endTime);}
 
     /**
      * Stops the robot from driving.
@@ -120,5 +266,58 @@ public class Robot9853 extends Robot {
         this.driver.move(0,0,0);
     }
 
+    /**
+     * Sets the collection systems power.
+     * @param power the power value to set the motors to
+     */
+    public void setCollectorPower(double power) {
+        this.sweeper.setPower(power);
+        this.belt.setPower(power);
+    }
 
+    /**
+     * toggle the lift servos position
+     */
+    public void toggleLift() {
+        if(System.currentTimeMillis() >= lastLiftToggle + 250) {
+            lastLiftToggle = System.currentTimeMillis();
+            if(liftToggle.getPosition() == TOGGLE_UP_POSITION) {
+                liftToggle.setPosition(TOGGLE_DOWN_POSITION);
+            } else {
+                liftToggle.setPosition(TOGGLE_UP_POSITION);
+            }
+        }
+    }
+
+    /**
+     * Calibrate the gyro
+     */
+    public void calibrateGyro() {
+        gyro.calibrate();
+
+
+        while(gyro.isCalibrating()) {
+            // Stall
+        }
+    }
+
+    /**
+     * whether the left line sensor sees the white line
+     * @return whether is at line
+     */
+    public boolean isLeftAtLine() {
+        double lightVal = this.leftLineSensor.getLightDetected();
+
+        return lightVal >= OPTICAL_LOW && lightVal <= OPTICAL_HIGH;
+    }
+
+    /**
+     * whether the center line sensor sees the white line
+     * @return whether is at line
+     */
+    public boolean isCenterAtLine() {
+        double lightVal = this.centerLineSensor.getLightDetected();
+
+        return lightVal >= OPTICAL_LOW && lightVal <= OPTICAL_HIGH;
+    }
 }
