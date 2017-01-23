@@ -2,7 +2,7 @@ package org.firstinspires.ftc.team9853.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.chathamrobotics.ftcutils.MRColorSensorV2;
+import org.chathamrobotics.ftcutils.hardware.MRColorSensorV2;
 import org.firstinspires.ftc.team9853.opmodes.Tele;
 
 /**

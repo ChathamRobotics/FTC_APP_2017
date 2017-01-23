@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.team9853.autonomous;
 
-import com.qualcomm.robotcore.util.Range;
-
-import org.chathamrobotics.ftcutils.MRColorSensorV2;
+import org.chathamrobotics.ftcutils.hardware.MRColorSensorV2;
 import org.chathamrobotics.ftcutils.StoppedException;
 import org.firstinspires.ftc.team9853.opmodes.Auto;
 

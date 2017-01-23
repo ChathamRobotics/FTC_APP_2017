@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.team11248;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDevice;
@@ -10,7 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.Range;
 
-import org.chathamrobotics.ftcutils.MRColorSensorV3;
+import org.chathamrobotics.ftcutils.hardware.MRColorSensorV3;
 import org.chathamrobotics.ftcutils.OmniWheelDriver;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 

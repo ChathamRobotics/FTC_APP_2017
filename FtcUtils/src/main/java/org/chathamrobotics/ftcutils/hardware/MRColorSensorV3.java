@@ -1,4 +1,4 @@
-package org.chathamrobotics.ftcutils;
+package org.chathamrobotics.ftcutils.hardware;
 
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
