@@ -1,12 +1,24 @@
 package org.firstinspires.ftc.team11248.Autonomous;
 
+import android.os.PowerManager;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.hardware.I2cDevice;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.robot.Robot;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.team11248.Robot11248;
 
 /**
- * red autonomous 100 points
+ * blue autonomous 100 POINTS
  */
 @Autonomous(name = "100ptRED")
 public class RED_100pt extends LinearOpMode {
@@ -22,7 +34,10 @@ public class RED_100pt extends LinearOpMode {
     int TIME_TO_FIRST_COLOR = 250;
     int TIME_TO_OTHER_COLOR = 500;
     int TIME_FORWARD_TO_BEACON = 550;
-@Override
+
+    final int FLAT = 180;
+
+    @Override
     public void runOpMode() throws InterruptedException {
 
         //STAYS HERE UNTIL INIT BUTTON
@@ -34,12 +49,13 @@ public class RED_100pt extends LinearOpMode {
 
         waitForStart(); //STAYS HERE UNTIL PLAY BUTTON
 
-
         while (opModeIsActive() && !isStopRequested()) {
             //BEGIN AUTONOMOUS
             telemetry.addData("isBlue", robot.isBeaconBlue());
             telemetry.addData("isRed", robot.isBeaconRed());
             telemetry.addData("sonar", robot.getSonarValue());
+            telemetry.addData("ods: ", robot.getLineSensorValue());
+            telemetry.addData("state", state);
             telemetry.update();
 
             switch (state) {
@@ -48,104 +64,135 @@ public class RED_100pt extends LinearOpMode {
                     sleep(1000);
                     state++;
                     break;
-                case 0: //Drive diagonal to line
-                    robot.driveold(.3, .3, 0); //DRIVE DIAGONAL
+                case 0:
+                    if(robot.moveToAngle(173)) {
+                        robot.stop();
+                        state++;
+                        sleep(300);
+                    }
+                    break;
+                case 1:
+                    if(robot.moveToAngle(173)) {
+                        robot.stop();
+                        state++;
+                    }
+                    break;
+                case 2: //Drive diagonal to line
+                    // DRIVE DIAGONAL
+                    robot.driveold(.3, -.3, 0);
                     if(robot.hitLine()) { //WHEN WHITE LINE FOUND
                         robot.stop(); //STOP MOVING
                         sleep(STOP_DELAY);
                         state++; //NEXT STATE
                     }
                     break;
-                case 1: //adjust angle
-                    if(robot.moveToAngle(0)) state++;
+                case 3: //adjust angle
+                    if(robot.moveToAngle(FLAT)){
+                        state++;
+                        sleep(100);
+                    }
                     break;
-                case 2: //adjust y (closeness to wall)
+                case 4: //adjust y (closeness to wall)
                     //Y ADJUSTMENT
                     robot.driveold(.3, 0, 0);
-                    if (robot.getSonarValue() < 12){
+                    if (robot.getSonarValue() < 13){
                         robot.stop();
                         sleep(STOP_DELAY);
                         state++;
                     }
                     break;
-                case 3: //Adjust x (hit if red on left)
+                case 5: //adjust angle
+                    if(robot.moveToAngle(FLAT)) state++;
+                    break;
+                case 6: //Adjust x (hit if blue on left)
                     //X ADJUSTMENT
                     robot.driveold(0, -.35, 0);
                     if (robot.isBeaconRed()) {//WHEN BEACON IS BLUE
                         robot.driveold(0, -.35, 0);
-                        sleep(300);
+                        sleep(400);
                         robot.stop();
-                        sleep(1000);
+                        sleep(500);
                         pushBeacon();
                         robot.stop();
-                        sleep(1000);
+                        sleep(500);
                         state += 2;
                     }
-                    else if(robot.isBeaconBlue())
+                    else if(robot.isBeaconBlue()) {
+                        robot.stop();
                         state++;
+                    }
                     break;
-                case 4: //Adjust x (hit if blue on right)
+                case 7: //Adjust x (hit if red on right)
                     robot.driveold(0, -.35, 0); //MOVE LEFT
                     if(robot.isBeaconRed()) {
                         robot.driveold(0, -.35, 0);
-                        sleep(400);
+                        sleep(200);
                         robot.stop(); //STOP MOVING
-                        sleep(1000);
+                        sleep(500);
                         pushBeacon();
                         state++;
                     }
                     break;
-                case 5: //Backup and drive towards other line
+                case 8: //Backup and drive towards other line
                     robot.driveold(-.3, 0, 0);
-                    sleep(1000);
+                    sleep(1400);
                     robot.stop();
                     sleep(200);
-                    robot.driveold(0, .3, 0); //DRIVE DIAGONAL
-                    sleep(2000);
+                    robot.driveold(0, -.8, 0);
+                    sleep(1200);
                     state++;
                     break;
-                case 6: //keep driving until line hit
-                    robot.driveold(0, .3, 0);
+
+                case 9: //keep driving until line hit
+
+                    double y = (robot.getSonarValue() < 13) ? 0:.4;
+                    robot.driveWithGyro(y, -.4, 0);
                     if(robot.hitLine()) { //WHEN WHITE LINE FOUND
                         robot.stop(); //STOP MOVING
                         sleep(STOP_DELAY);
                         state++; //NEXT STATE
                     }
-                case 7: //adjust angle to 0
-                    if(robot.moveToAngle(0)) state++;
                     break;
-                case 8: //Adjust y (closeness to wall)
+                case 10: //adjust angle to 0
+                    if(robot.moveToAngle(FLAT)) state++;
+                    break;
+                case 11: //Adjust y (closeness to wall)
                     //Y ADJUSTMENT
                     robot.driveold(.3, 0, 0);
-                    if (robot.getSonarValue() < 12){
+                    if (robot.getSonarValue() < 13){
                         robot.stop();
                         sleep(STOP_DELAY);
                         state++;
                     }
                     break;
-                case 9: //Adjust x
+                case 12: //adjust angle to 0
+                    if(robot.moveToAngle(FLAT)) state++;
+                    break;
+                case 13: //Adjust x
                     //X ADJUSTMENT
-                    robot.driveold(0, .35, 0);
-                    if (robot.isBeaconRed()) {//WHEN BEACON IS BLUE
-                        robot.driveold(0, .35, 0);
+                    robot.driveold(0, -.35, 0);
+                    if (robot.isBeaconRed()) { //WHEN BEACON IS BLUE
+                        robot.driveold(0, -.35, 0);
                         sleep(300);
                         robot.stop();
-                        sleep(1000);
+                        sleep(500);
                         pushBeacon();
                         robot.stop();
-                        sleep(1000);
+                        sleep(500);
                         state += 2;
                     }
-                    else if(robot.isBeaconBlue())
+                    else if(robot.isBeaconBlue()) {
+                        robot.stop();
                         state++;
+                    }
                     break;
-                case 10: //adjust x
-                    robot.driveold(0, .35, 0); //MOVE LEFT .5
+                case 14: //adjust x
+                    robot.driveold(0, -.35, 0); //MOVE LEFT .5
                     if(robot.isBeaconRed()) {
-                        robot.driveold(0, .35, 0);
+                        robot.driveold(0, -.35, 0);
                         sleep(400);
                         robot.stop(); //STOP MOVING
-                        sleep(1000);
+                        sleep(500);
                         pushBeacon();
                         state++;
                     }
@@ -156,10 +203,10 @@ public class RED_100pt extends LinearOpMode {
                     break;
             }
         }
-   }
+    }
 
     public void shootBallsStart(){
-        robot.driveWithGyro(0,.8,0);
+        robot.driveold(0,.8,0);
         sleep(500);
 
         //drive(0,0);
@@ -167,7 +214,7 @@ public class RED_100pt extends LinearOpMode {
         sleep(500);
 
         robot.openCollector();
-        robot.shooterOn();
+        robot.setShooter(.8f);
         sleep(750);
 
         robot.setConveyor(.2f);
@@ -215,29 +262,4 @@ public class RED_100pt extends LinearOpMode {
         }
         robot.driveWithGyro( y , speed, angle);
     }
-//    public void driveWithGyro(double x, double y, int targetAngle){
-//
-//        int currentAngle = robot.getGyroAngle();
-//        int net = currentAngle - targetAngle;
-//        double rotation = -.25;
-//
-//        if(net > 180) { // if passes 0
-//            if(currentAngle > 180) //counterclockwise past 0
-//                net = (360 - currentAngle) + targetAngle;
-//
-//            else
-//                net = (targetAngle - 360) + currentAngle;
-//        }
-//
-//        //rotation = -.25;//net * rotationRatio + .25;
-//
-//        telemetry.addData("1:", "Heading: " + robot.getGyroAngle());
-//        telemetry.addData("2:", "Net: " + net);
-//        telemetry.addData("3: ", "Speed: " +rotation);
-//        telemetry.addData("4: ",  "Target: " + targetAngle);
-//
-//        telemetry.update();
-//
-//        robot.driveold(x,y,rotation,false);
-//    }
 }

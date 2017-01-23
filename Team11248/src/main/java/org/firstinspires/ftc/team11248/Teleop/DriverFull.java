@@ -15,7 +15,8 @@ public class DriverFull extends DriverOmni {
 
     public Robot11248 robot;
 
-     private Gamepad prevGP1, prevGP2;
+    private Gamepad prevGP1, prevGP2;
+    boolean bangBang = false;
 
 
     @Override
@@ -41,6 +42,7 @@ public class DriverFull extends DriverOmni {
     @Override
     public void loop() {
 
+        telemetry.addData("1",  robot.shooterL.getMaxSpeed());
         // ##GAMEPAD 1 CONTROLS ##
 
         //Controls Wheels
@@ -94,11 +96,15 @@ public class DriverFull extends DriverOmni {
 
         //## GAMEPAD 2 CONTROLS ##
         if (gamepad2.a && gamepad2.a != prevGP2.a) {
-            if(robot.getShooterOn())
+            if(robot.getShooterOn()) {
                 robot.shooterOff();
-            else
-                robot.shooterOn();
+                bangBang = false;
+            }else
+                bangBang = true;
         }
+
+        if(bangBang) robot.bangBang(robot.SHOOTER_SPEED);
+
 
         if (gamepad2.y && gamepad2.y != prevGP2.y) {
             if(robot.getShooterOn())

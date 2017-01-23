@@ -34,7 +34,7 @@ public class BLUE_70pt extends OpMode {
     @Override
     public void loop() {
 
-        robot.driveWithGyro(.3,0,0);
+        robot.driveWithGyro(0,0,180);
 
     }
 }

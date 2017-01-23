@@ -61,7 +61,7 @@ public class Robot11248 extends OmniWheelDriver {
 
 
     //Motors, Sensors, Telemetry
-    private DcMotor shooterL, shooterR, lift, conveyor;
+    public DcMotor shooterL, shooterR, lift, conveyor;
     private Servo liftArm, beaconPusher, collectorServoL, collectorServoR;
     private MRColorSensorV3 colorBeacon;
     private OpticalDistanceSensor lineSensor;
@@ -88,8 +88,12 @@ public class Robot11248 extends OmniWheelDriver {
         this.lift = hardwareMap.dcMotor.get("Lift");
         this.conveyor = hardwareMap.dcMotor.get("Conveyor");
 
-        //this.shooterL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //this.shooterR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        this.shooterL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        this.shooterR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+//        this.shooterL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        this.shooterR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         /*
          * SERVO INITS
@@ -184,6 +188,8 @@ public class Robot11248 extends OmniWheelDriver {
             shooterOn = false;
     }
 
+
+
     public void shooterReverse() {
         shooterL.setPower(-SHOOTER_SPEED);
         shooterR.setPower(SHOOTER_SPEED);
@@ -200,6 +206,54 @@ public class Robot11248 extends OmniWheelDriver {
         shooterL.setPower(0);
         shooterR.setPower(0);
         shooterOn = false;
+    }
+
+
+
+
+    long lastTime = System.nanoTime();
+    int leftLastEncoder = shooterL.getCurrentPosition();
+    int rightLastEncoder = shooterR.getCurrentPosition();
+    double tolerance = .015;
+
+    public void bangBang(double fTarget){
+
+        long now = System.nanoTime();
+        long elapsedTime = now - lastTime;
+        double left = fTarget;
+        double right = fTarget;
+
+        int shooterL_Encoder = shooterL.getCurrentPosition();
+        int shooterR_Encoder = shooterR.getCurrentPosition();
+
+        double shooterL_Velocity = (double)(shooterL_Encoder - leftLastEncoder) / elapsedTime;
+        double shooterR_Velocity = (double)(shooterR_Encoder - rightLastEncoder) / elapsedTime;
+
+
+        if(shooterL_Velocity >= (fTarget + tolerance)){
+            left = fTarget - .05;
+
+        } else if(shooterL_Velocity < (fTarget - tolerance)) {
+            left = fTarget + .05;
+        }
+
+
+        if(shooterR_Velocity >= (fTarget + tolerance)){
+            right = fTarget - .05;
+
+        } else if(shooterR_Velocity < (fTarget - tolerance)) {
+            right = fTarget + .05;
+        }
+
+
+        shooterL.setPower(left);
+        shooterR.setPower(-right);
+        shooterOn = true;
+
+        leftLastEncoder = shooterL_Encoder;
+        rightLastEncoder = shooterR_Encoder;
+
+        lastTime = now;
     }
 
     public boolean getShooterOn() {
