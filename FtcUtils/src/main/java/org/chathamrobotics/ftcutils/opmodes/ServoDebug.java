@@ -1,4 +1,4 @@
-package org.chathamrobotics.ftcutils;
+package org.chathamrobotics.ftcutils.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -85,8 +85,6 @@ public class ServoDebug extends OpMode {
 
         telemetry.addData("01:", "Servo: " + servo);
         telemetry.addData("02:", "Position: " + servoPosition);
-
-
     }
 
 }

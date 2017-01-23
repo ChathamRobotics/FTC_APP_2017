@@ -1,55 +1,48 @@
-package org.chathamrobotics.ftcutils;
-
-import android.util.Log;
+package org.chathamrobotics.ftcutils.opmodes.templates;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.lasarobotics.vision.opmode.LinearVisionOpMode;
-
-import java.util.Map;
+import org.chathamrobotics.ftcutils.Robot;
+import org.chathamrobotics.ftcutils.StoppedException;
 
 /**
  * basic autonomous
  */
 public abstract class  AutonomousOpMode extends LinearOpMode {
 //    COMPONENTS    //
-    protected Robot robot;
 
 
 //    STATEFUL      //
     /*
      * Whether the current team is red
      */
-    public boolean isRedTeam;
+    protected boolean isRedTeam;
 
 
 //    METHODS       //
-
-    /**
-     * returns the team specific robot
-     * @return the robot object
-     */
-    abstract public void buildRobot();
-
     /*
      * Called on start
      */
     abstract public void runRobot() throws StoppedException, InterruptedException;
 
+    /**
+     * get the robot object
+     * @return the robot
+     */
+    abstract public Robot robot();
+
     /*
      * Initializes robot
      */
     public void initRobot() {
-
-//        this.robot.initHardware();
+        robot();
     }
 
     /*
      * called on stop
      */
-    public void stopRobot() {
-        this.robot.stop();
+    protected void stopRobot() {
+        this.robot().stop();
     }
 
     /*
@@ -57,13 +50,12 @@ public abstract class  AutonomousOpMode extends LinearOpMode {
      */
     @Override
     public void runOpMode() throws InterruptedException {
-        buildRobot();
-
+        initRobot();
 
         // Wait for start call
         waitForStart();
 
-        this.robot.debug();
+        this.robot().debug();
 
         try {
             runRobot();
@@ -72,7 +64,7 @@ public abstract class  AutonomousOpMode extends LinearOpMode {
             //Just continue to robot stop
         }
         finally {
-            this.robot.debug();
+            this.robot().debug();
             stopRobot();
         }
     }
@@ -80,15 +72,15 @@ public abstract class  AutonomousOpMode extends LinearOpMode {
     /*
      * periodically checks for stop and updates telemetry
      */
-    public void statusCheck() throws StoppedException {
-        this.robot.debug();
+    protected void statusCheck() throws StoppedException {
+        this.robot().debug();
         checkForStop();
     }
 
     /*
      * Checks if opmode is still active and if it's not throws a StoppedException
      */
-    public void checkForStop() throws StoppedException{
+    protected void checkForStop() throws StoppedException{
         if (! opModeIsActive()) throw new StoppedException();
     }
 }

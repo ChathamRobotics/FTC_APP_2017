@@ -2,7 +2,9 @@ package org.chathamrobotics.ftcutils;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.I2cAddr;
+import com.qualcomm.robotcore.hardware.I2cController;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
@@ -10,14 +12,14 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 /**
  * adds more functionality to the modern robotics color sensor
  */
-public class MRColorSensorV2 extends ModernRoboticsI2cColorSensor implements ColorSensor{
+public class MRColorSensorV2 extends ModernRoboticsI2cColorSensor implements ColorSensor {
     // Stateful
     private I2cDeviceSynch sensorSynch;
     private volatile int frequency;
     private volatile boolean active;
     private volatile int lastCommand;
 
-    /*
+    /**
      * Creates new MRColorSensorV2
      * @param {I2cDevice} sensor        The I2cDevice instance of the sensor
      * @param {I2cAddr|int} [address]   The sensors address
@@ -32,6 +34,8 @@ public class MRColorSensorV2 extends ModernRoboticsI2cColorSensor implements Col
 
         // Create I2c synchronizer
         this.sensorSynch = new I2cDeviceSynchImpl(sensor, this.getI2cAddress(), false);
+
+        this.sensorSynch.engage();
 
         defaultBehavior();
     }
@@ -50,6 +54,8 @@ public class MRColorSensorV2 extends ModernRoboticsI2cColorSensor implements Col
         // Create I2c synchronizer
         this.sensorSynch = new I2cDeviceSynchImpl(sensor, address, false);
 
+        this.sensorSynch.engage();
+
         // Make sure the sensor is using the right address
         this.setI2cAddress(address);
 
@@ -61,7 +67,7 @@ public class MRColorSensorV2 extends ModernRoboticsI2cColorSensor implements Col
      * @param {ColorSensor} sensor  the sensor to test
      * @return {boolean} isMrColorSensor
      */
-    public boolean isMRColorSensor(ColorSensor sensor) {
+    private boolean isMRColorSensor(HardwareDevice sensor) {
         return sensor.getManufacturer() == Manufacturer.ModernRobotics;
     }
 

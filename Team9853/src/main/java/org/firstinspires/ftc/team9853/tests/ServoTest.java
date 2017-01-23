@@ -5,9 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
-import org.chathamrobotics.ftcutils.Robot;
-import org.chathamrobotics.ftcutils.TeleOpMode;
-import org.firstinspires.ftc.team9853.Robot9853;
 import org.firstinspires.ftc.team9853.opmodes.Tele;
 
 import java.util.Map;

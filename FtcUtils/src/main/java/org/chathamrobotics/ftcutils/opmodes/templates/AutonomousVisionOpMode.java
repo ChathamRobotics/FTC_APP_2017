@@ -1,5 +1,7 @@
-package org.chathamrobotics.ftcutils;
+package org.chathamrobotics.ftcutils.opmodes.templates;
 
+import org.chathamrobotics.ftcutils.Robot;
+import org.chathamrobotics.ftcutils.StoppedException;
 import org.lasarobotics.vision.android.Cameras;
 import org.lasarobotics.vision.detection.objects.Rectangle;
 import org.lasarobotics.vision.ftc.resq.Beacon;
@@ -15,11 +17,10 @@ import org.opencv.core.Size;
 
 public abstract class AutonomousVisionOpMode extends LinearVisionOpMode {
 //    CONSTANTS         //
-    final static Size defaultFrameSize = new Size(900, 900);
-    final static ScreenOrientation defaultOrientation = ScreenOrientation.LANDSCAPE;
+    private final static Size defaultFrameSize = new Size(900, 900);
+    private final static ScreenOrientation defaultOrientation = ScreenOrientation.LANDSCAPE;
 
 //    COMPONENTS        //
-    public Robot robot;
 
 //    Stateful          //
     /*
@@ -29,7 +30,7 @@ public abstract class AutonomousVisionOpMode extends LinearVisionOpMode {
 
 
 //    ABSTRACT METHODS  //
-    abstract public Robot buildRobot();
+    abstract public Robot robot();
 
     /*
      * Called on start
@@ -41,7 +42,7 @@ public abstract class AutonomousVisionOpMode extends LinearVisionOpMode {
      * Initializes robot
      */
     public void initRobot() {
-        robot.initHardware();
+        robot();
 
         // Set to front facing camera
         this.setCamera(Cameras.PRIMARY);
@@ -77,7 +78,7 @@ public abstract class AutonomousVisionOpMode extends LinearVisionOpMode {
      * called on stop
      */
     public void stopRobot() {
-        this.robot.stop();
+        this.robot().stop();
     }
 
     /*
@@ -86,8 +87,6 @@ public abstract class AutonomousVisionOpMode extends LinearVisionOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         waitForVisionStart();
-
-        buildRobot();
 
         initRobot();
 
@@ -128,7 +127,7 @@ public abstract class AutonomousVisionOpMode extends LinearVisionOpMode {
         telemetry.addData("Frame Rate", fps.getFPSString() + " FPS");
         telemetry.addData("Frame Size", "Width: " + width + " Height: " + height);
 
-        this.robot.debug(false, true);
+        this.robot().debug(false, true, true);
 
         telemetry.update();
     }

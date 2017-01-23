@@ -86,7 +86,7 @@ public abstract class Robot {
      * @param update    whether or not to update the telemetry
      * @param teleOut  whether or not to output the data to the telemetry
      */
-    public void debug(boolean update, boolean teleOut) {
+    public void debug(boolean update, boolean teleOut, boolean androidOut) {
 
         // Debug motor values
         for (Map.Entry<String, DcMotor> entry : this.hardwareMap.dcMotor.entrySet()) {
@@ -94,20 +94,20 @@ public abstract class Robot {
 //            if(entry.getValue().isBusy()) {}
 
             log("Motor " + entry.getKey() + " Power",
-                    entry.getValue().getController().getMotorPower(entry.getValue().getPortNumber()), teleOut);
+                    entry.getValue().getController().getMotorPower(entry.getValue().getPortNumber()), teleOut, androidOut);
         }
 
         // Debug servo values
         for (Map.Entry<String, Servo> entry: this.hardwareMap.servo.entrySet()) {
             log("Servo" + entry.getKey() + " Position",
-                    entry.getValue().getController().getServoPosition(entry.getValue().getPortNumber()), teleOut);
+                    entry.getValue().getController().getServoPosition(entry.getValue().getPortNumber()), teleOut, androidOut);
         }
 
 
         // Optical Distance sensors
         for (Map.Entry<String, OpticalDistanceSensor> entry: this.hardwareMap.opticalDistanceSensor.entrySet()) {
             log("ODS " + entry.getKey() + " Light",
-                    entry.getValue().getLightDetected());
+                    entry.getValue().getLightDetected(), teleOut, androidOut);
         }
 
         // update telemetry values if needed
@@ -116,7 +116,7 @@ public abstract class Robot {
         }
     }
     public void debug() {
-        debug(true, true); // This is here just to make debug easier to call instead of having to do debug(true). If you don't want the telemetry to update when debug is called then do debug(false)
+        debug(true, true, true); // This is here just to make debug easier to call instead of having to do debug(true). If you don't want the telemetry to update when debug is called then do debug(false)
     }
 
 
@@ -126,15 +126,15 @@ public abstract class Robot {
      * @param value     the message
      * @param teleOut   whether or not to output to the telemetry as well as the log facility
      */
-    public void log(String caption, Object value, boolean teleOut) {
-        Log.d(this.TAG, caption + ": " + value.toString());
+    public void log(String caption, Object value, boolean teleOut, boolean androidOut) {
+        Log.d(this.TAG, caption + " - " + value.toString());
 
         if(teleOut) {
             this.telemetry.addData(this.TAG, caption + ": " + value.toString());
         }
     }
     public void log(String caption, Object value) {
-        log(caption, value, true);
+        log(caption, value, true, true);
     }
 
     /**

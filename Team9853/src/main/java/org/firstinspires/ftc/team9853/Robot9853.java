@@ -149,7 +149,7 @@ public class Robot9853 extends Robot {
         double rotation;
 
         if (Math.abs(net) > 180) { // if shortest path passes 0
-            if (currentHeading > 180) //if going counterclockwise
+            if (currentHeading < 180) //if going counterclockwise
                 net = (currentHeading - 360) - targetHeading;
 
             else //if going clockwise
@@ -319,5 +319,52 @@ public class Robot9853 extends Robot {
         double lightVal = this.centerLineSensor.getLightDetected();
 
         return lightVal >= OPTICAL_LOW && lightVal <= OPTICAL_HIGH;
+    }
+
+    /**
+     * runs the shooter
+     * @param power the power to set the shooter to
+     */
+    public void shoot(double power){
+        this.shooter.setPower(power);
+    }
+    public void shoot() {
+        shoot(.7);
+    }
+
+    /**
+     * shoots until the time is up
+     * @param power     the power to set the shooter to
+     * @param endTime   the time to end
+     * @return          whether time is up
+     */
+    public boolean shootFor(double power, long endTime) {
+        shoot(power);
+
+        if(System.currentTimeMillis() >= endTime) {
+            shoot(0);
+            return false;
+        }
+
+        return true;
+    }
+    public boolean shootFor(long endTime) {
+        return shootFor(.7, endTime);
+    }
+
+    /**
+     * runs the collector until time is up
+     * @param endTime   the time to end
+     * @return          whether time is up
+     */
+    public boolean reloadFor(long endTime) {
+        setCollectorPower(-1);
+
+        if(System.currentTimeMillis() >= endTime) {
+            setCollectorPower(0);
+            return false;
+        }
+
+        return true;
     }
 }

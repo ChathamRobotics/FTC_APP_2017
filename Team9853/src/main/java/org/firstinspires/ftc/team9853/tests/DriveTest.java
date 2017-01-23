@@ -3,13 +3,10 @@ package org.firstinspires.ftc.team9853.tests;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.chathamrobotics.ftcutils.Robot;
-import org.chathamrobotics.ftcutils.TeleOpMode;
-import org.firstinspires.ftc.team9853.Robot9853;
 import org.firstinspires.ftc.team9853.opmodes.Tele;
 
 /**
- * Created by storm on 11/15/2016.
+ * tele op mode
  */
 
 @TeleOp(name = "Test: Driving", group = "Test")
@@ -23,8 +20,8 @@ public class DriveTest extends Tele {
 
     @Override
     public void loop() {
-        robot.driveAtPoint(1, 1, 0);
+        robot().driveAtPoint(1, 1, 0);
 
-        robot.debug();
+        robot().debug();
     }
 }

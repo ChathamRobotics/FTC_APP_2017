@@ -1,15 +1,8 @@
 package org.firstinspires.ftc.team11248.Teleop;
 
-import com.google.gson.internal.UnsafeAllocator;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.GyroSensor;
-import com.qualcomm.robotcore.hardware.I2cDevice;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
-import com.qualcomm.robotcore.hardware.ServoController;
-import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import org.firstinspires.ftc.team11248.Robot11248;
 
@@ -76,7 +69,7 @@ public class DriverFull extends DriverOmni {
 
 
         if (gamepad1.y && (gamepad1.y!=prevGP1.y) )
-            robot.switchSlow();
+            robot.toggleSlow();
 
 
         //Sets arm motor to whatever right trigger is

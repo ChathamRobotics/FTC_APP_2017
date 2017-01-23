@@ -291,7 +291,7 @@ public class OmniWheelDriver implements Driver{
     /*
      * Toggle isSlow
      */
-    public void switchSlow() {
+    public void toggleSlow() {
         isSlow = !isSlow;
     }
 

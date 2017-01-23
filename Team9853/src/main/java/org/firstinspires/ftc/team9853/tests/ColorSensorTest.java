@@ -25,7 +25,7 @@ public class ColorSensorTest extends Tele {
     @Override
     public void loop() {
         if(gamepad1.a) {
-            try { robot.doUntil(250); } catch (Exception e) {
+            try { robot().doUntil(250); } catch (Exception e) {
                 // Do nothing
             }
 

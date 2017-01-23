@@ -11,9 +11,7 @@ import org.firstinspires.ftc.team9853.opmodes.Auto;
 public class AutoModeCharge extends Auto {
 //    CONSTANTS     //
     private static final long waitTime = 10000;
-    private static final long driveTime = 2500;
-    private static final long shootTime = 500;
-    private static final long reloadTime = 2500;
+    private static final long driveTime = 3000;
 
 //    CONSTRUCTORS  //
     /*
@@ -30,39 +28,40 @@ public class AutoModeCharge extends Auto {
      * called on start
      */
     public void runRobot() throws StoppedException {
-        robot.changeFront(Robot9853.Side.BACK);
+        robot().changeFront(Robot9853.Side.BACK);
 
         // Waits a little bit before starting autonomous
-        for(long endTime = robot.calcEndTime(waitTime); robot.doUntil(endTime);) {
+        for(long endTime = robot().calcEndTime(waitTime); robot().doUntil(endTime);) {
             statusCheck();
         }
 
         // Drives to the shooting point
-        for(long endTime =  robot.calcEndTime(3 * driveTime / 4); robot.driveForwardFor(.7, endTime);) {
+        for(long endTime =  robot().calcEndTime(driveTime / 4); robot().driveForwardFor(.7, endTime);) {
             statusCheck();
         }
 
-        // Shoots twice
-        for(long endTime = robot.calcEndTime(robot.SHOOT_TIME); System.currentTimeMillis() < endTime;) {
+        // wait
+        for(long endTime = robot().calcEndTime(1500); robot().doUntil(endTime);) {
             statusCheck();
-            robot.shooter.setPower(-.7);
         }
-        robot.shooter.setPower(0);
 
-        for(long endTime = robot.calcEndTime(robot.RELOAD_TIME); System.currentTimeMillis() < endTime;) {
+        // Shoot
+        for(long endTime = robot().calcEndTime(Robot9853.SHOOT_TIME); robot().shootFor(endTime);) {
             statusCheck();
-            robot.setCollectorPower(1);
         }
-        robot.setCollectorPower(0);
 
-        for(long endTime = robot.calcEndTime(robot.SHOOT_TIME); System.currentTimeMillis() < endTime;) {
+        // Reload
+        for(long endTime = robot().calcEndTime(Robot9853.RELOAD_TIME); robot().reloadFor(endTime);) {
             statusCheck();
-            robot.shooter.setPower(-.7);
         }
-        robot.shooter.setPower(0);
+
+        // shoot
+        for(long endTime = robot().calcEndTime(Robot9853.SHOOT_TIME); robot().shootFor(endTime);) {
+            statusCheck();
+        }
 
         // Drives to center
-        for(long endTime = robot.calcEndTime(driveTime / 4); robot.driveForwardFor(.7, endTime);) {
+        for(long endTime = robot().calcEndTime(3 * driveTime / 4); robot().driveForwardFor(.7, endTime);) {
             statusCheck();
         }
     }
