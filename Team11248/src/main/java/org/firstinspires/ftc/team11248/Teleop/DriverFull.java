@@ -124,7 +124,7 @@ public class DriverFull extends DriverOmni {
         if (gamepad2.x && gamepad2.x != prevGP2.x)
             robot.switchCollectorServo();
 
-        telemetry.addData("DriverFull: ", "Collector Closed: " + robot.collectorClosed);
+        telemetry.addData("DriverFull: ", "Collector: " + (robot.collectorClosed?"CLOSED":"OPEN"));
         telemetry.update();
 
 

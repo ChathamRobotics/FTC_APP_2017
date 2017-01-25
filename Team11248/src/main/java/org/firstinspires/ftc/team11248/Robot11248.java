@@ -212,12 +212,13 @@ public class Robot11248 extends OmniWheelDriver {
 
 
     long lastTime = System.nanoTime();
-    int leftLastEncoder = shooterL.getCurrentPosition();
-    int rightLastEncoder = shooterR.getCurrentPosition();
+    int leftLastEncoder = 0;
+    int rightLastEncoder = 0;
     double tolerance = .015;
 
     public void bangBang(double fTarget){
 
+        boolean up = false;
         long now = System.nanoTime();
         long elapsedTime = now - lastTime;
         double left = fTarget;
@@ -232,6 +233,7 @@ public class Robot11248 extends OmniWheelDriver {
 
         if(shooterL_Velocity >= (fTarget + tolerance)){
             left = fTarget - .05;
+            up = true;
 
         } else if(shooterL_Velocity < (fTarget - tolerance)) {
             left = fTarget + .05;
@@ -246,14 +248,16 @@ public class Robot11248 extends OmniWheelDriver {
         }
 
 
-        shooterL.setPower(left);
-        shooterR.setPower(-right);
+        shooterL.setPower(Range.clip(left, 0, 1));
+        shooterR.setPower(-Range.clip(right,0 ,1));
         shooterOn = true;
 
         leftLastEncoder = shooterL_Encoder;
         rightLastEncoder = shooterR_Encoder;
 
         lastTime = now;
+
+        telemetry.addData("1", up);
     }
 
     public boolean getShooterOn() {
@@ -292,20 +296,20 @@ public class Robot11248 extends OmniWheelDriver {
     public void openCollector(){
         collectorServoL.setPosition(COLLECTOR_L_OPEN);
         collectorServoR.setPosition(COLLECTOR_R_OPEN);
+        collectorClosed = false;
     }
 
     public void closeCollector(){
         collectorServoL.setPosition(COLLECTOR_L_CLOSED);
         collectorServoR.setPosition(COLLECTOR_R_CLOSED);
+        collectorClosed = true;
     }
 
     public void switchCollectorServo() {
         if (collectorClosed){
             openCollector();
-        collectorClosed = false;
-    }else{
+        }else{
             closeCollector();
-            collectorClosed = true;
         }
     }
 

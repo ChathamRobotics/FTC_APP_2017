@@ -51,9 +51,10 @@ public class BLUE_100pt extends LinearOpMode {
             //BEGIN AUTONOMOUS
             telemetry.addData("isBlue", robot.isBeaconBlue());
             telemetry.addData("isRed", robot.isBeaconRed());
-            telemetry.addData("sonar", robot.getSonarValue());
-            telemetry.addData("ods: ", robot.getLineSensorValue());
-            telemetry.addData("state", state);
+            telemetry.addData("Sonar", robot.getSonarValue());
+            telemetry.addData("ODS: ", robot.getLineSensorValue());
+            telemetry.addData("Heading: ", robot.getGyroAngle());
+            telemetry.addData("State: ", state);
             telemetry.update();
 
             switch (state) {
@@ -125,7 +126,7 @@ public class BLUE_100pt extends LinearOpMode {
                     state++;
                     break;
                 case 7: //keep driving until line hit
-                    robot.driveold(0, .4, 0);
+                    robot.driveold(0, -.4, 0);
                     if(robot.hitLine()) { //WHEN WHITE LINE FOUND
                         robot.stop(); //STOP MOVING
                         sleep(STOP_DELAY);
@@ -193,7 +194,7 @@ public class BLUE_100pt extends LinearOpMode {
         sleep(500);
 
         robot.openCollector();
-        robot.setShooter(.8f);
+        robot.bangBang(.8f);
         sleep(750);
 
         robot.setConveyor(.2f);
