@@ -105,6 +105,15 @@ public class OmniWheelDriver implements Driver{
         double MAX_TURN, MAX_SPEED;
         //## CALCULATE VALUES ##
 
+        /*
+         * Protects range of joysticks
+         */
+
+//        x = Range.clip(x, -1, 1);
+//        y = Range.clip(y, -1, 1);
+//        rotate = Range.clip(rotate, -1, 1);
+
+
         /* This makes the rotation and speed ratios relative to the rotation value
          * So when we don't have a rotation we can drive at full speed instead of a fraction of speed
          * If rotation is being used, a ratio is induced to prevent a value greater than 1
@@ -119,15 +128,13 @@ public class OmniWheelDriver implements Driver{
             MAX_TURN = this.MAX_TURN;
         }
 
-
         //Using a function on variable rotate will smooth out the slow values but still give full range
         if((smooth || isSlow) && rotate !=0) rotate = rotate * rotate * rotate/Math.abs(rotate);
 
         rotate *= MAX_TURN;
 
-
         angle = Math.atan2(y, x);
-//
+
 //        // Takes regular x,y coordinates and converts them into polar (angle radius) cooridnates
 //        // Then turns angle by 45 degrees (Pi/4) to accommodate omni wheel axis
 //
@@ -158,16 +165,12 @@ public class OmniWheelDriver implements Driver{
 
         angle += (Math.PI/4);//take our angle and shift it 90 deg (PI/4)
 
-
         if(smooth || isSlow) r = r*r; //Using a function on variable r will smooth out the slow values but still give full range
 
         //TODO: r = -(4/3*r-2)/((4/3*r)*(4/3*r)); Cooler more impressive function
 
 
-
-
         double SPEED = 1;
-
         if(isSlow)
             SPEED = SLOW_SPEED;
 
@@ -175,7 +178,7 @@ public class OmniWheelDriver implements Driver{
         /* Takes new angle and radius and converts them into the motor values
          * Multiples by our speed reduction ratio and our slow speed ratio
          */
-        FL = BR =  Math.sin(angle + offsetAngle) * MAX_SPEED * r;
+        FL = BR = Math.sin(angle + offsetAngle) * MAX_SPEED * r;
         FR = BL = Math.cos(angle + offsetAngle) * MAX_SPEED * r ;
 
         FL -= rotate; // implements rotation
@@ -184,34 +187,24 @@ public class OmniWheelDriver implements Driver{
         BR += rotate;
 
 
-        /* Prevent fatal error cause by slightly impefect joystick values
-         * Will drive in aproxamite direction if true
+        /* Prevent fatal error cause by slightly imperfect joystick values
+         * Will drive in approximate direction if true
          */
-        if(Math.abs(FL) >1 || Math.abs(FR) >1 ||
-                Math.abs(BR) >1 || Math.abs(BL) >1) {
-
-            FL /=  Math.abs(FL);
-            FR /=  Math.abs(FR);
-            BR /=  Math.abs(BR);
-            BL /=  Math.abs(BL);
-        }
-
-
-            frontLeft.setPower(FL * SPEED); // -rot fl br y
-            frontRight.setPower(FR * SPEED); // -
-            backLeft.setPower(-BL * SPEED); // +
-            backRight.setPower(-BR * SPEED); //+
+            frontLeft.setPower( Range.clip(FL * SPEED, -1, 1)); // -rot fl br y
+            frontRight.setPower( Range.clip(FR * SPEED, -1, 1)); // -
+            backLeft.setPower( Range.clip(-BL * SPEED, -1, 1)); // +
+            backRight.setPower( Range.clip(-BR * SPEED, -1, 1)); //+
 
 
         if (silent) {
-            telemetry.addData("OMNI_DRIVER", "radius: " + r);
-            telemetry.addData("OMNI_DRIVER", "x: " + x);
-            telemetry.addData("OMNI_DRIVER", "y: " + y);
-            telemetry.addData("OMNI_DRIVER", "rotate: " + rotate);
-            telemetry.addData("OMNI_DRIVER", "FL: " + frontLeft.getPower());
-            telemetry.addData("OMNI_DRIVER", "FR: " + frontRight.getPower());
-            telemetry.addData("OMNI_DRIVER", "BR: " + backRight.getPower());
-            telemetry.addData("OMNI_DRIVER", "BL: " + backLeft.getPower());
+            telemetry.addData("OMNI_DRIVER: ", "radius: " + r);
+            telemetry.addData("OMNI_DRIVER: ", "x: " + x);
+            telemetry.addData("OMNI_DRIVER: ", "y: " + y);
+            telemetry.addData("OMNI_DRIVER: ", "rotate: " + rotate);
+            telemetry.addData("OMNI_DRIVER: ", "FL: " + frontLeft.getPower());
+            telemetry.addData("OMNI_DRIVER: ", "FR: " + frontRight.getPower());
+            telemetry.addData("OMNI_DRIVER: ", "BR: " + backRight.getPower());
+            telemetry.addData("OMNI_DRIVER: ", "BL: " + backLeft.getPower());
             telemetry.update();
         }
 

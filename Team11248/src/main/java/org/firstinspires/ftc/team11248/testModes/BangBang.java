@@ -25,7 +25,7 @@ public class BangBang extends OpMode {
     @Override
     public void init() {
 
-        motor = hardwareMap.dcMotor.get("shooterL");
+        motor = hardwareMap.dcMotor.get("ShooterL");
 
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         //motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -45,8 +45,6 @@ public class BangBang extends OpMode {
         telemetry.addData("RPM: ", rpm);
         telemetry.addData("Position: ", currentEncoder);
         telemetry.addData("Minutes: ", elapsedTime);
-        telemetry.addData("Position: ", currentEncoder);
-
 
     }
 
@@ -57,11 +55,11 @@ public class BangBang extends OpMode {
         long now = System.nanoTime();
         double power = targetPower;
 
-        elapsedTime = (now - lastTime)/60000000000L;
+        elapsedTime = (double)(now - lastTime)/60000000000.0;
         currentEncoder = motor.getCurrentPosition();
 
-        rpm = (currentEncoder-lastEncoder)/ticksPerRevolution / elapsedTime;
-        doubleSpeed = rpm/152;
+        rpm = (double)(currentEncoder-lastEncoder)/(double)ticksPerRevolution/elapsedTime;
+        doubleSpeed = rpm/152.0;
 
 
         if(isBangBang) {

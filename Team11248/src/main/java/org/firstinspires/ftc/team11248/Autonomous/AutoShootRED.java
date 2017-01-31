@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.team11248.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.team11248.Robot11248;
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.team11248.Robot11248;
  * Team 11248 Shooter Autonomous
  */
 @Autonomous(name = "AutoShootRED")
+@Disabled
 public class AutoShootRED extends LinearOpMode{
 
     /**

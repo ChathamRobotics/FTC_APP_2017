@@ -25,6 +25,7 @@ public class BLUE_100pt extends LinearOpMode {
 
     Robot11248 robot;
 
+    final int SONAR_DIST = 14;
     final int STOP_DELAY = 500;
     int A_SHOOT_TO_BEACON = 38;
     double rotationRatio = .004 ;
@@ -61,8 +62,11 @@ public class BLUE_100pt extends LinearOpMode {
                 case -1: //Forward and shoot
                     shootBallsStart(); //MOVES FORWARD AND SHOOT BALLS
                     sleep(1000);
+                    robot.driveold(.6, .6, 0);
+                    sleep(1600);
                     state++;
                     break;
+
                 case 0: //Drive diagonal to line
                     // DRIVE DIAGONAL
                     robot.driveold(.3, .3, 0);
@@ -78,7 +82,7 @@ public class BLUE_100pt extends LinearOpMode {
                 case 2: //adjust y (closeness to wall)
                     //Y ADJUSTMENT
                     robot.driveold(.3, 0, 0);
-                    if (robot.getSonarValue() < 13){
+                    if (robot.getSonarValue() < SONAR_DIST){
                         robot.stop();
                         sleep(STOP_DELAY);
                         state++;
@@ -126,7 +130,9 @@ public class BLUE_100pt extends LinearOpMode {
                     state++;
                     break;
                 case 7: //keep driving until line hit
-                    robot.driveold(0, -.4, 0);
+
+                    telemetry.addData("y", xAgainstWall(SONAR_DIST));
+                    robot.driveold( xAgainstWall(SONAR_DIST), .37, 0);
                     if(robot.hitLine()) { //WHEN WHITE LINE FOUND
                         robot.stop(); //STOP MOVING
                         sleep(STOP_DELAY);
@@ -139,7 +145,7 @@ public class BLUE_100pt extends LinearOpMode {
                 case 9: //Adjust y (closeness to wall)
                     //Y ADJUSTMENT
                     robot.driveold(.3, 0, 0);
-                    if (robot.getSonarValue() < 12){
+                    if (robot.getSonarValue() < SONAR_DIST){
                         robot.stop();
                         sleep(STOP_DELAY);
                         state++;
@@ -198,7 +204,7 @@ public class BLUE_100pt extends LinearOpMode {
         sleep(750);
 
         robot.setConveyor(.2f);
-        sleep(2500);
+        sleep(2000);
 
         robot.conveyorOff();
         robot.shooterOff();
@@ -232,14 +238,22 @@ public class BLUE_100pt extends LinearOpMode {
     }
 
     public void driveAgainstWall(double speed, int angle, int distance){
-        int SONAR_THRESHOLD = 5;
+        robot.driveWithGyro( xAgainstWall(distance) , speed, angle);
+    }
+
+    public double xAgainstWall(int distance){
+
+        int SONAR_THRESHOLD = 2;
         double netDist = robot.getSonarValue() - distance;
         double y =0;
 
         if(Math.abs(netDist)> SONAR_THRESHOLD) {
-            y = Math.abs(netDist) * .003 + .25;
+            y = Math.abs(netDist) * .002 + .10;
             if(netDist<0) y*=-1;
         }
-        robot.driveWithGyro( y , speed, angle);
+
+        return y;
+
     }
+
 }

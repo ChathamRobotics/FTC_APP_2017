@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.team11248;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDevice;
@@ -67,6 +68,7 @@ public class Robot11248 extends OmniWheelDriver {
     private OpticalDistanceSensor lineSensor;
     private GyroSensor gyro;
     private UltrasonicSensor sonar;
+    private DeviceInterfaceModule dim;
     private Telemetry telemetry;
 
     //private DeviceInterfaceModule dim;
@@ -115,7 +117,7 @@ public class Robot11248 extends OmniWheelDriver {
 
         //TELEMETRY
         this.telemetry = telemetry;
-        //this.dim = hardwareMap.get(DeviceInterfaceModule.class, "dim");
+        this.dim = hardwareMap.get(DeviceInterfaceModule.class, "Device Interface Module 1");
 
     }
 
@@ -437,8 +439,8 @@ public class Robot11248 extends OmniWheelDriver {
      * LED METHODS
      */
     public void setDimLed(boolean red, boolean blue){
-        //dim.setLED(0, red);
-        //dim.setLED(1, blue);
+        dim.setLED(0, red);
+        dim.setLED(1, blue);
     }
 
 }
