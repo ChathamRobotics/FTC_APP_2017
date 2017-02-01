@@ -109,6 +109,7 @@ public class BangBang extends OpMode {
         private void BangBangLoop(){
             flywheelVelocity.setParameters(System.nanoTime(), flywheelRight.getCurrentPosition());
             double currentVelocity = flywheelVelocity.getVelocity();
+            telemetry.addData("Velocity: ", currentVelocity);
 
             velocityBangBang.setParameters(currentVelocity, TARGET_VELOCITY, 0.84, 0.9, TOLERANCE);
             double motorOut = velocityBangBang.getBangBang();
