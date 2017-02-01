@@ -1,3 +1,6 @@
 [submodule "ftc-vision"]
 	path = ftc-vision
 	url = https://github.com/lasarobotics/ftcvision
+[submodule "ftc-utils"]
+	path = ftc-utils
+	url = https://github.com/ChathamRobotics/ftc-utils
