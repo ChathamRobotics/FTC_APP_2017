@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.team9853.opmodes.Tele;
+import org.firstinspires.ftc.team9853.opmodes.Tele9853;
 
 import java.util.Map;
 
@@ -17,7 +17,7 @@ import java.util.Map;
 
 @Disabled
 
-public class ServoTest extends Tele {
+public class ServoTest extends Tele9853 {
     public Servo[] servos;
 
     public ServoTest() {}

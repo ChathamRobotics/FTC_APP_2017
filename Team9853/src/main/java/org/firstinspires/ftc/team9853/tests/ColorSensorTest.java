@@ -3,7 +3,7 @@ package org.firstinspires.ftc.team9853.tests;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.chathamrobotics.ftcutils.hardware.MRColorSensorV2;
-import org.firstinspires.ftc.team9853.opmodes.Tele;
+import org.firstinspires.ftc.team9853.opmodes.Tele9853;
 
 /**
  * test color sesnsors
@@ -13,7 +13,7 @@ import org.firstinspires.ftc.team9853.opmodes.Tele;
 
 //@Disabled
 
-public class ColorSensorTest extends Tele {
+public class ColorSensorTest extends Tele9853 {
     private MRColorSensorV2 sensor;
 
     @Override

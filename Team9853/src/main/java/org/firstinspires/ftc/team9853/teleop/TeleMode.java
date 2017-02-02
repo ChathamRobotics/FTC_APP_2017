@@ -1,18 +1,16 @@
 package org.firstinspires.ftc.team9853.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.chathamrobotics.ftcutils.Robot;
-import org.firstinspires.ftc.team9853.opmodes.Tele;
+import org.firstinspires.ftc.team9853.opmodes.Tele9853;
 
 /**
  * teleop opmode
  */
 @TeleOp(name = "Driving", group = "General")
 
-public class TeleMode extends Tele {
+public class TeleMode extends Tele9853 {
 //    CONSTANTS     //
     static double toggleDownPosition = 0.2;
     static double toggleUpPosition = 1;

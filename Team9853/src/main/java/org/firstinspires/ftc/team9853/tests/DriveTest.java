@@ -3,7 +3,7 @@ package org.firstinspires.ftc.team9853.tests;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.team9853.opmodes.Tele;
+import org.firstinspires.ftc.team9853.opmodes.Tele9853;
 
 /**
  * tele op mode
@@ -13,7 +13,7 @@ import org.firstinspires.ftc.team9853.opmodes.Tele;
 
 @Disabled
 
-public class DriveTest extends Tele {
+public class DriveTest extends Tele9853 {
     DriveTest() {
         super();
     }

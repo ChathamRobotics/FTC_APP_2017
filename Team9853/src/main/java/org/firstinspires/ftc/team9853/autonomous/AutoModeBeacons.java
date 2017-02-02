@@ -2,13 +2,13 @@ package org.firstinspires.ftc.team9853.autonomous;
 
 import org.chathamrobotics.ftcutils.hardware.MRColorSensorV2;
 import org.chathamrobotics.ftcutils.StoppedException;
-import org.firstinspires.ftc.team9853.opmodes.Auto;
+import org.firstinspires.ftc.team9853.opmodes.Auto9853;
 
 /**
  * beacon pressing autonomous
  */
 
-public class AutoModeBeacons extends Auto {
+public class AutoModeBeacons extends Auto9853 {
 //    CONSTANTS     //
     private static final long shootTime = 1000;
     private static final long reloadTime = 1000;

@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.chathamrobotics.ftcutils.OmniWheelDriver;
 import org.chathamrobotics.ftcutils.Robot;
+import org.chathamrobotics.ftcutils.hardware.MRColorSensorV2;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.Map;
@@ -46,7 +47,7 @@ public class Robot9853 extends Robot {
     public Servo liftToggle;
     public OpticalDistanceSensor leftLineSensor;
     public OpticalDistanceSensor centerLineSensor;
-    public ColorSensor beaconSensor;
+    public MRColorSensorV2 beaconSensor;
     public GyroSensor gyro;
     public TouchSensor touchSensor;
 
@@ -93,11 +94,8 @@ public class Robot9853 extends Robot {
         leftLineSensor = hardwareMap.opticalDistanceSensor.get("LeftLineSensor");
         centerLineSensor = hardwareMap.opticalDistanceSensor.get("CenterLineSensor");
         gyro = hardwareMap.gyroSensor.get("Gyro");
-
-        if(hardwareMap.colorSensor.size() > 0) {
-            beaconSensor = hardwareMap.colorSensor.get("BeaconSensor");
-            touchSensor = hardwareMap.touchSensor.get("Touch");
-        }
+        beaconSensor = new MRColorSensorV2(hardwareMap.i2cDevice.get("BeaconSensor"));
+        touchSensor = hardwareMap.touchSensor.get("Touch");
 
         this.telemetry.addLine("Hardware initialized");
         this.telemetry.addLine("Press play to start");
@@ -319,6 +317,30 @@ public class Robot9853 extends Robot {
         double lightVal = this.centerLineSensor.getLightDetected();
 
         return lightVal >= OPTICAL_LOW && lightVal <= OPTICAL_HIGH;
+    }
+
+    /**
+     * whether the beacon is in range
+     * @return whether beacon is readable
+     */
+    public boolean isBeaconInRange() {
+        return ! beaconSensor.isBlack();
+    }
+
+    /**
+     * determine whether or not the beacon is red
+     * @return whether or not the beacon sensor is reading red
+     */
+    public boolean isBeaconRed() {
+        return beaconSensor.isRed();
+    }
+
+    /**
+     * determine whether or not the beacon is blue
+     * @return whether or not the beacon sensor is reading red
+     */
+    public boolean isBeaconBlue() {
+        return beaconSensor.isBlue();
     }
 
     /**

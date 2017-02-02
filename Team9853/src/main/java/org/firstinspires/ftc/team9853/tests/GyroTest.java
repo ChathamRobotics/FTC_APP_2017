@@ -3,7 +3,7 @@ package org.firstinspires.ftc.team9853.tests;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.chathamrobotics.ftcutils.StoppedException;
-import org.firstinspires.ftc.team9853.opmodes.Auto;
+import org.firstinspires.ftc.team9853.opmodes.Auto9853;
 
 /**
  * test gyro
@@ -11,7 +11,7 @@ import org.firstinspires.ftc.team9853.opmodes.Auto;
 
 @Autonomous(name = "Test: Gyro", group = "Test")
 
-public class GyroTest extends Auto {
+public class GyroTest extends Auto9853 {
     @Override
     public void runRobot() throws StoppedException, InterruptedException {
         for(long endTime = robot().calcEndTime(2000); robot().doUntil(endTime);) {

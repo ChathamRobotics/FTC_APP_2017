@@ -2,13 +2,13 @@ package org.firstinspires.ftc.team9853.autonomous;
 
 import org.chathamrobotics.ftcutils.StoppedException;
 import org.firstinspires.ftc.team9853.Robot9853;
-import org.firstinspires.ftc.team9853.opmodes.Auto;
+import org.firstinspires.ftc.team9853.opmodes.Auto9853;
 
 
 /**
  * charger autonomous - hits cap ball and shoots
  */
-public class AutoModeCharge extends Auto {
+public class AutoModeCharge extends Auto9853 {
 //    CONSTANTS     //
     private static final long waitTime = 10000;
     private static final long driveTime = 3000;
@@ -31,37 +31,37 @@ public class AutoModeCharge extends Auto {
         robot().changeFront(Robot9853.Side.BACK);
 
         // Waits a little bit before starting autonomous
-        for(long endTime = robot().calcEndTime(waitTime); robot().doUntil(endTime);) {
+        while(robot().doUntil(waitTime)) {
             statusCheck();
         }
 
         // Drives to the shooting point
-        for(long endTime =  robot().calcEndTime(driveTime / 4); robot().driveForwardFor(.7, endTime);) {
+        while(robot().driveForwardFor(.7, driveTime / 4)) {
             statusCheck();
         }
 
         // wait
-        for(long endTime = robot().calcEndTime(1500); robot().doUntil(endTime);) {
+        while(robot().doUntil(1500)) {
             statusCheck();
         }
 
         // Shoot
-        for(long endTime = robot().calcEndTime(Robot9853.SHOOT_TIME); robot().shootFor(endTime);) {
+        while(robot().shootFor(Robot9853.SHOOT_TIME)) {
             statusCheck();
         }
 
         // Reload
-        for(long endTime = robot().calcEndTime(Robot9853.RELOAD_TIME); robot().reloadFor(endTime);) {
+        while(robot().reloadFor(Robot9853.RELOAD_TIME)) {
             statusCheck();
         }
 
         // shoot
-        for(long endTime = robot().calcEndTime(Robot9853.SHOOT_TIME); robot().shootFor(endTime);) {
+        while(robot().shootFor(Robot9853.SHOOT_TIME)) {
             statusCheck();
         }
 
         // Drives to center
-        for(long endTime = robot().calcEndTime(3 * driveTime / 4); robot().driveForwardFor(.7, endTime);) {
+        while(robot().driveForwardFor(.7, 3 * driveTime / 4)) {
             statusCheck();
         }
     }
