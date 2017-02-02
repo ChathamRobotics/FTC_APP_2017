@@ -175,27 +175,6 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * Drives a angle for a period of time
-     * @param angle         the direction to drive
-     * @param speedModifier the speed modifier to use
-     * @param endTime       the end time
-     * @return              whether time is up
-     */
-    public boolean driveAtAngleFor(double angle, double speedModifier, long endTime) {
-        driveAtAngle(angle, speedModifier);
-
-        if(System.currentTimeMillis() >= endTime) {
-            stopDriving();
-            return false;
-        }
-
-        return true;
-    }
-    public boolean driveAtAngleFor(double angle, long endTime) {
-        return driveAtAngleFor(angle, 1, endTime);
-    }
-
-    /**
      * Drives in the direction specified by the x and y given
      * @param x             the x part of the point
      * @param y             the y part of the point
@@ -209,26 +188,6 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * Drives in the direction specified by the x and y given for the given time
-     * @param x             the x part of the direction
-     * @param y             the y part of the direction
-     * @param speedModifier the speed modifier to use
-     * @param endTime       the end time
-     * @return              whether the time is up
-     */
-    public boolean driveAtPointFor(double x, double y, double speedModifier, long endTime) {
-        driveAtPoint(x, y, speedModifier);
-
-        if(System.currentTimeMillis() >= endTime) {
-            stopDriving();
-            return false;
-        }
-
-        return true;
-    }
-    public boolean driveAtPointFor(double x, double y, long endTime) {return driveAtPointFor(x, y, 1, endTime);}
-
-    /**
      * Drives forward.
      * @param speedModifier the speed modifier to use
      */
@@ -240,22 +199,122 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * Drives forward for the specified time
+     * Drives a angle for a period of time
+     * @param angle         the direction to drive
      * @param speedModifier the speed modifier to use
-     * @param endTime       the time to end
+     * @param duration      the amount of time to do for
      * @return              whether time is up
      */
-    public boolean driveForwardFor(double speedModifier, long endTime) {
-        driveForward(speedModifier);
+    public boolean driveAtAngleFor(double angle, double speedModifier, long duration) {
+        boolean result = doUntil(duration);
 
-        if(System.currentTimeMillis() >= endTime) {
+        driveAtAngle(angle, speedModifier);
+
+        if(isTimerUp()) {
             stopDriving();
-            return false;
         }
 
-        return true;
+        return result;
     }
-    public boolean driveForwardFor(long endTime) {return driveForwardFor(1, endTime);}
+    public boolean driveAtAngleFor(double angle, long duration) {
+        return driveAtAngleFor(angle, 1, duration);
+    }
+
+    /**
+     * Drives in the direction specified by the x and y given for the given time
+     * @param x             the x part of the direction
+     * @param y             the y part of the direction
+     * @param speedModifier the speed modifier to use
+     * @param duration      the amount of time to do for
+     * @return              whether the time is up
+     */
+    public boolean driveAtPointFor(double x, double y, double speedModifier, long duration) {
+        boolean result = doUntil(duration);
+
+        driveAtPoint(x, y, speedModifier);
+
+        if(isTimerUp()) {
+            stopDriving();
+        }
+
+        return result;
+    }
+    public boolean driveAtPointFor(double x, double y, long duration) {return driveAtPointFor(x, y, 1, duration);}
+
+    /**
+     * Drives forward for the specified time
+     * @param speedModifier the speed modifier to use
+     * @param duration      the amount of time to do for
+     * @return              whether time is up
+     */
+    public boolean driveForwardFor(double speedModifier, long duration) {
+        boolean result = doUntil(duration);
+
+        driveForward(speedModifier);
+
+        if(isTimerUp()) {
+            stopDriving();
+        }
+
+        return result;
+    }
+    public boolean driveForwardFor(long duration) {return driveForwardFor(1, duration);}
+
+
+    /**
+     * drives at angle while condition is true
+     * @param angle         the direction to drive in
+     * @param speedModifier the speed modifier to use
+     * @param con           the condition
+     * @return              whether the condition was true
+     */
+    public boolean driveAtAngleWhile(double angle, double speedModifier, boolean con) {
+        driveAtAngle(angle, speedModifier);
+
+        if(! con) stopDriving();
+
+        return con;
+    }
+    public boolean driveAtAngleWhile(double angle, boolean con) {
+        return driveAtAngleWhile(angle, 1, con);
+    }
+
+    /**
+     * drive in the direction specified by point while the condition is true
+     * @param x             the x part of the direction
+     * @param y             the y part of the direction
+     * @param speedModifier the speed modifier to use
+     * @param con           the condition
+     * @return              whether the condition was true
+     */
+    public boolean driveAtPointWhile(double x, double y, double speedModifier, boolean con) {
+        driveAtPoint(x, y, speedModifier);
+
+        if(! con) stopDriving();
+
+        return con;
+    }
+    public boolean driveAtPointWhile(double x, double y, boolean con) {
+        return driveAtPointWhile(x, y, 1, con);
+    }
+
+    /**
+     * drives forward while the condition is true
+     * @param speedModifier the speed modifier to use
+     * @param con           the condition
+     * @return              whether the condition was true
+     */
+    public boolean driveForwardWhile(double speedModifier, boolean con) {
+        driveForward(speedModifier);
+
+        if(! con) stopDriving();
+
+        return con;
+    }
+    public boolean driveForWhile(boolean con) {
+        return driveForwardWhile(1, con);
+    }
+
 
     /**
      * Stops the robot from driving.

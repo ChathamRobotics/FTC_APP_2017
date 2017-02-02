@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.team9853.autonomous;
 
+import org.chathamrobotics.ftcutils.Robot;
 import org.chathamrobotics.ftcutils.StoppedException;
 import org.firstinspires.ftc.team9853.Robot9853;
 import org.firstinspires.ftc.team9853.opmodes.Auto9853;
@@ -10,7 +11,6 @@ import org.firstinspires.ftc.team9853.opmodes.Auto9853;
  */
 public class AutoModeCharge extends Auto9853 {
 //    CONSTANTS     //
-    private static final long waitTime = 10000;
     private static final long driveTime = 3000;
 
 //    CONSTRUCTORS  //
@@ -31,38 +31,24 @@ public class AutoModeCharge extends Auto9853 {
         robot().changeFront(Robot9853.Side.BACK);
 
         // Waits a little bit before starting autonomous
-        while(robot().doUntil(waitTime)) {
-            statusCheck();
-        }
+        while(robot().doUntil(Robot.AUTO_START_WAIT_TIME)) statusCheck();
 
         // Drives to the shooting point
-        while(robot().driveForwardFor(.7, driveTime / 4)) {
-            statusCheck();
-        }
+        while(robot().driveForwardFor(.7, driveTime / 4)) statusCheck();
 
         // wait
-        while(robot().doUntil(1500)) {
-            statusCheck();
-        }
+        while(robot().doUntil(1500)) statusCheck();
 
         // Shoot
-        while(robot().shootFor(Robot9853.SHOOT_TIME)) {
-            statusCheck();
-        }
+        while(robot().shootFor(Robot9853.SHOOT_TIME)) statusCheck();
 
         // Reload
-        while(robot().reloadFor(Robot9853.RELOAD_TIME)) {
-            statusCheck();
-        }
+        while(robot().reloadFor(Robot9853.RELOAD_TIME)) statusCheck();
 
         // shoot
-        while(robot().shootFor(Robot9853.SHOOT_TIME)) {
-            statusCheck();
-        }
+        while(robot().shootFor(Robot9853.SHOOT_TIME)) statusCheck();
 
         // Drives to center
-        while(robot().driveForwardFor(.7, 3 * driveTime / 4)) {
-            statusCheck();
-        }
+        while(robot().driveForwardFor(.7, 3 * driveTime / 4)) statusCheck();
     }
 }
