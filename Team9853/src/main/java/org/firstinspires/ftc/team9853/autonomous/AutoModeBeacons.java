@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.team9853.autonomous;
 
+import org.chathamrobotics.ftcutils.Robot;
 import org.chathamrobotics.ftcutils.hardware.MRColorSensorV2;
 import org.chathamrobotics.ftcutils.StoppedException;
 import org.firstinspires.ftc.team9853.opmodes.Auto9853;
@@ -47,6 +48,22 @@ public class AutoModeBeacons extends Auto9853 {
         }
         robot().stopDriving();
 
+        // press beacon
+        pressBeacon();
+
+        // move to next beacon
+        while(robot().driveAtAngleFor(Robot.Side.LEFT.angle, .5, 500)) statusCheck();
+        robot().stopDriving();
+
+        // press beacon
+        pressBeacon();
+    }
+
+    /**
+     * press the right beacon button
+     * @throws StoppedException
+     */
+    private void pressBeacon() throws StoppedException{
         // drive along line
         while(! robot().isBeaconInRange()) {
             statusCheck();
@@ -54,6 +71,22 @@ public class AutoModeBeacons extends Auto9853 {
             if(! robot().isLeftAtLine()) robot().log("Lost Line");
 
             robot().driveForward(.2);
+        }
+        robot().stopDriving();
+
+        // line up with correct color
+        if(!(isRedTeam && robot().isBeaconRed()) && !(!isRedTeam && robot().isBeaconBlue())) {
+            while(! robot().isCenterAtLine()) {
+                statusCheck();
+                robot().driveAtAngle(Robot.Side.RIGHT.angle, .5);
+            }
+            robot().stopDriving();
+        }
+
+        // hit button
+        while(! robot().isBeaconTouching()) {
+            statusCheck();
+            robot().driveForward(.5);
         }
         robot().stopDriving();
     }

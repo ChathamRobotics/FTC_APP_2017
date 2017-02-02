@@ -344,6 +344,14 @@ public class Robot9853 extends Robot {
     }
 
     /**
+     * determine whether or not the beacon is being pressed
+     * @return wether the touch sensor is being pressed
+     */
+    public boolean isBeaconTouching() {
+        return touchSensor.isPressed();
+    }
+
+    /**
      * runs the shooter
      * @param power the power to set the shooter to
      */
