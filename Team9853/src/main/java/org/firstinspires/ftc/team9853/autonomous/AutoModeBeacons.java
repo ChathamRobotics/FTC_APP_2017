@@ -45,5 +45,16 @@ public class AutoModeBeacons extends Auto9853 {
             statusCheck();
             robot().driveAtAngle(Math.atan2(6/12d, this.isRedTeam ? 5/12d : -5/12d), .5);
         }
+        robot().stopDriving();
+
+        // drive along line
+        while(! robot().isBeaconInRange()) {
+            statusCheck();
+
+            if(! robot().isLeftAtLine()) robot().log("Lost Line");
+
+            robot().driveForward(.2);
+        }
+        robot().stopDriving();
     }
 }
