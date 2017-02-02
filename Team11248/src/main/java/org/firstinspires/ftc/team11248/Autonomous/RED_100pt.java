@@ -25,8 +25,12 @@ public class RED_100pt extends LinearOpMode {
 
     Robot11248 robot;
 
-    final int SONAR_DIST = 14;
-    final int STOP_DELAY = 500;
+    final int SONAR_DIST = 13;
+    final int SONAR_TOL = 1;
+
+    final int STOP_DELAY = 370;
+    final int BEACON_STOP = 500;
+
     int A_SHOOT_TO_BEACON = 38;
     double rotationRatio = .004 ;
     int state = -1;
@@ -102,73 +106,73 @@ public class RED_100pt extends LinearOpMode {
                     }
                     break;
 
-                case 4:
-                    if(robot.getSonarValue() < SONAR_DIST+1) { // if too close, drive back
-                        robot.driveold(.3, 0, 0);
-                        state++;
-                    }
+                case 4: // Y ADJUSTMENT
 
-                    else if(robot.getSonarValue() > SONAR_DIST-1) {// if too far, drive forward
-                        robot.driveold(-.3, 0, 0);
-                        state++;
-                    }
-                    else state+=2; // if good distance, no adjustment
-
-                case 5:
-                    //Y ADJUSTMENT
-                    if (robot.getSonarValue() < SONAR_DIST+1 || robot.getSonarValue() > SONAR_DIST-1){ //stop when in tolerance
+                    if (robot.getSonarValue() <= SONAR_DIST + SONAR_TOL && robot.getSonarValue() >= SONAR_DIST - SONAR_TOL)//stop when in tolerance
+                    {
                         robot.stop();
                         sleep(STOP_DELAY);
                         state++;
                     }
+
+                    else if(robot.getSonarValue() < SONAR_DIST - SONAR_TOL) // if too close, drive back
+                    {
+                        robot.driveold(-.3, 0, 0);
+                    }
+
+                    else if(robot.getSonarValue() > SONAR_DIST + SONAR_TOL) // if too far, drive forward
+                    {
+                        robot.driveold(.3, 0, 0);
+                    }
                     break;
 
-                case 6: //adjust angle
+
+                case 5: //adjust angle
                     if(robot.moveToAngle(FLAT)) state++;
                     break;
 
-                case 7: //Adjust x (hit if blue on left)
+                case 6: //Adjust x (hit if blue on left)
                     //X ADJUSTMENT
                     robot.driveold(0, -.35, 0);
                     if (robot.isBeaconRed()) {//WHEN BEACON IS BLUE
                         robot.driveold(0, -.35, 0);
                         sleep(90);
                         robot.stop();
-                        sleep(500);
+                        sleep(BEACON_STOP);
                         pushBeacon();
                         robot.stop();
-                        sleep(500);
+                        sleep(BEACON_STOP);
                         state += 2;
                     }
                     else if(robot.isBeaconBlue()) {
-                        robot.stop();
+                        //robot.stop();
                         state++;
                     }
                     break;
 
-                case 8: //Adjust x (hit if red on right)
+                case 7: //Adjust x (hit if red on right)
                     robot.driveold(0, -.35, 0); //MOVE LEFT
                     if(robot.isBeaconRed()) {
                         robot.driveold(0, -.35, 0);
                         sleep(200);
                         robot.stop(); //STOP MOVING
-                        sleep(500);
+                        sleep(BEACON_STOP);
                         pushBeacon();
                         state++;
                     }
                     break;
 
-                case 9: //Backup and drive towards other line
+                case 8: //Backup and drive towards other line
                     robot.driveold(-.3, 0, 0);
                     sleep(1400);
                     robot.stop();
                     sleep(200);
                     robot.driveold(0, -.8, 0);
-                    sleep(1400);
+                    sleep(1390);
                     state++;
                     break;
 
-                case 10: //keep driving until line hit
+                case 9: //keep driving until line hit
                     //telemetry.addData("y", xAgainstWall(SONAR_DIST));
                     robot.driveold(xAgainstWall(SONAR_DIST+2), -.37, 0);
                     if(robot.hitLine()) { //WHEN WHITE LINE FOUND
@@ -178,64 +182,69 @@ public class RED_100pt extends LinearOpMode {
                     }
                     break;
 
-                case 11: //adjust angle to 0
+                case 10: //adjust angle to 0
                     if(robot.moveToAngle(FLAT)) state++;
                     break;
 
-                case 12:
-                    if(robot.getSonarValue() < SONAR_DIST+1) { // if too close, drive back
-                        robot.driveold(.3, 0, 0);
-                        state++;
-                    }
-
-                    else if(robot.getSonarValue() > SONAR_DIST-1) {// if too far, drive forward
-                        robot.driveold(-.3, 0, 0);
-                        state++;
-                    }
-                    else state+=2; // if good distance, no adjustment
-
-                case 13:
+                case 11:
                     //Y ADJUSTMENT
-                    if (robot.getSonarValue() < SONAR_DIST+1 || robot.getSonarValue() > SONAR_DIST-1){ //stop when in tolerance
+                    if (robot.getSonarValue() <= SONAR_DIST + SONAR_TOL && robot.getSonarValue() >= SONAR_DIST - SONAR_TOL)//stop when in tolerance
+                    {
                         robot.stop();
                         sleep(STOP_DELAY);
                         state++;
                     }
+
+                    else if(robot.getSonarValue() < SONAR_DIST - SONAR_TOL) // if too close, drive back
+                    {
+                        robot.driveold(-.3, 0, 0);
+                    }
+
+                    else if(robot.getSonarValue() > SONAR_DIST + SONAR_TOL) // if too far, drive forward
+                    {
+                        robot.driveold(.3, 0, 0);
+                    }
                     break;
 
-                case 14: //adjust angle to 0
+                case 12: //adjust angle to 0
                     if(robot.moveToAngle(FLAT)) state++;
                     break;
 
-                case 15: //Adjust x
+                case 13: //Adjust x
                     //X ADJUSTMENT
                     robot.driveold(0, -.35, 0);
                     if (robot.isBeaconRed()) { //WHEN BEACON IS BLUE
                         robot.driveold(0, -.35, 0);
                         sleep(300);
                         robot.stop();
-                        sleep(500);
+                        sleep(BEACON_STOP);
                         pushBeacon();
                         robot.stop();
-                        sleep(500);
+                        sleep(BEACON_STOP);
                         state += 2;
                     }
                     else if(robot.isBeaconBlue()) {
-                        robot.stop();
+                       // robot.stop();
                         state++;
                     }
                     break;
 
-                case 16: //adjust x
+                case 14: //adjust x
                     robot.driveold(0, -.35, 0); //MOVE LEFT .5
                     if(robot.isBeaconRed()) {
                         robot.driveold(0, -.35, 0);
                         sleep(400);
                         robot.stop(); //STOP MOVING
-                        sleep(500);
+                        sleep(BEACON_STOP);
                         pushBeacon();
                         state++;
                     }
+                    break;
+
+                case 15:
+                    robot.driveold(-1, 1, 0); //drive to cap ball
+                    sleep(2500);
+                    state++;
                     break;
 
                 default: //die
@@ -255,10 +264,10 @@ public class RED_100pt extends LinearOpMode {
         sleep(500);
 
         robot.openCollector();
-        robot.bangBang(.8f);
+        robot.setShooter(.65f);
         sleep(750);
 
-        robot.setConveyor(.2f);
+        robot.setConveyor(.45f);
         sleep(2000);
 
         robot.conveyorOff();
@@ -302,7 +311,7 @@ public class RED_100pt extends LinearOpMode {
         double y =0;
 
         if(Math.abs(netDist)> SONAR_THRESHOLD) {
-            y = Math.abs(netDist) * .002 + .10;
+            y = Math.abs(netDist) * .0021 + .07;
             if(netDist<0) y*=-1;
         }
 

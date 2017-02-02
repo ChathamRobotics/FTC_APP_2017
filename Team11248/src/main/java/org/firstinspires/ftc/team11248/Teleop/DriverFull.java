@@ -68,9 +68,9 @@ public class DriverFull extends DriverOmni {
             robot.moveBeaconOut();
         else
             robot.moveBeaconIn();
+        
 
-
-        if (gamepad1.y && (gamepad1.y!=prevGP1.y) )
+        if (gamepad1.y && !prevGP1.y)
             robot.toggleSlow();
 
 
@@ -95,36 +95,30 @@ public class DriverFull extends DriverOmni {
 
 
         //## GAMEPAD 2 CONTROLS ##
-        if (gamepad2.a && gamepad2.a != prevGP2.a) {
+        if (gamepad2.a && !prevGP2.a) {
             if(robot.getShooterOn()) {
                 robot.shooterOff();
-                bangBang = false;
+               // bangBang = false;
             }else
-                bangBang = true;
+              robot.setShooter(.65f); // bangBang = true;
         }
 
-        if(bangBang) robot.bangBang(robot.SHOOTER_SPEED);
+        //if(bangBang) robot.bangBang(robot.SHOOTER_SPEED);
 
 
-        if (gamepad2.y && gamepad2.y != prevGP2.y) {
-            if(robot.getShooterOn())
+
+        if (gamepad2.b && !prevGP2.b) {
+            if (robot.getShooterOn())
                 robot.shooterOff();
             else
                 robot.shooterReverse();
         }
 
-        if (gamepad2.b && gamepad2.b != prevGP2.b) {
-            if (robot.getShooterOn())
-                robot.shooterOff();
-            else
-                robot.setShooter(-.375);
-        }
 
-
-        if (gamepad2.x && gamepad2.x != prevGP2.x)
+        if (gamepad2.x && !prevGP2.x)
             robot.switchCollectorServo();
 
-        telemetry.addData("DriverFull: ", "Collector: " + (robot.collectorClosed?"CLOSED":"OPEN"));
+        telemetry.addData("",(robot.collectorClosed?"CLOSED":"OPEN"));
         telemetry.update();
 
 

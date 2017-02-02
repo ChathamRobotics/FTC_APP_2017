@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.chathamrobotics.ftcutils.hardware.MRColorSensorV3;
 import org.chathamrobotics.ftcutils.OmniWheelDriver;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
@@ -33,7 +34,7 @@ public class Robot11248 extends OmniWheelDriver {
     private static final int GYRO_THRESHOLD = 2;
 
     //LINE SENSOR THRESHOLDS
-    private static final double OPTICAL_THRESHOLD_LOW = .6;
+    private static final double OPTICAL_THRESHOLD_LOW = .59;
     private static final double OPTICAL_THRESHOLD_HIGH = 1;
 
     //Servo constants
