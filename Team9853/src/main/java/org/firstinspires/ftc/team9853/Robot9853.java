@@ -141,34 +141,31 @@ public class Robot9853 extends Robot {
      * @return              whether the heading has been achieved.
      */
     public boolean driveWithHeading(double angle, double speedModifier, int targetHeading) {
-        int currentHeading = gyro.getHeading();
+        int currentHeading = gyro.getHeading(),
+                headingDif = currentHeading - targetHeading;
         boolean atHeading = false;
-        int net = currentHeading - targetHeading; //finds distance to target angle
-        double rotation;
+        double requiredRotation;
 
-        if (Math.abs(net) > 180) { // if shortest path passes 0
-            if (currentHeading < 180) //if going counterclockwise
-                net = (currentHeading - 360) - targetHeading;
-
-            else //if going clockwise
-                net = (360 - targetHeading) + currentHeading;
+        if(Math.abs(headingDif) > 180) {
+            if(headingDif < 0) // clockwise
+                headingDif = (360 - targetHeading) + currentHeading;
+            else // counter clockwise
+                headingDif = (currentHeading - 360) - targetHeading;
         }
 
-        // slows down as approaches angle with min threshold of .05
-        // each degree adds/subtracts .95/180 values of speed
-        rotation = Math.abs(net) * .85 / 180 + .15;
+        // the heading dif should never be greater in magnitude than 180. neg is left and pos is right
+        // make the rotation proportional to 180
+        requiredRotation = headingDif / 180;
 
-        if (net < 0) rotation *= -1; //if going clockwise, set rotation clockwise (-)
+        this.log("Current Heading", currentHeading);
+        this.log("Target Heading", targetHeading);
+        this.log("Target is to the", headingDif > 0 ? "Left" : "Right");
 
-        this.log("Heading", currentHeading);
-        this.log("TargetHeading", targetHeading);
-
-        if (Math.abs(net) > GYRO_MIN_ANGLE)
-            driver.move(angle, rotation, speedModifier); //Drive with gyros rotation
-
+        if(Math.abs(headingDif) > GYRO_MIN_ANGLE)
+            driver.move(angle, requiredRotation, speedModifier);
         else {
-            atHeading = true;
             driver.move(angle, 0, speedModifier);
+            atHeading = true;
         }
 
         return atHeading;
