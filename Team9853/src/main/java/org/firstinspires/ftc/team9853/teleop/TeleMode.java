@@ -32,7 +32,7 @@ public class TeleMode extends Tele9853 {
         robot().teleopDrive(gamepad1);
 
         // lift
-        robot().lift.setPower(-gamepad2.left_stick_y);
+        robot().setLiftPower(-gamepad2.left_stick_y);
 
         // Collecting
         robot().setCollectorPower(-gamepad2.right_stick_y);

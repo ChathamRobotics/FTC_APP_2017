@@ -36,20 +36,20 @@ public class Robot9853 extends Robot {
 
 //    COMPONENTS    //
 
-    public OmniWheelDriver driver;
+    private OmniWheelDriver driver;
 
 //    HARDWARE      //
 
-    public DcMotor lift;
-    public DcMotor sweeper;
-    public DcMotor belt;
-    public DcMotor shooter;
-    public Servo liftToggle;
-    public OpticalDistanceSensor leftLineSensor;
-    public OpticalDistanceSensor centerLineSensor;
-    public MRColorSensorV2 beaconSensor;
-    public GyroSensor gyro;
-    public TouchSensor touchSensor;
+    private DcMotor lift;
+    private DcMotor sweeper;
+    private DcMotor belt;
+    private DcMotor shooter;
+    private Servo liftToggle;
+    private OpticalDistanceSensor leftLineSensor;
+    private OpticalDistanceSensor centerLineSensor;
+    private MRColorSensorV2 beaconSensor;
+    private GyroSensor gyro;
+    private TouchSensor touchSensor;
 
 //    STATEFUL      //
     private long lastLiftToggle;
@@ -330,6 +330,14 @@ public class Robot9853 extends Robot {
     public void setCollectorPower(double power) {
         this.sweeper.setPower(power);
         this.belt.setPower(power);
+    }
+
+    /**
+     * sets the lifts power
+     * @param power the power value to set the motor to
+     */
+    public void setLiftPower(double power) {
+        this.lift.setPower(power);
     }
 
     /**
