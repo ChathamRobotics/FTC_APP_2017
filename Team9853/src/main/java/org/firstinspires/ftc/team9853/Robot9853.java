@@ -132,6 +132,29 @@ public class Robot9853 extends Robot {
         driveAtAngle(angle, 1);
     }
 
+    /**
+     * Drives in the direction specified by the x and y given
+     * @param x             the x part of the point
+     * @param y             the y part of the point
+     * @param speedModifier the speed modifier to use
+     */
+    public void driveAtPoint(double x, double y, double speedModifier) {
+        this.driver.drive(x, y, 0, speedModifier, false);
+    }
+    public void driveAtPoint(double x, double y) {
+        driveAtPoint(x, y, 1);
+    }
+
+    /**
+     * Drives forward.
+     * @param speedModifier the speed modifier to use
+     */
+    public void driveForward(double speedModifier) {
+        this.driveAtAngle(Math.PI / 2, speedModifier);
+    }
+    public void driveForward() {
+        driveForward(1);
+    }
 
     /**
      * Drives in the direction specified by the angle and maintains heading
@@ -169,30 +192,6 @@ public class Robot9853 extends Robot {
         }
 
         return atHeading;
-    }
-
-    /**
-     * Drives in the direction specified by the x and y given
-     * @param x             the x part of the point
-     * @param y             the y part of the point
-     * @param speedModifier the speed modifier to use
-     */
-    public void driveAtPoint(double x, double y, double speedModifier) {
-        this.driver.drive(x, y, 0, speedModifier, false);
-    }
-    public void driveAtPoint(double x, double y) {
-        driveAtPoint(x, y, 1);
-    }
-
-    /**
-     * Drives forward.
-     * @param speedModifier the speed modifier to use
-     */
-    public void driveForward(double speedModifier) {
-        this.driveAtAngle(Math.PI / 2, speedModifier);
-    }
-    public void driveForward() {
-        driveForward(1);
     }
 
     /**

@@ -19,7 +19,7 @@ public class AutoModeCharge extends Auto9853 {
      * @param {boolean} isRedTeam   Whether the current team is red
      */
     public AutoModeCharge(boolean isRedTeam) {
-        this.isRedTeam = isRedTeam;
+        super(isRedTeam);
     }
 
 //    METHODS       //

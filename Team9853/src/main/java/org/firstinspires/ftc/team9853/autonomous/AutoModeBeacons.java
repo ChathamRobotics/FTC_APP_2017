@@ -20,7 +20,7 @@ public class AutoModeBeacons extends Auto9853 {
      * @param isRedTeam   Whether the current team is red
      */
     public AutoModeBeacons(boolean isRedTeam) {
-        this.isRedTeam = isRedTeam;
+        super(isRedTeam);
     }
 
 //     METHODS       //
@@ -46,6 +46,8 @@ public class AutoModeBeacons extends Auto9853 {
 
         // move to next beacon
         while(robot().driveAtAngleFor(Robot.Side.LEFT.angle, .5, 500)) statusCheck();
+        while(robot().driveAtAngleWhile(Robot.Side.LEFT.angle, .5, ! robot().isLeftAtLine()))
+            statusCheck();
 
         // press beacon
         pressBeacon();
