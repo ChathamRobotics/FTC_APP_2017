@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.team9853;
 
+import android.graphics.Point;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -193,6 +195,9 @@ public class Robot9853 extends Robot {
 
         return atHeading;
     }
+    public boolean driveWithHeading(double angle, int targetHeading) {
+        return driveWithHeading(angle, 1, targetHeading);
+    }
 
     /**
      * Drives a angle for a period of time
@@ -256,6 +261,29 @@ public class Robot9853 extends Robot {
     }
     public boolean driveForwardFor(long duration) {return driveForwardFor(1, duration);}
 
+    /**
+     * Drive in the direction specified by the angle while attempting to reach the target heading for the given duration
+     * @param angle         the direction to travel in
+     * @param speedModifier the speed modifier to use
+     * @param targetHeading the heading to maintain
+     * @param duration      the amount of time to do it for in ms
+     * @return              whether time is up
+     */
+    public boolean driveWithHeadingFor(double angle, double speedModifier, int targetHeading, long duration) {
+        boolean result = doUntil(duration);
+
+        driveWithHeading(angle, speedModifier, targetHeading);
+
+        if(isTimerUp()) {
+            stopDriving();
+        }
+
+        return result;
+    }
+    public boolean driveWithHeadingFor(double angle, int targetHeading, long duration) {
+        return driveWithHeadingFor(angle, 1, targetHeading, duration);
+    }
+
 
     /**
      * drives at angle while condition is true
@@ -309,6 +337,24 @@ public class Robot9853 extends Robot {
     }
     public boolean driveForWhile(boolean con) {
         return driveForwardWhile(1, con);
+    }
+
+    /**
+     * Drive in the direction specified by the angle while attempting to reach the target heading while  the condition is true
+     * @param angle         the direction to travl in
+     * @param speedModifier the speed modifier to use
+     * @param targetHeading the heading to maintain
+     * @param con           the condition
+     * @return              whether the condition is true
+     */
+    public boolean driveWithHeadingWhile(double angle, double speedModifier, int targetHeading, boolean con) {
+        driveWithHeading(angle, speedModifier, targetHeading);
+
+        if(! con) stopDriving();
+        return con;
+    }
+    public boolean driveWithHeadingWhile(double angle, int targetHeading, boolean con) {
+        return driveWithHeadingWhile(angle, 1, targetHeading, con);
     }
 
 

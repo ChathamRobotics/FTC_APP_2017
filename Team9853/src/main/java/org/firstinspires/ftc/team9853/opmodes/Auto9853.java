@@ -44,6 +44,10 @@ public abstract class Auto9853 extends AutonomousOpMode {
         while(robot().driveForwardWhile(.5, ! robot().isBeaconTouching())) statusCheck();
     }
 
+    /**
+     * check if the current beacon is the desired color
+     * @return  whether the team and beacon color match
+     */
     protected boolean isBeaconCaptured() {
         return robot().isBeaconRed() == isRedTeam;
     }
