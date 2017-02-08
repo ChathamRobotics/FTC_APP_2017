@@ -41,25 +41,27 @@ public class AutoShootBLUE extends LinearOpMode{
            sleep(10000);
 
             robot.driveold(0,.8,0);
-            sleep(500);
+            sleep(750);
 
             //drive(0,0);
             robot.stop();
             sleep(500);
 
             robot.openCollector();
-            robot.shooterOn();
+            robot.setShooter(.65f);
             sleep(750);
 
             robot.setConveyor(.2f);
-            sleep(2500);
+            sleep(1150);
+            robot.setConveyor(.8f);
+            sleep(850);
 
             robot.conveyorOff();
             robot.shooterOff();
             robot.closeCollector();
 
             robot.driveold(0,1,0);
-            sleep(2500);
+            sleep(1750);
             robot.stop();
             idle();
             break;
