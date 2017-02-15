@@ -9,9 +9,8 @@ import org.firstinspires.ftc.team11248.Robot11248;
 /**
  * Team 11248 Shooter Autonomous
  */
-@Autonomous(name = "AutonomousShoot", group = "General")
-@Disabled
-public class AutonomousShoot extends LinearOpMode{
+@Autonomous(name = "ShootBlue", group = "General")
+public class ShootBLUE extends LinearOpMode{
 
     /**
      * The robot being controlled.
@@ -24,37 +23,43 @@ public class AutonomousShoot extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
 
+        robot = new Robot11248(hardwareMap, telemetry);
         robot.init(); //Sets servos to right position.
 
         waitForStart();
 
         while (opModeIsActive()) {
 
-            sleep(10000);
+            sleep(6000);
 
-            robot.drive(.5,0,0,false);
-            sleep(2000);
+            robot.driveold(0,.8,0);
+            sleep(750);
 
-            robot.drive(0,0,0,false);
+            //drive(0,0);
+            robot.stop();
             sleep(500);
 
-            robot.shooterOn();
-            sleep(2000);
+            robot.openCollector();
+            robot.setShooter(.6f);
+            sleep(750);
 
-           // robot.movePaddleDown();
-            sleep(3000);
+            robot.setConveyor(.2f);
+            sleep(1150);
+            robot.setConveyor(.7f);
+            sleep(850);
 
-           // robot.movePaddleUp();
-            sleep(5000);
-
+            robot.conveyorOff();
             robot.shooterOff();
-            robot.drive(.5,0,0,false);
-            sleep(5000);
+            robot.closeCollector();
 
-            robot.drive(0,0,0,false);
+            robot.driveold(-1,0,.3);
+            sleep(1750);
+            robot.stop();
 
+            idle();
             break;
-
         }
+
     }
+
 }

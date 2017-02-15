@@ -19,7 +19,7 @@ import org.firstinspires.ftc.team11248.Robot11248;
  */
 
 @TeleOp(name = "GyroDriveTest")
-//@Disabled
+@Disabled
 public class TestGyroBeacon extends OpMode {
 
    Robot11248 robot;

@@ -25,7 +25,7 @@ public class RED_100pt extends LinearOpMode {
 
     Robot11248 robot;
 
-    final int SONAR_DIST = 13;
+    final int SONAR_DIST = 12;
     final int SONAR_TOL = 1;
 
     final int STOP_DELAY = 370;
@@ -135,7 +135,7 @@ public class RED_100pt extends LinearOpMode {
                     robot.driveold(0, -.35, 0);
                     if (robot.isBeaconRed()) {//WHEN BEACON IS BLUE
                         robot.driveold(0, -.35, 0);
-                        sleep(90);
+                        sleep(400);
                         robot.stop();
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -166,14 +166,14 @@ public class RED_100pt extends LinearOpMode {
                     sleep(1400);
                     robot.stop();
                     sleep(200);
-                    robot.driveold(0, -.8, -.05);
-                    sleep(1390);
+                    robot.driveold(0, -.8, .11);
+                    sleep(1300);
                     state++;
                     break;
 
                 case 9: //keep driving until line hit
                     //telemetry.addData("y", xAgainstWall(SONAR_DIST));
-                    robot.driveold(xAgainstWall(SONAR_DIST+3), -.37, 0);
+                    robot.driveold(xAgainstWall(SONAR_DIST+3), -.35, 0);
                     if(robot.hitLine()) { //WHEN WHITE LINE FOUND
                         robot.stop(); //STOP MOVING
                         sleep(STOP_DELAY);
@@ -214,7 +214,7 @@ public class RED_100pt extends LinearOpMode {
                     robot.driveold(0, -.35, 0);
                     if (robot.isBeaconRed()) { //WHEN BEACON IS BLUE
                         robot.driveold(0, -.35, 0);
-                        sleep(200);
+                        sleep(400);
                         robot.stop();
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -263,7 +263,7 @@ public class RED_100pt extends LinearOpMode {
         sleep(500);
 
         robot.openCollector();
-        robot.setShooter(.65f);
+        robot.setShooter(.5f);
         sleep(1000);
 
         robot.setConveyor(.2f);

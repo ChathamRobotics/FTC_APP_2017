@@ -153,7 +153,7 @@ public class BLUE_100pt extends LinearOpMode {
                 case 7: //keep driving until line hit
 
                     //telemetry.addData("y", xAgainstWall(SONAR_DIST));
-                    robot.driveold( xAgainstWall(SONAR_DIST+3), .37, 0);
+                    robot.driveold( xAgainstWall(SONAR_DIST+3), .35, 0);
                     if(robot.hitLine()) { //WHEN WHITE LINE FOUND
                         robot.stop(); //STOP MOVING
                         sleep(STOP_DELAY);
@@ -212,7 +212,7 @@ public class BLUE_100pt extends LinearOpMode {
                     robot.driveold(0, -.35, 0); //MOVE LEFT .5
                     if(robot.isBeaconBlue()) {
                         robot.driveold(0, -.35, 0);
-                        sleep(400);
+                        sleep(200);
                         robot.stop(); //STOP MOVING
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -242,7 +242,7 @@ public class BLUE_100pt extends LinearOpMode {
         sleep(500);
 
         robot.openCollector();
-        robot.setShooter(.625f);
+        robot.setShooter(.5f);
         sleep(750);
 
         robot.setConveyor(.2f);

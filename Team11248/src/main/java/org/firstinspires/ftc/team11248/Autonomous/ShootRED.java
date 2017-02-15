@@ -9,20 +9,14 @@ import org.firstinspires.ftc.team11248.Robot11248;
 /**
  * Team 11248 Shooter Autonomous
  */
-@Autonomous(name = "AutoShootRED")
-@Disabled
-public class AutoShootRED extends LinearOpMode{
+@Autonomous(name = "ShootRED")
+public class ShootRED extends LinearOpMode{
 
     /**
      * The robot being controlled.
      */
     private Robot11248 robot;
 
-    public static double LIFT_UP = 0;
-    public static double LIFT_DOWN = 1;
-
-    //Time spent driving forward in milliseconds
-    //private long timeDriving = 3000;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -33,31 +27,36 @@ public class AutoShootRED extends LinearOpMode{
 
         while (opModeIsActive()) {
 
-            sleep(10000);
+            sleep(6000);
 
             robot.driveold(0,.8,0);
-            sleep(1200);
+            sleep(750);
 
             //drive(0,0);
             robot.stop();
             sleep(500);
 
-            robot.shooterOn();
+            robot.openCollector();
+            robot.setShooter(.6f);
             sleep(750);
 
-            robot.setConveyor(.3f);
-            sleep(2500);
+            robot.setConveyor(.2f);
+            sleep(1150);
+            robot.setConveyor(.7f);
+            sleep(850);
 
             robot.conveyorOff();
             robot.shooterOff();
+            robot.closeCollector();
 
-            robot.driveold(0,1,0);
-            sleep(1500);
-
+            robot.driveold(1,0,-.3);
+            sleep(1750);
             robot.stop();
-            break;
 
+            idle();
+            break;
         }
+
     }
 
 }

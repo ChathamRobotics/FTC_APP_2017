@@ -100,7 +100,7 @@ public class DriverFull extends DriverOmni {
                 robot.shooterOff();
                // bangBang = false;
             }else
-              robot.setShooter(.65f); // bangBang = true;
+              robot.setShooter(.625f); // bangBang = true;
         }
 
         //if(bangBang) robot.bangBang(robot.SHOOTER_SPEED);
