@@ -37,6 +37,9 @@ public class TeleMode extends Tele9853 {
         // Collecting
         robot().setCollectorPower(-gamepad2.right_stick_y);
 
+        if(gamepad2.a) robot().setBeltPower(-.5);
+        if(gamepad2.y) robot().setBeltPower(.5);
+
         // Shooting. the trigger value will always be positive
         this.robot().shoot(gamepad2.right_trigger);
 

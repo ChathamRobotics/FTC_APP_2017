@@ -28,8 +28,6 @@ public class AutoModeCharge extends Auto9853 {
      * called on start
      */
     public void runRobot() throws StoppedException {
-        robot().changeFront(Robot9853.Side.BACK);
-
         // Waits a little bit before starting autonomous
         while(robot().doUntil(Robot.AUTO_START_WAIT_TIME)) statusCheck();
 

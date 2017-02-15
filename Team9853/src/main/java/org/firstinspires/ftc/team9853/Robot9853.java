@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.chathamrobotics.ftcutils.OmniWheelDriver;
 import org.chathamrobotics.ftcutils.Robot;
-import org.chathamrobotics.ftcutils.hardware.MRColorSensorV2;
+import org.chathamrobotics.ftcutils.hardware.MRColorSensorV3;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.Map;
@@ -36,6 +36,8 @@ public class Robot9853 extends Robot {
     public static final long RELOAD_TIME = 2500;
     public static final long SHOOT_TIME = 500;
 
+    public static  final double SENSING_SPEED = .26;
+
 //    COMPONENTS    //
 
     private OmniWheelDriver driver;
@@ -49,7 +51,7 @@ public class Robot9853 extends Robot {
     private Servo liftToggle;
     private OpticalDistanceSensor leftLineSensor;
     private OpticalDistanceSensor centerLineSensor;
-    private MRColorSensorV2 beaconSensor;
+    private MRColorSensorV3 beaconSensor;
     private GyroSensor gyro;
     private TouchSensor touchSensor;
 
@@ -71,10 +73,14 @@ public class Robot9853 extends Robot {
      */
     @Override
     public void start() {
-        this.calibrateGyro();
-        this.startingHeading = this.gyro.getHeading();
+//        this.calibrateGyro();
+//        this.startingHeading = this.gyro.getHeading();
 
         this.liftToggle.setPosition(TOGGLE_DOWN_POSITION);
+
+        this.beaconSensor.setPassiveMode();
+
+        this.log("Starting robot...");
     }
 
     /**
@@ -88,7 +94,9 @@ public class Robot9853 extends Robot {
         this.lift = hardwareMap.dcMotor.get("Lift");
         this.sweeper = hardwareMap.dcMotor.get("Sweeper");
         this.belt = hardwareMap.dcMotor.get("Belt");
+
         this.shooter = hardwareMap.dcMotor.get("Shooter");
+        this.shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         this.liftToggle = hardwareMap.servo.get("LiftToggle");
 
@@ -96,7 +104,7 @@ public class Robot9853 extends Robot {
         leftLineSensor = hardwareMap.opticalDistanceSensor.get("LeftLineSensor");
         centerLineSensor = hardwareMap.opticalDistanceSensor.get("CenterLineSensor");
         gyro = hardwareMap.gyroSensor.get("Gyro");
-        beaconSensor = new MRColorSensorV2(hardwareMap.i2cDevice.get("BeaconSensor"));
+        beaconSensor = new MRColorSensorV3(hardwareMap.i2cDevice.get("BeaconSensor"), (byte) 0x3c);
         touchSensor = hardwareMap.touchSensor.get("Touch");
 
         this.telemetry.addLine("Hardware initialized");
@@ -110,7 +118,7 @@ public class Robot9853 extends Robot {
      * @param newFront  the front that should be referenced. (ex: if the left side of the robot should be the front call (changeFront(
      */
     public void changeFront(Side newFront) {
-        this.driver.offsetAngle = newFront.angle;
+        this.driver.offsetAngle = newFront.offset;
         this.log("NewFront", newFront.name);
     }
 
@@ -166,34 +174,67 @@ public class Robot9853 extends Robot {
      * @return              whether the heading has been achieved.
      */
     public boolean driveWithHeading(double angle, double speedModifier, int targetHeading) {
-        int currentHeading = gyro.getHeading(),
-                headingDif = currentHeading - targetHeading;
         boolean atHeading = false;
-        double requiredRotation;
+        int currentHeading = gyro.getHeading();
+        int net = currentHeading - targetHeading; //finds distance to target angle
+        double rotation;
 
-        if(Math.abs(headingDif) > 180) {
-            if(headingDif < 0) // clockwise
-                headingDif = (360 - targetHeading) + currentHeading;
-            else // counter clockwise
-                headingDif = (currentHeading - 360) - targetHeading;
+        if (Math.abs(net) > 180) { // if shortest path passes 0
+            if (currentHeading > 180) //if going counterclockwise
+                net = (currentHeading - 360) - targetHeading;
+
+            else //if going clockwise
+                net = (360 - targetHeading) + currentHeading;
         }
 
-        // the heading dif should never be greater in magnitude than 180. neg is left and pos is right
-        // make the rotation proportional to 180
-        requiredRotation = headingDif / 180;
+        // slows down as approaches angle with min threshold of .05
+        // each degree adds/subtracts .95/180 values of speed
+        rotation = Math.abs(net) * .85 / 180 + .15;
+
+        if (net < 0) rotation *= -1; //if going clockwise, set rotation clockwise (-)
+
+        if (Math.abs(net) > GYRO_MIN_ANGLE)
+            driver.move(angle, speedModifier, rotation); //Drive with gyros rotation
+
+        else {
+            atHeading = true;
+            driver.move(angle,speedModifier, rotation);
+        }
 
         this.log("Current Heading", currentHeading);
         this.log("Target Heading", targetHeading);
-        this.log("Target is to the", headingDif > 0 ? "Left" : "Right");
-
-        if(Math.abs(headingDif) > GYRO_MIN_ANGLE)
-            driver.move(angle, requiredRotation, speedModifier);
-        else {
-            driver.move(angle, 0, speedModifier);
-            atHeading = true;
-        }
+        this.log("Target is to the", net > 0 ? "Left" : "Right");
 
         return atHeading;
+
+//        int currentHeading = gyro.getHeading(),
+//                headingDif = currentHeading - targetHeading;
+//        boolean atHeading = false;
+//        double requiredRotation;
+//
+//        if(Math.abs(headingDif) > 180) {
+//            if(headingDif < 0) // clockwise
+//                headingDif = (360 - targetHeading) + currentHeading;
+//            else // counter clockwise
+//                headingDif = (currentHeading - 360) - targetHeading;
+//        }
+//
+//        // the heading dif should never be greater in magnitude than 180. neg is left and pos is right
+//        // make the rotation proportional to 180
+//        requiredRotation = headingDif / 180;
+//
+//        this.log("Current Heading", currentHeading);
+//        this.log("Target Heading", targetHeading);
+//        this.log("Target is to the", headingDif > 0 ? "Left" : "Right");
+//
+//        if(Math.abs(headingDif) > GYRO_MIN_ANGLE)
+//            driver.move(angle, requiredRotation, speedModifier);
+//        else {
+//            driver.move(angle, 0, speedModifier);
+//            atHeading = true;
+//        }
+//
+//        return atHeading;
     }
     public boolean driveWithHeading(double angle, int targetHeading) {
         return driveWithHeading(angle, 1, targetHeading);
@@ -371,6 +412,10 @@ public class Robot9853 extends Robot {
      */
     public void setCollectorPower(double power) {
         this.sweeper.setPower(power);
+        this.belt.setPower(-power);
+    }
+
+    public void setBeltPower(double power) {
         this.belt.setPower(power);
     }
 
@@ -433,7 +478,7 @@ public class Robot9853 extends Robot {
      * @return whether beacon is readable
      */
     public boolean isBeaconInRange() {
-        return ! beaconSensor.isBlack();
+        return beaconSensor.getColorNumber() != 0;
     }
 
     /**
@@ -441,7 +486,7 @@ public class Robot9853 extends Robot {
      * @return whether or not the beacon sensor is reading red
      */
     public boolean isBeaconRed() {
-        return beaconSensor.isRed();
+        return beaconSensor.getColorNumber() == 10;
     }
 
     /**
@@ -449,15 +494,19 @@ public class Robot9853 extends Robot {
      * @return whether or not the beacon sensor is reading red
      */
     public boolean isBeaconBlue() {
-        return beaconSensor.isBlue();
+        return beaconSensor.getColorNumber() == 3;
     }
 
     /**
      * determine whether or not the beacon is being pressed
-     * @return wether the touch sensor is being pressed
+     * @return whether the touch sensor is being pressed
      */
     public boolean isBeaconTouching() {
-        return touchSensor.isPressed();
+        // test all touch sensors
+        for (Map.Entry<String, TouchSensor> entry: this.hardwareMap.touchSensor.entrySet()) {
+            if(entry.getValue().isPressed()) return true;
+        }
+        return false;
     }
 
     /**

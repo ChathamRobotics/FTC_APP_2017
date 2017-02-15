@@ -36,6 +36,8 @@ public class AutoModeDoubleCheck extends Auto9853 {
     public void runRobot() throws StoppedException, InterruptedException {
         boolean hitFirst, hitSecond;
 
+        robot().changeFront(Robot.Side.BACK);
+
         // Drive to beacon
         while (robot().driveAtAngleWhile(Math.atan2(6/12d, this.isRedTeam ? 5/12d : -5/12d), .5,
                 ! robot().isLeftAtLine())) statusCheck();

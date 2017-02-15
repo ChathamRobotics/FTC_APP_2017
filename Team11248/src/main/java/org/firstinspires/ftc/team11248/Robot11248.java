@@ -112,7 +112,6 @@ public class Robot11248 extends OmniWheelDriver {
         this.lineSensor = hardwareMap.opticalDistanceSensor.get("sensor_ods");
         this.gyro = hardwareMap.gyroSensor.get("gyro");
         this.sonar = hardwareMap.ultrasonicSensor.get("sonar");
-
         I2cDevice colorBeacon = hardwareMap.i2cDevice.get("color2");
         this.colorBeacon = new MRColorSensorV3(colorBeacon, COLOR_SENSOR_BEACON_ADDR);
 

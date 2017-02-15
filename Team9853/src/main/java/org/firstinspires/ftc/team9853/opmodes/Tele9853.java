@@ -23,4 +23,11 @@ public abstract class Tele9853 extends TeleOpMode {
 
         return this.robot;
     }
+
+    @Override
+    public void start() {
+        super.start();
+
+        robot().start();
+    }
 }

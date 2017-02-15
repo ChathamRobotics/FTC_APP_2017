@@ -15,6 +15,6 @@ import org.firstinspires.ftc.team9853.autonomous.AutoModeBeacons;
 
 public class AutoModeBeaconsRed extends AutoModeBeacons {
     AutoModeBeaconsRed() {
-        super(false);
+        super(true);
     }
 }
