@@ -40,8 +40,8 @@ public class ShootBLUE extends LinearOpMode{
             sleep(500);
 
             robot.openCollector();
-            robot.setShooter(.6f);
-            sleep(750);
+            robot.setShooter(.5f);
+            sleep(1000);
 
             robot.setConveyor(.2f);
             sleep(1150);
@@ -53,8 +53,14 @@ public class ShootBLUE extends LinearOpMode{
             robot.closeCollector();
 
             robot.driveold(-1,0,.3);
-            sleep(1750);
+            sleep(2500);
             robot.stop();
+
+            sleep(10000);
+            robot.driveold(0,1,0);
+            sleep(2500);
+            robot.stop();
+
 
             idle();
             break;

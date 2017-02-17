@@ -30,14 +30,14 @@ public class ShootRED extends LinearOpMode{
             sleep(6000);
 
             robot.driveold(0,.8,0);
-            sleep(750);
+            sleep(1000);
 
             //drive(0,0);
             robot.stop();
             sleep(500);
 
             robot.openCollector();
-            robot.setShooter(.6f);
+            robot.setShooter(.5f);
             sleep(750);
 
             robot.setConveyor(.2f);
@@ -50,7 +50,12 @@ public class ShootRED extends LinearOpMode{
             robot.closeCollector();
 
             robot.driveold(1,0,-.3);
-            sleep(1750);
+            sleep(2500);
+            robot.stop();
+
+            sleep(10000);
+            robot.driveold(0,1,0);
+            sleep(2500);
             robot.stop();
 
             idle();

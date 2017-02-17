@@ -36,14 +36,14 @@ public class ShootPark extends LinearOpMode{
            sleep(20000);
 
             robot.driveold(0,.8,0);
-            sleep(750);
+            sleep(1100);
 
             //drive(0,0);
             robot.stop();
             sleep(500);
 
             robot.openCollector();
-            robot.setShooter(.6f);
+            robot.setShooter(.5f);
             sleep(750);
 
             robot.setConveyor(.2f);
