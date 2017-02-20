@@ -2,6 +2,8 @@ package org.firstinspires.ftc.team9853.autonomous;
 
 import org.chathamrobotics.ftcutils.Robot;
 import org.chathamrobotics.ftcutils.StoppedException;
+import org.firstinspires.ftc.team9853.R;
+import org.firstinspires.ftc.team9853.Robot9853;
 import org.firstinspires.ftc.team9853.opmodes.Auto9853;
 
 /**
@@ -39,39 +41,78 @@ public class AutoModeDoubleCheck extends Auto9853 {
         robot().changeFront(Robot.Side.BACK);
 
         // Drive to beacon
-        while (robot().driveAtAngleWhile(Math.atan2(6/12d, this.isRedTeam ? 5/12d : -5/12d), .5,
+        robot().log("Drive Angle", this.isRedTeam ? Math.PI/4 : 3 * Math.PI/4);
+        while (robot().driveWithHeadingWhile(this.isRedTeam ? Math.PI/4 : 3 * Math.PI/4, Robot9853.SENSING_SPEED, robot().startingHeading,
                 ! robot().isLeftAtLine())) statusCheck();
 
-        hitBeacon();
+        pressBeacon();
         hitFirst = isBeaconCaptured();
         backUp();
 
         // move to next beacon
-        while(robot().driveAtAngleFor(Robot.Side.LEFT.angle, .5, 500)) statusCheck();
-        while(robot().driveAtAngleWhile(Robot.Side.LEFT.angle, .5, ! robot().isLeftAtLine()))
+        while(robot().driveWithHeadingFor(Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, 500)) statusCheck();
+        while(robot().driveWithHeadingWhile(Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, ! robot().isLeftAtLine()))
             statusCheck();
 
-        hitBeacon();
+        shiftRight();
+
+        pressBeacon();
         hitSecond = isBeaconCaptured();
         backUp();
 
         if(! hitFirst) {
-            while(robot().driveAtAngleFor(Robot.Side.RIGHT.angle, .5, 500)) statusCheck();
-            while(robot().driveAtAngleWhile(Robot.Side.RIGHT.angle, .5, ! robot().isLeftAtLine()))
+            while(robot().driveWithHeadingWhile(Robot.Side.RIGHT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, ! robot().isCenterAtLine()))
                 statusCheck();
 
-            hitBeacon();
+            pressBeacon();
             backUp();
         }
 
         if(! hitSecond) {
-            while(robot().driveAtAngleFor(Robot.Side.LEFT.angle, .5, 500)) statusCheck();
-            while(robot().driveAtAngleWhile(Robot.Side.LEFT.angle, .5, ! robot().isLeftAtLine()))
+            while(robot().driveWithHeadingWhile(Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, ! robot().isCenterAtLine()))
                 statusCheck();
 
-            hitBeacon();
+            pressBeacon();
             backUp();
         }
+    }
+
+    /**
+     * press the right beacon button
+     * @throws StoppedException
+     */
+    private void pressBeacon() throws StoppedException{
+        /// ensure that is lined up with the right side of the beacon
+//        shiftRight();
+
+        // hit button
+        hitButton();
+    }
+
+    public void hitButton() throws StoppedException{
+        // hit
+        while(robot().driveWithHeadingWhile(Robot.Side.RIGHT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, ! robot().isBeaconTouching()))
+            statusCheck();
+    }
+
+    /**
+     * lines the robot up with the right side of the beacon
+     * @throws StoppedException
+     */
+    private void shiftRight() throws StoppedException {
+        // move right until left line sensor registers
+        while (robot().driveAtAngleWhile(Robot.Side.RIGHT.angle, Robot9853.SENSING_SPEED,
+                ! robot().isLeftAtLine())) statusCheck();
+    }
+
+    /**
+     * lines the robot up with the right side of the beacon
+     * @throws StoppedException
+     */
+    private void shiftLeft() throws StoppedException {
+        // move left until left center line sensor registers
+        while (robot().driveAtAngleWhile(Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED,
+                ! robot().isCenterAtLine())) statusCheck();
     }
 
     /**
@@ -79,6 +120,8 @@ public class AutoModeDoubleCheck extends Auto9853 {
      * @throws StoppedException
      */
     private void backUp() throws StoppedException {
-        while(robot().driveAtAngleFor(Robot.Side.BACK.angle, .2, 500)) statusCheck();
+        // back up
+        while(robot().driveAtAngleWhile(Robot.Side.BACK.angle, Robot9853.SENSING_SPEED, robot().isBeaconInRange()))
+            statusCheck();
     }
 }

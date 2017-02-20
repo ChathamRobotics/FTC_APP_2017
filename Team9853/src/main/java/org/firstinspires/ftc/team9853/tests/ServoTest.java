@@ -15,43 +15,40 @@ import java.util.Map;
 
 @TeleOp(name = "Test: Servo", group = "Test")
 
-@Disabled
+//@Disabled
 
 public class ServoTest extends Tele9853 {
+    boolean lastA, lastB;
+
     public Servo[] servos;
 
     public ServoTest() {}
 
     @Override
     public void loop() {
-        if(gamepad1.a) {
-            for (long endtime = System.currentTimeMillis() + 250; System.currentTimeMillis() < endtime;) {
-
-            }
-
+        if(gamepad1.a && gamepad1.a != lastA) {
             for (Map.Entry<String, Servo> entry : hardwareMap.servo.entrySet()) {
                 Servo servo = entry.getValue();
 
                 servo.setPosition(Range.clip(servo.getPosition() + .1, 0, 1));
-                telemetry.addData(entry.getKey(), servo.getPosition());
             }
         }
 
-        if(gamepad1.b) {
-            for (long endtime = System.currentTimeMillis() + 250; System.currentTimeMillis() < endtime;) {
-
-            }
+        if(gamepad1.b && gamepad1.b != lastB) {
 
             for (Map.Entry<String, Servo> entry : hardwareMap.servo.entrySet()) {
                 Servo servo = entry.getValue();
 
-                servo.setPosition(Range.clip(servo.getPosition() - .1, 0, 1));
-                telemetry.addData(entry.getKey(), servo.getPosition());
+                servo.setPosition(0);
+//                servo.setPosition(Range.clip(servo.getPosition() - .1, 0, 1));
             }
         }
 
         for (Map.Entry<String, Servo> entry : hardwareMap.servo.entrySet()) {
             telemetry.addData(entry.getKey(), entry.getValue().getPosition());
         }
+
+        lastA = gamepad1.a;
+        lastB = gamepad1.b;
     }
 }

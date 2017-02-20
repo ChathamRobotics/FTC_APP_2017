@@ -41,7 +41,10 @@ public class AutoModeBeacons extends Auto9853 {
     public void runRobot() throws StoppedException, InterruptedException {
         robot().changeFront(Robot.Side.BACK);
 
+        robot().log("WORKING?");
+
         // Drive to beacon
+        robot().log("Drive Angle");
         while (robot().driveAtAngleWhile(this.isRedTeam ? Math.PI/4 : 3 * Math.PI/4, .32,
                 ! robot().isLeftAtLine() && ! robot().isCenterAtLine())) statusCheck();
 
@@ -65,27 +68,42 @@ public class AutoModeBeacons extends Auto9853 {
      * @throws StoppedException
      */
     private void pressBeacon() throws StoppedException{
-        // drive along line
-        while(robot().driveForwardWhile(Robot9853.SENSING_SPEED, ! robot().isBeaconInRange())) {
+        boolean atRight = true, hitRight = false;
+
+        /// ensure that is lined up with the right side of the beacon
+        shiftRight();
+
+        // drive until the beacon is in range
+        while(robot().driveForwardWhile(Robot9853.SENSING_SPEED, ! robot().isBeaconInRange()))
             statusCheck();
+        robot().log("Beacon is in range");
 
-            if(! robot().isLeftAtLine()) robot().log("Lost Line");
+        // check right side for correct color
+        if(isRedTeam && robot().isRightRed()) hitRight = true;
+        else if(! isRedTeam && robot().isRightBlue()) hitRight = true;
+
+        // shift if needed
+        if(! hitRight) {
+            shiftLeft();
+            atRight = false;
         }
-        robot().log("found beacon");
-
-        // line up with correct color
-        robot().log("Team", isRedTeam ? "Red" : "Blue");
-        robot().log("Beacon Color", robot().isBeaconRed() ? "Red" : "Blue");
-
-        // line up with right
-        if(isRedTeam != robot().isBeaconRed()) shiftLeft();
 
         // hit button
+        hitButton();
+
+        // hit again if didn't work
+        if((atRight && ((isRedTeam && robot().isLeftRed()) || (! isRedTeam && robot().isLeftBlue())))
+                || (! atRight && ((isRedTeam && robot().isRightRed()) || (! isRedTeam && robot().isRightBlue()))))
+            hitButton();
+    }
+
+    public void hitButton() throws StoppedException{
+        // hit
         while(robot().driveForwardWhile(Robot9853.SENSING_SPEED, ! robot().isBeaconTouching()))
             statusCheck();
 
-        // backup
-        while(robot().driveAtAngleWhile(Robot.Side.BACK.angle, Robot9853.SENSING_SPEED, ! robot().isBeaconTouching()))
+        // back up
+        while(robot().driveAtAngleWhile(Robot.Side.BACK.angle, Robot9853.SENSING_SPEED, robot().isBeaconTouching()))
             statusCheck();
     }
 

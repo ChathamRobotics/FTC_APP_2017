@@ -17,7 +17,9 @@ public class GyroTest extends Auto9853 {
 
     @Override
     public void runRobot() throws StoppedException, InterruptedException {
-        while (robot().driveWithHeadingFor(Robot.Side.FRONT.angle, .5, robot().startingHeading, 5000))
+        while(robot().doUntil(1000000)) {
+            robot().driveWithHeading(Robot.Side.FRONT.angle, .5, robot().startingHeading);
             statusCheck();
+        }
     }
 }

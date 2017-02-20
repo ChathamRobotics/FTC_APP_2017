@@ -1,9 +1,5 @@
 package org.firstinspires.ftc.team9853;
 
-import android.graphics.Point;
-
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.GyroSensor;
@@ -25,13 +21,13 @@ import java.util.Map;
 
 public class Robot9853 extends Robot {
 //    CONSTANTS     //
-    public static final double TOGGLE_UP_POSITION = 0.2;
-    public static final double TOGGLE_DOWN_POSITION = 1;
+    public static final double TOGGLE_UP_POSITION = 1;
+    public static final double TOGGLE_DOWN_POSITION = 0;
 
     public static final double OPTICAL_LOW = .6;
     public static final double OPTICAL_HIGH = 1;
 
-    public static final int GYRO_MIN_ANGLE = 2;
+    public static final int GYRO_MIN_ANGLE = 5;
 
     public static final long RELOAD_TIME = 2500;
     public static final long SHOOT_TIME = 500;
@@ -51,7 +47,9 @@ public class Robot9853 extends Robot {
     private Servo liftToggle;
     private OpticalDistanceSensor leftLineSensor;
     private OpticalDistanceSensor centerLineSensor;
-    private MRColorSensorV3 beaconSensor;
+    public MRColorSensorV3 centerBeaconSensor;
+    public MRColorSensorV3 leftBeaconSensor;
+    public MRColorSensorV3 rightBeaconSensor;
     private GyroSensor gyro;
     private TouchSensor touchSensor;
 
@@ -73,12 +71,14 @@ public class Robot9853 extends Robot {
      */
     @Override
     public void start() {
-//        this.calibrateGyro();
-//        this.startingHeading = this.gyro.getHeading();
+        this.calibrateGyro();
+        this.startingHeading = this.gyro.getHeading();
 
         this.liftToggle.setPosition(TOGGLE_DOWN_POSITION);
 
-        this.beaconSensor.setPassiveMode();
+        this.centerBeaconSensor.setPassiveMode();
+        this.leftBeaconSensor.setPassiveMode();
+        this.rightBeaconSensor.setPassiveMode();
 
         this.log("Starting robot...");
     }
@@ -104,7 +104,13 @@ public class Robot9853 extends Robot {
         leftLineSensor = hardwareMap.opticalDistanceSensor.get("LeftLineSensor");
         centerLineSensor = hardwareMap.opticalDistanceSensor.get("CenterLineSensor");
         gyro = hardwareMap.gyroSensor.get("Gyro");
-        beaconSensor = new MRColorSensorV3(hardwareMap.i2cDevice.get("BeaconSensor"), (byte) 0x3c);
+
+
+
+        centerBeaconSensor = new MRColorSensorV3(hardwareMap.i2cDevice.get("CenterBeaconSensor"), (byte) 0x3c);
+        leftBeaconSensor = new MRColorSensorV3(hardwareMap.i2cDevice.get("LeftBeaconSensor"), (byte) 0x34);
+        rightBeaconSensor = new MRColorSensorV3(hardwareMap.i2cDevice.get("RightBeaconSensor"), (byte) 0x35);
+
         touchSensor = hardwareMap.touchSensor.get("Touch");
 
         this.telemetry.addLine("Hardware initialized");
@@ -170,40 +176,42 @@ public class Robot9853 extends Robot {
      * Drives in the direction specified by the angle and maintains heading
      * @param angle         the direction to drive in
      * @param speedModifier the modifier for the speed
-     * @param targetHeading the heading to follow
+     * @param targetAngle the heading to follow
      * @return              whether the heading has been achieved.
      */
-    public boolean driveWithHeading(double angle, double speedModifier, int targetHeading) {
+    public boolean driveWithHeading(double angle, double speedModifier, int targetAngle) {
         boolean atHeading = false;
         int currentHeading = gyro.getHeading();
-        int net = currentHeading - targetHeading; //finds distance to target angle
+        int headingDif = currentHeading - targetAngle; //finds distance to target angle
         double rotation;
 
-        if (Math.abs(net) > 180) { // if shortest path passes 0
-            if (currentHeading > 180) //if going counterclockwise
-                net = (currentHeading - 360) - targetHeading;
-
-            else //if going clockwise
-                net = (360 - targetHeading) + currentHeading;
+        // If the shortest path to target passes through 0
+        if (Math.abs(headingDif) > 180) {
+            // If counterclockwise is shorter
+            if (currentHeading > 180) headingDif = (currentHeading - 360) - targetAngle;
+            // If clockwise is shorter
+            else headingDif = (360 - targetAngle) + currentHeading;
         }
 
         // slows down as approaches angle with min threshold of .05
         // each degree adds/subtracts .95/180 values of speed
-        rotation = Math.abs(net) * .85 / 180 + .15;
+        rotation = Math.abs(headingDif) * .85 / 180 + .15;
 
-        if (net < 0) rotation *= -1; //if going clockwise, set rotation clockwise (-)
+        if (headingDif < 0) rotation *= -1; //if going clockwise, set rotation clockwise (-)
 
-        if (Math.abs(net) > GYRO_MIN_ANGLE)
-            driver.move(angle, speedModifier, rotation); //Drive with gyros rotation
+        if (Math.abs(headingDif) > GYRO_MIN_ANGLE)
+            driver.move(angle, rotation, speedModifier); //Drive with gyros rotation
 
         else {
             atHeading = true;
-            driver.move(angle,speedModifier, rotation);
+            driver.move(angle, 0, speedModifier);
         }
 
-        this.log("Current Heading", currentHeading);
-        this.log("Target Heading", targetHeading);
-        this.log("Target is to the", net > 0 ? "Left" : "Right");
+        log("Current Heading", currentHeading);
+        log("Target Heading", targetAngle);
+        log("Distance to target heading", headingDif);
+        log("Angular Speed Modifier", rotation);
+
 
         return atHeading;
 
@@ -478,7 +486,7 @@ public class Robot9853 extends Robot {
      * @return whether beacon is readable
      */
     public boolean isBeaconInRange() {
-        return beaconSensor.getColorNumber() != 0;
+        return centerBeaconSensor.getColorNumber() != 0;
     }
 
     /**
@@ -486,15 +494,21 @@ public class Robot9853 extends Robot {
      * @return whether or not the beacon sensor is reading red
      */
     public boolean isBeaconRed() {
-        return beaconSensor.getColorNumber() == 10;
+        return centerBeaconSensor.getColorNumber() == 10;
     }
+
+    public boolean isRightRed() {return centerBeaconSensor.getColorNumber() == 10 || rightBeaconSensor.getColorNumber() == 10;}
+    public boolean isRightBlue() {return centerBeaconSensor.getColorNumber() == 3 || rightBeaconSensor.getColorNumber() == 3;}
+
+    public boolean isLeftRed() {return centerBeaconSensor.getColorNumber() == 10 || rightBeaconSensor.getColorNumber() == 10;}
+    public boolean isLeftBlue() {return centerBeaconSensor.getColorNumber() == 3 || rightBeaconSensor.getColorNumber() == 3;}
 
     /**
      * determine whether or not the beacon is blue
      * @return whether or not the beacon sensor is reading red
      */
     public boolean isBeaconBlue() {
-        return beaconSensor.getColorNumber() == 3;
+        return centerBeaconSensor.getColorNumber() == 3;
     }
 
     /**
