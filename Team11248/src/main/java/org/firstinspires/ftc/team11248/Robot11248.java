@@ -31,10 +31,10 @@ public class Robot11248 extends OmniWheelDriver {
     public static final double SHOOTER_SPEED = .8;
 
     //Gyro Thresholds
-    private static final int GYRO_THRESHOLD = 2;
+    private static final int GYRO_THRESHOLD = 1;
 
     //LINE SENSOR THRESHOLDS
-    private static final double OPTICAL_THRESHOLD_LOW = .59;
+    private static final double OPTICAL_THRESHOLD_LOW = .55;
     private static final double OPTICAL_THRESHOLD_HIGH = 1;
 
     //Servo constants

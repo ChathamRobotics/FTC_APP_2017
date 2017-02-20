@@ -100,7 +100,7 @@ public class DriverFull extends DriverOmni {
                 robot.shooterOff();
                // bangBang = false;
             }else
-              robot.setShooter(.65f); // bangBang = true;
+              robot.setShooter(.625f); // bangBang = true;
         }
 
         //if(bangBang) robot.bangBang(robot.SHOOTER_SPEED);
@@ -123,9 +123,9 @@ public class DriverFull extends DriverOmni {
 
 
         if (gamepad2.right_trigger > 0)
-            robot.setConveyor(gamepad2.right_trigger);
+            robot.setConveyor(gamepad2.right_trigger * (robot.collectorClosed?1f:.35f));
         else if (gamepad2.left_trigger > 0)
-            robot.setConveyor(-gamepad2.left_trigger);
+            robot.setConveyor(-gamepad2.left_trigger * (robot.collectorClosed?1f:.65f));
         else
             robot.setConveyor(0);
 

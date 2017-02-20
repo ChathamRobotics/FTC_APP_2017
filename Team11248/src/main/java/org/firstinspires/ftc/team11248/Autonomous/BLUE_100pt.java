@@ -43,8 +43,10 @@ public class BLUE_100pt extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
+
         //STAYS HERE UNTIL INIT BUTTON
         robot = new Robot11248(hardwareMap, telemetry);
+        robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
         robot.init(); //Sets servos to right position.
         robot.activateColorSensors();
         robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
@@ -113,7 +115,7 @@ public class BLUE_100pt extends LinearOpMode {
                     robot.driveold(0, -.35, 0);
                     if (robot.isBeaconBlue()) {//WHEN BEACON IS BLUE
                         robot.driveold(0, -.35, 0);
-                        sleep(600);
+                        sleep(300);
                         robot.stop();
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -130,7 +132,7 @@ public class BLUE_100pt extends LinearOpMode {
                     robot.driveold(0, -.35, 0); //MOVE LEFT
                     if(robot.isBeaconBlue()) {
                         robot.driveold(0, -.35, 0);
-                        sleep(500);
+                        sleep(300);
                         robot.stop(); //STOP MOVING
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -151,7 +153,7 @@ public class BLUE_100pt extends LinearOpMode {
                 case 7: //keep driving until line hit
 
                     //telemetry.addData("y", xAgainstWall(SONAR_DIST));
-                    robot.driveold( xAgainstWall(SONAR_DIST), .37, 0);
+                    robot.driveold( xAgainstWall(SONAR_DIST+3), .35, 0);
                     if(robot.hitLine()) { //WHEN WHITE LINE FOUND
                         robot.stop(); //STOP MOVING
                         sleep(STOP_DELAY);
@@ -192,7 +194,7 @@ public class BLUE_100pt extends LinearOpMode {
                     robot.driveold(0, -.35, 0);
                     if (robot.isBeaconBlue()) { //WHEN BEACON IS BLUE
                         robot.driveold(0, -.35, 0);
-                        sleep(600);
+                        sleep(300);
                         robot.stop();
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -210,7 +212,7 @@ public class BLUE_100pt extends LinearOpMode {
                     robot.driveold(0, -.35, 0); //MOVE LEFT .5
                     if(robot.isBeaconBlue()) {
                         robot.driveold(0, -.35, 0);
-                        sleep(500);
+                        sleep(200);
                         robot.stop(); //STOP MOVING
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -220,7 +222,7 @@ public class BLUE_100pt extends LinearOpMode {
 
                 case 13:
                     robot.driveold(-1, -1, 0); //drive to cap ball
-                    sleep(2500);
+                    sleep(2750);
                     state++;
                     break;
 
@@ -235,17 +237,18 @@ public class BLUE_100pt extends LinearOpMode {
     public void shootBallsStart(){
         robot.driveold(0,.8,0);
         sleep(500);
-
         //drive(0,0);
         robot.stop();
         sleep(500);
 
         robot.openCollector();
-        robot.setShooter(.65f);
+        robot.setShooter(.5f);
         sleep(750);
 
-        robot.setConveyor(.45f);
-        sleep(2000);
+        robot.setConveyor(.2f);
+        sleep(1150);
+        robot.setConveyor(.8f);
+        sleep(850);
 
         robot.conveyorOff();
         robot.shooterOff();
@@ -286,15 +289,17 @@ public class BLUE_100pt extends LinearOpMode {
 
         int SONAR_THRESHOLD = 2;
         double netDist = robot.getSonarValue() - distance;
-        double y =0;
+        double y = 0;
 
         if(Math.abs(netDist)> SONAR_THRESHOLD) {
-            y = Math.abs(netDist) * .0021 + .07;
+            y = Math.abs(netDist) * .002 + .085;
             if(netDist<0) y*=-1;
         }
 
         return y;
 
     }
+
+
 
 }

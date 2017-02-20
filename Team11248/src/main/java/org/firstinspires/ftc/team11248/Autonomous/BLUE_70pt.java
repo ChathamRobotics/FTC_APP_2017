@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.team11248.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
@@ -17,6 +18,7 @@ import org.firstinspires.ftc.team11248.Robot11248;
  */
 
 @Autonomous(name = "driveWithGyro")
+@Disabled
 public class BLUE_70pt extends OpMode {
 
     Robot11248 robot;
