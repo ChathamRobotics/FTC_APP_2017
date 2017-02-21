@@ -51,7 +51,6 @@ public class Robot9853 extends Robot {
     public MRColorSensorV3 leftBeaconSensor;
     public MRColorSensorV3 rightBeaconSensor;
     private GyroSensor gyro;
-    private TouchSensor touchSensor;
 
 //    STATEFUL      //
     private long lastLiftToggle;
@@ -71,11 +70,14 @@ public class Robot9853 extends Robot {
      */
     @Override
     public void start() {
-        this.calibrateGyro();
+        // store the initial heading for later use
+        waitForGyroCalibration();
         this.startingHeading = this.gyro.getHeading();
 
+        // put the lift toggler down
         this.liftToggle.setPosition(TOGGLE_DOWN_POSITION);
 
+        // set the beacon sensing system to passive
         this.centerBeaconSensor.setPassiveMode();
         this.leftBeaconSensor.setPassiveMode();
         this.rightBeaconSensor.setPassiveMode();
@@ -88,30 +90,34 @@ public class Robot9853 extends Robot {
      */
     @Override
     public void initHardware() {
-        this.driver = OmniWheelDriver.build(this.hardwareMap, this.telemetry);
-        this.driver.silent = false;
+        // Setup drivier
+        driver = OmniWheelDriver.build(this.hardwareMap, this.telemetry);
+        driver.silent = false;
 
-        this.lift = hardwareMap.dcMotor.get("Lift");
-        this.sweeper = hardwareMap.dcMotor.get("Sweeper");
-        this.belt = hardwareMap.dcMotor.get("Belt");
+        // collection system
+        sweeper = hardwareMap.dcMotor.get("Sweeper");
+        belt = hardwareMap.dcMotor.get("Belt");
 
-        this.shooter = hardwareMap.dcMotor.get("Shooter");
-        this.shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        // lift system
+        lift = hardwareMap.dcMotor.get("Lift");
+        liftToggle = hardwareMap.servo.get("LiftToggle");
 
-        this.liftToggle = hardwareMap.servo.get("LiftToggle");
+        // shooter system
+        shooter = hardwareMap.dcMotor.get("Shooter");
+        shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-
+        // line sensor system
         leftLineSensor = hardwareMap.opticalDistanceSensor.get("LeftLineSensor");
         centerLineSensor = hardwareMap.opticalDistanceSensor.get("CenterLineSensor");
+
+        // gyro system
         gyro = hardwareMap.gyroSensor.get("Gyro");
+        gyro.calibrate();
 
-
-
+        // beacon sensor system
         centerBeaconSensor = new MRColorSensorV3(hardwareMap.i2cDevice.get("CenterBeaconSensor"), (byte) 0x3c);
         leftBeaconSensor = new MRColorSensorV3(hardwareMap.i2cDevice.get("LeftBeaconSensor"), (byte) 0x34);
         rightBeaconSensor = new MRColorSensorV3(hardwareMap.i2cDevice.get("RightBeaconSensor"), (byte) 0x35);
-
-        touchSensor = hardwareMap.touchSensor.get("Touch");
 
         this.telemetry.addLine("Hardware initialized");
         this.telemetry.addLine("Press play to start");
@@ -137,13 +143,18 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * Drives a specified angle
-     * @param angle         the angle to drive in. Relative to the front in radians
-     * @param speedModifier the speed modifier to use
+     * Drives in the direction specified by the angle
+     * @param angle         the direction to drive. Relative to the front (in rads)
+     * @param speedModifier the speed modified by multiplying it by this number
      */
     public void driveAtAngle(double angle, double speedModifier) {
         this.driver.move(angle, 0, speedModifier);
     }
+
+    /**
+     * Drives in the direction specified by the angle
+     * @param angle the direction to drive. Relative to the front (in rads)
+     */
     public void driveAtAngle(double angle) {
         driveAtAngle(angle, 1);
     }
@@ -152,22 +163,32 @@ public class Robot9853 extends Robot {
      * Drives in the direction specified by the x and y given
      * @param x             the x part of the point
      * @param y             the y part of the point
-     * @param speedModifier the speed modifier to use
+     * @param speedModifier the speed modified by multiplying it by this number
      */
     public void driveAtPoint(double x, double y, double speedModifier) {
         this.driver.drive(x, y, 0, speedModifier, false);
     }
+
+    /**
+     * Drives in the direction specified by the x and y given
+     * @param x the x part of the point
+     * @param y the y part of the point
+     */
     public void driveAtPoint(double x, double y) {
         driveAtPoint(x, y, 1);
     }
 
     /**
      * Drives forward.
-     * @param speedModifier the speed modifier to use
+     * @param speedModifier the speed modified by multiplying it by this number
      */
     public void driveForward(double speedModifier) {
         this.driveAtAngle(Math.PI / 2, speedModifier);
     }
+
+    /**
+     * Drives forward.
+     */
     public void driveForward() {
         driveForward(1);
     }
@@ -175,85 +196,67 @@ public class Robot9853 extends Robot {
     /**
      * Drives in the direction specified by the angle and maintains heading
      * @param angle         the direction to drive in
-     * @param speedModifier the modifier for the speed
-     * @param targetAngle the heading to follow
+     * @param speedModifier the speed modified by multiplying it by this number
+     * @param targetHeading the heading to try to maintain
      * @return              whether the heading has been achieved.
      */
-    public boolean driveWithHeading(double angle, double speedModifier, int targetAngle) {
+    public boolean driveWithHeading(double angle, double speedModifier, int targetHeading) {
         boolean atHeading = false;
         int currentHeading = gyro.getHeading();
-        int headingDif = currentHeading - targetAngle; //finds distance to target angle
-        double rotation;
+        //finds distance to target angle
+        int headingDif = currentHeading - targetHeading;
+        double requiredRotation;
 
         // If the shortest path to target passes through 0
         if (Math.abs(headingDif) > 180) {
             // If counterclockwise is shorter
-            if (currentHeading > 180) headingDif = (currentHeading - 360) - targetAngle;
+            if (currentHeading > 180) headingDif = (currentHeading - 360) - targetHeading;
             // If clockwise is shorter
-            else headingDif = (360 - targetAngle) + currentHeading;
+            else headingDif = (360 - targetHeading) + currentHeading;
         }
 
         // slows down as approaches angle with min threshold of .05
         // each degree adds/subtracts .95/180 values of speed
-        rotation = Math.abs(headingDif) * .85 / 180 + .15;
+        requiredRotation = Math.abs(headingDif) * .85 / 180 + .15;
 
-        if (headingDif < 0) rotation *= -1; //if going clockwise, set rotation clockwise (-)
+        //if going clockwise, set requiredRotation clockwise (-)
+        if (headingDif < 0) requiredRotation *= -1;
 
         if (Math.abs(headingDif) > GYRO_MIN_ANGLE)
-            driver.move(angle, rotation, speedModifier); //Drive with gyros rotation
-
+            //Drive with gyros requiredRotation
+            driver.move(angle, requiredRotation, speedModifier);
         else {
             atHeading = true;
             driver.move(angle, 0, speedModifier);
         }
 
+        // debug
         log("Current Heading", currentHeading);
-        log("Target Heading", targetAngle);
+        log("Target Heading", targetHeading);
         log("Distance to target heading", headingDif);
-        log("Angular Speed Modifier", rotation);
+        log("Angular Speed Modifier", requiredRotation);
+        log("Turning to the" + (headingDif > 0 ? "Left" : "Right"));
 
 
         return atHeading;
-
-//        int currentHeading = gyro.getHeading(),
-//                headingDif = currentHeading - targetHeading;
-//        boolean atHeading = false;
-//        double requiredRotation;
-//
-//        if(Math.abs(headingDif) > 180) {
-//            if(headingDif < 0) // clockwise
-//                headingDif = (360 - targetHeading) + currentHeading;
-//            else // counter clockwise
-//                headingDif = (currentHeading - 360) - targetHeading;
-//        }
-//
-//        // the heading dif should never be greater in magnitude than 180. neg is left and pos is right
-//        // make the rotation proportional to 180
-//        requiredRotation = headingDif / 180;
-//
-//        this.log("Current Heading", currentHeading);
-//        this.log("Target Heading", targetHeading);
-//        this.log("Target is to the", headingDif > 0 ? "Left" : "Right");
-//
-//        if(Math.abs(headingDif) > GYRO_MIN_ANGLE)
-//            driver.move(angle, requiredRotation, speedModifier);
-//        else {
-//            driver.move(angle, 0, speedModifier);
-//            atHeading = true;
-//        }
-//
-//        return atHeading;
     }
+
+    /**
+     * Drives in the direction specified by the angle and maintains heading
+     * @param angle         the direction to drive
+     * @param targetHeading the heading to try to maintain
+     * @return              whether the heading has been achieved.
+     */
     public boolean driveWithHeading(double angle, int targetHeading) {
         return driveWithHeading(angle, 1, targetHeading);
     }
 
     /**
-     * Drives a angle for a period of time
+     * Drives a angle for the given period of time
      * @param angle         the direction to drive
-     * @param speedModifier the speed modifier to use
-     * @param duration      the amount of time to do for
-     * @return              whether time is up
+     * @param speedModifier the speed modified by multiplying it by this number
+     * @param duration      the amount of time to drive for
+     * @return              whether duration has expired
      */
     public boolean driveAtAngleFor(double angle, double speedModifier, long duration) {
         boolean result = doUntil(duration);
@@ -266,17 +269,24 @@ public class Robot9853 extends Robot {
 
         return result;
     }
+
+    /**
+     * Drives a angle for the given period of time
+     * @param angle     the direction to drive
+     * @param duration  the amount of time to drive for
+     * @return          whether duration has expired
+     */
     public boolean driveAtAngleFor(double angle, long duration) {
         return driveAtAngleFor(angle, 1, duration);
     }
 
     /**
-     * Drives in the direction specified by the x and y given for the given time
+     * calls driveAtPoint for the given period of time
      * @param x             the x part of the direction
      * @param y             the y part of the direction
-     * @param speedModifier the speed modifier to use
-     * @param duration      the amount of time to do for
-     * @return              whether the time is up
+     * @param speedModifier the speed modified by multiplying it by this number
+     * @param duration      the amount of time to drive for
+     * @return              whether duration has expired
      */
     public boolean driveAtPointFor(double x, double y, double speedModifier, long duration) {
         boolean result = doUntil(duration);
@@ -289,13 +299,21 @@ public class Robot9853 extends Robot {
 
         return result;
     }
+
+    /**
+     * calls driveAtPoint for the given period of time
+     * @param x         the x part of the direction
+     * @param y         the y part of the direction
+     * @param duration  the amount of time to drive for
+     * @return          whether duration has expired
+     */
     public boolean driveAtPointFor(double x, double y, long duration) {return driveAtPointFor(x, y, 1, duration);}
 
     /**
      * Drives forward for the specified time
-     * @param speedModifier the speed modifier to use
-     * @param duration      the amount of time to do for
-     * @return              whether time is up
+     * @param speedModifier the speed modified by multiplying it by this number
+     * @param duration      the amount of time to drive for
+     * @return              whether duration has expired
      */
     public boolean driveForwardFor(double speedModifier, long duration) {
         boolean result = doUntil(duration);
@@ -308,15 +326,21 @@ public class Robot9853 extends Robot {
 
         return result;
     }
+
+    /**
+     * Drives forward for the specified time
+     * @param duration  the amount of time to drive for
+     * @return          whether duration has expired
+     */
     public boolean driveForwardFor(long duration) {return driveForwardFor(1, duration);}
 
     /**
      * Drive in the direction specified by the angle while attempting to reach the target heading for the given duration
      * @param angle         the direction to travel in
-     * @param speedModifier the speed modifier to use
+     * @param speedModifier the speed modified by multiplying it by this number
      * @param targetHeading the heading to maintain
-     * @param duration      the amount of time to do it for in ms
-     * @return              whether time is up
+     * @param duration      the amount of time to drive for
+     * @return              whether duration has expired
      */
     public boolean driveWithHeadingFor(double angle, double speedModifier, int targetHeading, long duration) {
         boolean result = doUntil(duration);
@@ -329,6 +353,14 @@ public class Robot9853 extends Robot {
 
         return result;
     }
+
+    /**
+     * Drive in the direction specified by the angle while attempting to reach the target heading for the given duration
+     * @param angle         the direction to travel in
+     * @param targetHeading the heading to maintain
+     * @param duration      whether duration has expired
+     * @return              whether duration has expired
+     */
     public boolean driveWithHeadingFor(double angle, int targetHeading, long duration) {
         return driveWithHeadingFor(angle, 1, targetHeading, duration);
     }
@@ -337,7 +369,7 @@ public class Robot9853 extends Robot {
     /**
      * drives at angle while condition is true
      * @param angle         the direction to drive in
-     * @param speedModifier the speed modifier to use
+     * @param speedModifier the speed modified by multiplying it by this number
      * @param con           the condition
      * @return              whether the condition was true
      */
@@ -348,6 +380,13 @@ public class Robot9853 extends Robot {
 
         return con;
     }
+
+    /**
+     * drives at angle while condition is true
+     * @param angle the direction to drive in
+     * @param con   the condition
+     * @return      whether the condition was true
+     */
     public boolean driveAtAngleWhile(double angle, boolean con) {
         return driveAtAngleWhile(angle, 1, con);
     }
@@ -356,7 +395,7 @@ public class Robot9853 extends Robot {
      * drive in the direction specified by point while the condition is true
      * @param x             the x part of the direction
      * @param y             the y part of the direction
-     * @param speedModifier the speed modifier to use
+     * @param speedModifier the speed modified by multiplying it by this number
      * @param con           the condition
      * @return              whether the condition was true
      */
@@ -367,13 +406,21 @@ public class Robot9853 extends Robot {
 
         return con;
     }
+
+    /**
+     * drive in the direction specified by point while the condition is true
+     * @param x     the x part of the direction
+     * @param y     the y part of the direction
+     * @param con   the condition
+     * @return      whether the condition was true
+     */
     public boolean driveAtPointWhile(double x, double y, boolean con) {
         return driveAtPointWhile(x, y, 1, con);
     }
 
     /**
      * drives forward while the condition is true
-     * @param speedModifier the speed modifier to use
+     * @param speedModifier the speed modified by multiplying it by this number
      * @param con           the condition
      * @return              whether the condition was true
      */
@@ -384,6 +431,12 @@ public class Robot9853 extends Robot {
 
         return con;
     }
+
+    /**
+     * drives forward while the condition is true
+     * @param con   the condition
+     * @return      whether the condition was true
+     */
     public boolean driveForWhile(boolean con) {
         return driveForwardWhile(1, con);
     }
@@ -391,7 +444,7 @@ public class Robot9853 extends Robot {
     /**
      * Drive in the direction specified by the angle while attempting to reach the target heading while  the condition is true
      * @param angle         the direction to travl in
-     * @param speedModifier the speed modifier to use
+     * @param speedModifier the speed modified by multiplying it by this number
      * @param targetHeading the heading to maintain
      * @param con           the condition
      * @return              whether the condition is true
@@ -450,14 +503,11 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * Calibrate the gyro
+     * Wait for the gyro to finish calibrating
      */
-    public void calibrateGyro() {
-        gyro.calibrate();
-
-
+    public void waitForGyroCalibration() {
         while(gyro.isCalibrating()) {
-            // Stall
+            // stall
         }
     }
 
