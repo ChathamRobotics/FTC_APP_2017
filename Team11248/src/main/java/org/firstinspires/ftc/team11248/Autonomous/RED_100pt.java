@@ -39,16 +39,16 @@ public class RED_100pt extends LinearOpMode {
     int TIME_TO_OTHER_COLOR = 500;
     int TIME_FORWARD_TO_BEACON = 550;
 
-    final int FLAT = 180;
+    int FLAT = 180;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
         //STAYS HERE UNTIL INIT BUTTON
         robot = new Robot11248(hardwareMap, telemetry);
+       // robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
         robot.init(); //Sets servos to right position.
         robot.activateColorSensors();
-        robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
         robot.silent = false;
 
         waitForStart(); //STAYS HERE UNTIL PLAY BUTTON
@@ -65,6 +65,9 @@ public class RED_100pt extends LinearOpMode {
 
             switch (state) {
                 case -1: //Forward and shoot
+                    FLAT = (180 + robot.getGyroAngle()) % 360;
+                    robot.moveBeaconIn();
+
                     shootBallsStart(); //MOVES FORWARD AND SHOOT BALLS
                     sleep(1000);
                     robot.driveold(-.6, .6, 0);

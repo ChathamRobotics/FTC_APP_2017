@@ -20,12 +20,12 @@ import org.firstinspires.ftc.team11248.Robot11248;
 /**
  * blue autonomous 100 POINTS
  */
-@Autonomous(name = "100ptBLUE")
-public class BLUE_100pt extends LinearOpMode {
+@Autonomous(name = "RedNEW")
+public class RedNEW extends LinearOpMode {
 
     Robot11248 robot;
 
-    final int SONAR_DIST = 13;
+    final int SONAR_DIST = 12;
     final int SONAR_TOL = 1;
 
     final int STOP_DELAY = 370;
@@ -35,19 +35,18 @@ public class BLUE_100pt extends LinearOpMode {
     double rotationRatio = .004 ;
     int state = -1;
 
-    int FLAT = 180;
-
     int TIME_TO_FIRST_COLOR = 250;
     int TIME_TO_OTHER_COLOR = 500;
     int TIME_FORWARD_TO_BEACON = 550;
 
+    int FLAT = 180;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
-
         //STAYS HERE UNTIL INIT BUTTON
         robot = new Robot11248(hardwareMap, telemetry);
-       // robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
+        // robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
         robot.init(); //Sets servos to right position.
         robot.activateColorSensors();
         robot.silent = false;
@@ -56,9 +55,9 @@ public class BLUE_100pt extends LinearOpMode {
 
         while (opModeIsActive() && !isStopRequested()) {
             //BEGIN AUTONOMOUS
-            telemetry.addData("isBlue", robot.isBeaconBlue());
-            telemetry.addData("isRed", robot.isBeaconRed());
-            telemetry.addData("Sonar", robot.getSonarValue());
+            telemetry.addData("isBlue: ", robot.isBeaconBlue());
+            telemetry.addData("isRed: ", robot.isBeaconRed());
+            telemetry.addData("Sonar: ", robot.getSonarValue());
             telemetry.addData("ODS: ", robot.getLineSensorValue());
             telemetry.addData("Heading: ", robot.getGyroAngle());
             telemetry.addData("State: ", state);
@@ -66,19 +65,35 @@ public class BLUE_100pt extends LinearOpMode {
 
             switch (state) {
                 case -1: //Forward and shoot
-                    FLAT = robot.getGyroAngle();
+                    FLAT = (180 + robot.getGyroAngle()) % 360;
                     robot.moveBeaconIn();
 
                     shootBallsStart(); //MOVES FORWARD AND SHOOT BALLS
                     sleep(1000);
-                    robot.driveold(.6, .6, 0);
+                    robot.driveold(-.6, .6, 0);
                     sleep(1600);
                     state++;
                     break;
 
-                case 0: //Drive diagonal to line
+                case 0:
+                    if(robot.moveToAngle(FLAT)) { //TODO: Why 173 degrees
+                        robot.stop();
+                        state++;
+                        sleep(200);
+                    }
+                    break;
+
+                case 1:
+                    if(robot.moveToAngle(FLAT)) {
+                        robot.stop();
+                        state++;
+                        sleep(200);
+                    }
+                    break;
+
+                case 2: //Drive diagonal to line
                     // DRIVE DIAGONAL
-                    robot.driveold(.3, .3, 0);
+                    robot.driveold(.25, -.25, 0); //fearthegear
                     if(robot.hitLine()) { //WHEN WHITE LINE FOUND
                         robot.stop(); //STOP MOVING
                         sleep(STOP_DELAY);
@@ -86,11 +101,15 @@ public class BLUE_100pt extends LinearOpMode {
                     }
                     break;
 
-                case 1: //adjust angle
-                    if(robot.moveToAngle(FLAT)) state++;
+                case 3: //adjust angle
+                    if(robot.moveToAngle(FLAT)){
+                        state++;
+                        sleep(100);
+                    }
                     break;
 
-                case 2: //adjust y (closeness to wall)
+                case 4: // Y ADJUSTMENT
+
                     if (robot.getSonarValue() <= SONAR_DIST + SONAR_TOL && robot.getSonarValue() >= SONAR_DIST - SONAR_TOL)//stop when in tolerance
                     {
                         robot.stop();
@@ -109,33 +128,32 @@ public class BLUE_100pt extends LinearOpMode {
                     }
                     break;
 
-                case 3: //adjust angle
+
+                case 5: //adjust angle
                     if(robot.moveToAngle(FLAT)) state++;
                     break;
 
-                case 4: //Adjust x (hit if blue on left)
+                case 6: //Adjust x (hit if blue on left)
                     //X ADJUSTMENT
-                    robot.driveold(0, -.35, 0);
-                    if (robot.isBeaconBlue()) {//WHEN BEACON IS BLUE
-                        robot.driveold(0, -.35, 0);
-                        sleep(300);
+                    if (robot.isBeaconRed()) {//WHEN BEACON IS BLUE
                         robot.stop();
                         sleep(BEACON_STOP);
                         pushBeacon();
+                        robot.stop();
                         sleep(BEACON_STOP);
                         state += 2;
                     }
-                    else if(robot.isBeaconRed()) {
+                    else if(robot.isBeaconBlue()) {
                         //robot.stop();
                         state++;
                     }
                     break;
 
-                case 5: //Adjust x (hit if red on right)
+                case 7: //Adjust x (hit if red on right)
                     robot.driveold(0, -.35, 0); //MOVE LEFT
-                    if(robot.isBeaconBlue()) {
+                    if(robot.isBeaconRed()) {
                         robot.driveold(0, -.35, 0);
-                        sleep(300);
+                        sleep(150);
                         robot.stop(); //STOP MOVING
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -143,20 +161,19 @@ public class BLUE_100pt extends LinearOpMode {
                     }
                     break;
 
-                case 6: //Backup and drive towards other line
+                case 8: //Backup and drive towards other line
                     robot.driveold(-.3, 0, 0);
                     sleep(1400);
                     robot.stop();
                     sleep(200);
-                    robot.driveold(0, .8, 0);
-                    sleep(1390);
+                    robot.driveold(0, -.8, .11);
+                    sleep(1300);
                     state++;
                     break;
 
-                case 7: //keep driving until line hit
-
+                case 9: //keep driving until line hit
                     //telemetry.addData("y", xAgainstWall(SONAR_DIST));
-                    robot.driveold( xAgainstWall(SONAR_DIST+3), .35, 0);
+                    robot.driveold(xAgainstWall(SONAR_DIST+3), -.35, 0);
                     if(robot.hitLine()) { //WHEN WHITE LINE FOUND
                         robot.stop(); //STOP MOVING
                         sleep(STOP_DELAY);
@@ -164,11 +181,11 @@ public class BLUE_100pt extends LinearOpMode {
                     }
                     break;
 
-                case 8: //adjust angle to 0
+                case 10: //adjust angle to 0
                     if(robot.moveToAngle(FLAT)) state++;
                     break;
 
-                case 9: //Adjust y (closeness to wall)
+                case 11:
                     //Y ADJUSTMENT
                     if (robot.getSonarValue() <= SONAR_DIST + SONAR_TOL && robot.getSonarValue() >= SONAR_DIST - SONAR_TOL)//stop when in tolerance
                     {
@@ -188,16 +205,13 @@ public class BLUE_100pt extends LinearOpMode {
                     }
                     break;
 
-                case 10: //adjust angle to 0
+                case 12: //adjust angle to 0
                     if(robot.moveToAngle(FLAT)) state++;
                     break;
 
-                case 11: //Adjust x
+                case 13: //Adjust x
                     //X ADJUSTMENT
-                    robot.driveold(0, -.35, 0);
-                    if (robot.isBeaconBlue()) { //WHEN BEACON IS BLUE
-                        robot.driveold(0, -.35, 0);
-                        sleep(300);
+                    if (robot.isBeaconRed()) { //WHEN BEACON IS BLUE
                         robot.stop();
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -205,15 +219,15 @@ public class BLUE_100pt extends LinearOpMode {
                         sleep(BEACON_STOP);
                         state += 2;
                     }
-                    else if(robot.isBeaconRed()) {
-                        //robot.stop();
+                    else if(robot.isBeaconBlue()) {
+                        // robot.stop();
                         state++;
                     }
                     break;
 
-                case 12: //adjust x
+                case 14: //adjust x
                     robot.driveold(0, -.35, 0); //MOVE LEFT .5
-                    if(robot.isBeaconBlue()) {
+                    if(robot.isBeaconRed()) {
                         robot.driveold(0, -.35, 0);
                         sleep(200);
                         robot.stop(); //STOP MOVING
@@ -223,8 +237,8 @@ public class BLUE_100pt extends LinearOpMode {
                     }
                     break;
 
-                case 13:
-                    robot.driveold(-1, -1, 0); //drive to cap ball
+                case 15:
+                    robot.driveold(-1, 1, 0); //drive to cap ball
                     sleep(2750);
                     state++;
                     break;
@@ -240,13 +254,14 @@ public class BLUE_100pt extends LinearOpMode {
     public void shootBallsStart(){
         robot.driveold(0,.8,0);
         sleep(500);
+
         //drive(0,0);
         robot.stop();
         sleep(500);
 
         robot.openCollector();
         robot.setShooter(.5f);
-        sleep(750);
+        sleep(1000);
 
         robot.setConveyor(.2f);
         sleep(1150);
@@ -264,24 +279,6 @@ public class BLUE_100pt extends LinearOpMode {
         robot.moveBeaconOut(); //PUSH BEACON
         sleep(1000);
         robot.moveBeaconIn();
-    }
-
-    public void retrieveBeacon(long x, double speed) {
-        //X ADJUSTMENT
-        robot.driveold(0, -speed, 0);
-        sleep(x);
-        robot.stop();
-        sleep(STOP_DELAY);
-
-        if (robot.isBeaconBlue())//WHEN BEACON IS BLUE
-            pushBeacon();
-        else if (robot.isBeaconRed()) { //BEACON IS NOT BLUE (AKA ITS RED)
-            robot.driveWithGyro(0, -speed, 0); //MOVE LEFT .5
-            //sleep(TIME_TO_OTHER_COLOR); //WAIT .5 SECONDS
-            robot.stop(); //STOP MOVING
-
-            pushBeacon();
-        }
     }
 
     public void driveAgainstWall(double speed, int angle, int distance){
@@ -302,7 +299,4 @@ public class BLUE_100pt extends LinearOpMode {
         return y;
 
     }
-
-
-
 }
