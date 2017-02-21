@@ -53,7 +53,7 @@ public class Robot9853 extends Robot {
     private GyroSensor gyro;
 
 //    STATEFUL      //
-    private long lastLiftToggle;
+    private double lastLiftToggle;
 
     public int startingHeading;
 
@@ -492,12 +492,15 @@ public class Robot9853 extends Robot {
      * toggle the lift servos position
      */
     public void toggleLift() {
-        if(System.currentTimeMillis() >= lastLiftToggle + 250) {
-            lastLiftToggle = System.currentTimeMillis();
-            if(liftToggle.getPosition() == TOGGLE_UP_POSITION) {
+        if(liftToggle.getPosition() != lastLiftToggle) {
+            if(lastLiftToggle == TOGGLE_UP_POSITION) {
+                // going up
                 liftToggle.setPosition(TOGGLE_DOWN_POSITION);
+                lastLiftToggle = TOGGLE_DOWN_POSITION;
             } else {
+                // going down
                 liftToggle.setPosition(TOGGLE_UP_POSITION);
+                lastLiftToggle = TOGGLE_UP_POSITION;
             }
         }
     }
