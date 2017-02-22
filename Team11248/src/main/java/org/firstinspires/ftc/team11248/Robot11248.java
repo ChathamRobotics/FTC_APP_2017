@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.Range;
 
@@ -28,7 +29,8 @@ public class Robot11248 extends OmniWheelDriver {
     public static final double RIGHT_ANGLE = Math.PI/2;
 
     //Driving constants
-    public static final double SHOOTER_SPEED = .8;
+    public static final double SHOOTER_SPEED = .625f;
+    public static final double AUTO_SHOOTER_SPEED = .475f;
 
     //Gyro Thresholds
     private static final int GYRO_THRESHOLD = 1;
@@ -63,8 +65,9 @@ public class Robot11248 extends OmniWheelDriver {
 
 
     //Motors, Sensors, Telemetry
-    public DcMotor shooterL, shooterR, lift, conveyor;
+    private DcMotor shooterL, shooterR, lift, conveyor;
     private Servo liftArm, beaconPusher, collectorServoL, collectorServoR;
+    private ServoController servoController;
     private MRColorSensorV3 colorBeacon;
     private OpticalDistanceSensor lineSensor;
     private GyroSensor gyro;
@@ -105,6 +108,7 @@ public class Robot11248 extends OmniWheelDriver {
         this.beaconPusher = hardwareMap.servo.get("servo2");
         this.collectorServoL = hardwareMap.servo.get("servo3");
         this.collectorServoR = hardwareMap.servo.get("servo4");
+        this.servoController = hardwareMap.servoController.get("Servo Controller 3");
 
         /*
          * SENSOR INITS
@@ -125,10 +129,15 @@ public class Robot11248 extends OmniWheelDriver {
      * Initializes the robot. (In this case it just sets servo positions to default)
      */
     public void init() {
+        servoController.pwmDisable();
+        moveBeaconIn();
         moveLiftArmDown();
         closeCollector();
         setDimLed(true,true);
+    }
 
+    public void activateServos(){
+        servoController.pwmEnable();
     }
 
     /*

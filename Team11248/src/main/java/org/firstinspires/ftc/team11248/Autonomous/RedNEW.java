@@ -3,6 +3,7 @@ package org.firstinspires.ftc.team11248.Autonomous;
 import android.os.PowerManager;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.team11248.Robot11248;
  * blue autonomous 100 POINTS
  */
 @Autonomous(name = "RedNEW")
+@Disabled
 public class RedNEW extends LinearOpMode {
 
     Robot11248 robot;
@@ -46,7 +48,7 @@ public class RedNEW extends LinearOpMode {
 
         //STAYS HERE UNTIL INIT BUTTON
         robot = new Robot11248(hardwareMap, telemetry);
-        // robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
+        robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
         robot.init(); //Sets servos to right position.
         robot.activateColorSensors();
         robot.silent = false;
@@ -66,7 +68,7 @@ public class RedNEW extends LinearOpMode {
             switch (state) {
                 case -1: //Forward and shoot
                     FLAT = (180 + robot.getGyroAngle()) % 360;
-                    robot.moveBeaconIn();
+                    robot.activateServos();
 
                     shootBallsStart(); //MOVES FORWARD AND SHOOT BALLS
                     sleep(1000);

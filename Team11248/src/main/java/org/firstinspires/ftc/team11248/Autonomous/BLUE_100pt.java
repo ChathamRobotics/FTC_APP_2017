@@ -47,7 +47,7 @@ public class BLUE_100pt extends LinearOpMode {
 
         //STAYS HERE UNTIL INIT BUTTON
         robot = new Robot11248(hardwareMap, telemetry);
-       // robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
+        robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
         robot.init(); //Sets servos to right position.
         robot.activateColorSensors();
         robot.silent = false;
@@ -61,13 +61,14 @@ public class BLUE_100pt extends LinearOpMode {
             telemetry.addData("Sonar", robot.getSonarValue());
             telemetry.addData("ODS: ", robot.getLineSensorValue());
             telemetry.addData("Heading: ", robot.getGyroAngle());
+            telemetry.addData("Flat: ", FLAT);
             telemetry.addData("State: ", state);
             telemetry.update();
 
             switch (state) {
                 case -1: //Forward and shoot
                     FLAT = robot.getGyroAngle();
-                    robot.moveBeaconIn();
+                    robot.activateServos();
 
                     shootBallsStart(); //MOVES FORWARD AND SHOOT BALLS
                     sleep(1000);
@@ -245,7 +246,7 @@ public class BLUE_100pt extends LinearOpMode {
         sleep(500);
 
         robot.openCollector();
-        robot.setShooter(.5f);
+        robot.setShooter(Robot11248.AUTO_SHOOTER_SPEED);
         sleep(750);
 
         robot.setConveyor(.2f);

@@ -46,7 +46,7 @@ public class RED_100pt extends LinearOpMode {
 
         //STAYS HERE UNTIL INIT BUTTON
         robot = new Robot11248(hardwareMap, telemetry);
-       // robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
+        robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
         robot.init(); //Sets servos to right position.
         robot.activateColorSensors();
         robot.silent = false;
@@ -66,7 +66,7 @@ public class RED_100pt extends LinearOpMode {
             switch (state) {
                 case -1: //Forward and shoot
                     FLAT = (180 + robot.getGyroAngle()) % 360;
-                    robot.moveBeaconIn();
+                    robot.activateServos();
 
                     shootBallsStart(); //MOVES FORWARD AND SHOOT BALLS
                     sleep(1000);
@@ -266,7 +266,7 @@ public class RED_100pt extends LinearOpMode {
         sleep(500);
 
         robot.openCollector();
-        robot.setShooter(.5f);
+        robot.setShooter(Robot11248.AUTO_SHOOTER_SPEED);
         sleep(1000);
 
         robot.setConveyor(.2f);

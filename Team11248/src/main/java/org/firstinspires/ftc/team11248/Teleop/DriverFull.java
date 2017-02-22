@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.team11248.Teleop;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.team11248.Robot11248;
  * Team 11248 TeleOp for real robot.
  */
 @TeleOp(name = "DrivingFull", group = "General")
-public class DriverFull extends DriverOmni {
+public class DriverFull extends OpMode {
 
 
     public Robot11248 robot;
@@ -42,7 +43,7 @@ public class DriverFull extends DriverOmni {
     @Override
     public void loop() {
 
-        telemetry.addData("1",  robot.shooterL.getMaxSpeed());
+
         // ##GAMEPAD 1 CONTROLS ##
 
         //Controls Wheels
@@ -72,6 +73,11 @@ public class DriverFull extends DriverOmni {
 
         if (gamepad1.y && !prevGP1.y)
             robot.toggleSlow();
+        telemetry.addData("",(robot.getIsSlow()?"SLOW":"FAST"));
+
+        if (gamepad1.x && !prevGP1.x)
+            robot.toggleDriftMode();
+        telemetry.addData("",(robot.isDriftModeOn()?"DRIFT":"BREAK"));
 
 
         //Sets arm motor to whatever right trigger is
@@ -100,7 +106,7 @@ public class DriverFull extends DriverOmni {
                 robot.shooterOff();
                // bangBang = false;
             }else
-              robot.setShooter(.625f); // bangBang = true;
+              robot.setShooter(Robot11248.SHOOTER_SPEED); // bangBang = true;
         }
 
         //if(bangBang) robot.bangBang(robot.SHOOTER_SPEED);
