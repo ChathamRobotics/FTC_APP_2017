@@ -46,6 +46,7 @@ public class TeleMode extends Tele9853 {
         // Lift toggler
         if(gamepad2.y && gamepad2.b){
             this.robot().toggleLift();
+
         }
 
         robot().debug();

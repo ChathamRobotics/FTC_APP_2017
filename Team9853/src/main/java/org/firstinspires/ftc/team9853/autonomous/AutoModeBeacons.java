@@ -41,11 +41,10 @@ public class AutoModeBeacons extends Auto9853 {
     public void runRobot() throws StoppedException, InterruptedException {
         robot().changeFront(Robot.Side.BACK);
 
-        robot().log("WORKING?");
+        robot().log("Right color", robot().rightBeaconSensor.getColorNumber());
 
         // Drive to beacon
-        robot().log("Drive Angle");
-        while (robot().driveAtAngleWhile(this.isRedTeam ? Math.PI/4 : 3 * Math.PI/4, .32,
+        while (robot().driveWithHeadingWhile(this.isRedTeam ? Math.PI/4 : 3 * Math.PI/4, Robot9853.SENSING_SPEED, robot().startingHeading,
                 ! robot().isLeftAtLine() && ! robot().isCenterAtLine())) statusCheck();
 
         // correct if at center
@@ -55,8 +54,8 @@ public class AutoModeBeacons extends Auto9853 {
         pressBeacon();
 
         // move to next beacon
-        while(robot().driveAtAngleFor(Robot.Side.LEFT.angle, .32, 500)) statusCheck();
-        while(robot().driveAtAngleWhile(Robot.Side.LEFT.angle, .32, ! robot().isLeftAtLine()))
+        while(robot().driveWithHeadingFor(Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, 500)) statusCheck();
+        while(robot().driveWithHeadingWhile(Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, ! robot().isLeftAtLine()))
             statusCheck();
 
         // press beacon
@@ -74,13 +73,13 @@ public class AutoModeBeacons extends Auto9853 {
         shiftRight();
 
         // drive until the beacon is in range
-        while(robot().driveForwardWhile(Robot9853.SENSING_SPEED, ! robot().isBeaconInRange()))
+        while(robot().driveWithHeadingWhile(Robot.Side.FRONT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, ! robot().isBeaconInRange()))
             statusCheck();
         robot().log("Beacon is in range");
 
         // check right side for correct color
-        if(isRedTeam && robot().isRightRed()) hitRight = true;
-        else if(! isRedTeam && robot().isRightBlue()) hitRight = true;
+        robot().log("Beacon RightSide color", getRightSideColor());
+        if((isRedTeam && getRightSideColor() >= 9) || (! isRedTeam && getRightSideColor() <= 4)) hitRight = true;
 
         // shift if needed
         if(! hitRight) {
@@ -92,18 +91,18 @@ public class AutoModeBeacons extends Auto9853 {
         hitButton();
 
         // hit again if didn't work
-        if((atRight && ((isRedTeam && robot().isLeftRed()) || (! isRedTeam && robot().isLeftBlue())))
-                || (! atRight && ((isRedTeam && robot().isRightRed()) || (! isRedTeam && robot().isRightBlue()))))
-            hitButton();
+//        if((atRight && ((isRedTeam && robot().isLeftRed()) || (! isRedTeam && robot().isLeftBlue())))
+//                || (! atRight && ((isRedTeam && robot().isRightRed()) || (! isRedTeam && robot().isRightBlue()))))
+//            hitButton();
     }
 
     public void hitButton() throws StoppedException{
         // hit
-        while(robot().driveForwardWhile(Robot9853.SENSING_SPEED, ! robot().isBeaconTouching()))
+        while(robot().driveWithHeadingWhile(Robot.Side.FRONT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, ! robot().isBeaconTouching()))
             statusCheck();
 
         // back up
-        while(robot().driveAtAngleWhile(Robot.Side.BACK.angle, Robot9853.SENSING_SPEED, robot().isBeaconTouching()))
+        while(robot().driveWithHeadingWhile(Robot.Side.BACK.angle, Robot9853.SENSING_SPEED, robot().startingHeading, robot().isBeaconTouching()))
             statusCheck();
     }
 
@@ -113,7 +112,7 @@ public class AutoModeBeacons extends Auto9853 {
      */
     private void shiftRight() throws StoppedException {
         // move right until left line sensor registers
-        while (robot().driveAtAngleWhile(Robot.Side.RIGHT.angle, Robot9853.SENSING_SPEED,
+        while (robot().driveWithHeadingWhile(Robot.Side.RIGHT.angle, Robot9853.SENSING_SPEED, robot().startingHeading,
                 ! robot().isLeftAtLine())) statusCheck();
     }
 
@@ -123,7 +122,21 @@ public class AutoModeBeacons extends Auto9853 {
      */
     private void shiftLeft() throws StoppedException {
         // move left until left center line sensor registers
-        while (robot().driveAtAngleWhile(Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED,
+        while (robot().driveWithHeadingWhile(Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED, robot().startingHeading,
                 ! robot().isCenterAtLine())) statusCheck();
+    }
+
+    private int getRightSideColor() {
+        if (robot().centerBeaconSensor.getColorNumber() == robot().rightBeaconSensor.getColorNumber()) return robot().centerBeaconSensor.getColorNumber();
+        else if(robot().centerBeaconSensor.getColorNumber() == 0) return robot().rightBeaconSensor.getColorNumber();
+        else if(robot().rightBeaconSensor.getColorNumber() == 0) return robot().centerBeaconSensor.getColorNumber();
+        else return robot().centerBeaconSensor.getColorNumber();
+    }
+
+    private int getLeftSideColor() {
+        if (robot().centerBeaconSensor.getColorNumber() == robot().leftBeaconSensor.getColorNumber()) return robot().centerBeaconSensor.getColorNumber();
+        else if(robot().centerBeaconSensor.getColorNumber() == 0) return robot().leftBeaconSensor.getColorNumber();
+        else if(robot().leftBeaconSensor.getColorNumber() == 0) return robot().centerBeaconSensor.getColorNumber();
+        else return robot().centerBeaconSensor.getColorNumber();
     }
 }

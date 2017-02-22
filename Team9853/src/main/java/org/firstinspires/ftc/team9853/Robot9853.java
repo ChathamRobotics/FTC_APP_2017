@@ -117,7 +117,7 @@ public class Robot9853 extends Robot {
         // beacon sensor system
         centerBeaconSensor = new MRColorSensorV3(hardwareMap.i2cDevice.get("CenterBeaconSensor"), (byte) 0x3c);
         leftBeaconSensor = new MRColorSensorV3(hardwareMap.i2cDevice.get("LeftBeaconSensor"), (byte) 0x34);
-        rightBeaconSensor = new MRColorSensorV3(hardwareMap.i2cDevice.get("RightBeaconSensor"), (byte) 0x35);
+        rightBeaconSensor = new MRColorSensorV3(hardwareMap.i2cDevice.get("RightBeaconSensor"), (byte) 0x60);
 
         this.telemetry.addLine("Hardware initialized");
         this.telemetry.addLine("Press play to start");
@@ -201,6 +201,8 @@ public class Robot9853 extends Robot {
      * @return              whether the heading has been achieved.
      */
     public boolean driveWithHeading(double angle, double speedModifier, int targetHeading) {
+        targetHeading %= 360;
+
         boolean atHeading = false;
         int currentHeading = gyro.getHeading();
         //finds distance to target angle
@@ -231,11 +233,11 @@ public class Robot9853 extends Robot {
         }
 
         // debug
-        log("Current Heading", currentHeading);
-        log("Target Heading", targetHeading);
-        log("Distance to target heading", headingDif);
-        log("Angular Speed Modifier", requiredRotation);
-        log("Turning to the" + (headingDif > 0 ? "Left" : "Right"));
+//        log("Current Heading", currentHeading);
+//        log("Target Heading", targetHeading);
+//        log("Distance to target heading", headingDif);
+//        log("Angular Speed Modifier", requiredRotation);
+//        log("Turning to the" + (headingDif > 0 ? "Left" : "Right"));
 
 
         return atHeading;
@@ -549,12 +551,6 @@ public class Robot9853 extends Robot {
     public boolean isBeaconRed() {
         return centerBeaconSensor.getColorNumber() == 10;
     }
-
-    public boolean isRightRed() {return centerBeaconSensor.getColorNumber() == 10 || rightBeaconSensor.getColorNumber() == 10;}
-    public boolean isRightBlue() {return centerBeaconSensor.getColorNumber() == 3 || rightBeaconSensor.getColorNumber() == 3;}
-
-    public boolean isLeftRed() {return centerBeaconSensor.getColorNumber() == 10 || rightBeaconSensor.getColorNumber() == 10;}
-    public boolean isLeftBlue() {return centerBeaconSensor.getColorNumber() == 3 || rightBeaconSensor.getColorNumber() == 3;}
 
     /**
      * determine whether or not the beacon is blue

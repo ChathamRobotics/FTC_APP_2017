@@ -83,7 +83,7 @@ public class AutoModeDoubleCheck extends Auto9853 {
      */
     private void pressBeacon() throws StoppedException{
         /// ensure that is lined up with the right side of the beacon
-//        shiftRight();
+        shiftRight();
 
         // hit button
         hitButton();
@@ -91,7 +91,7 @@ public class AutoModeDoubleCheck extends Auto9853 {
 
     public void hitButton() throws StoppedException{
         // hit
-        while(robot().driveWithHeadingWhile(Robot.Side.RIGHT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, ! robot().isBeaconTouching()))
+        while(robot().driveWithHeadingWhile(Robot.Side.FRONT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, ! robot().isBeaconTouching()))
             statusCheck();
     }
 
@@ -101,7 +101,7 @@ public class AutoModeDoubleCheck extends Auto9853 {
      */
     private void shiftRight() throws StoppedException {
         // move right until left line sensor registers
-        while (robot().driveAtAngleWhile(Robot.Side.RIGHT.angle, Robot9853.SENSING_SPEED,
+        while (robot().driveWithHeadingWhile(Robot.Side.RIGHT.angle, Robot9853.SENSING_SPEED, robot().startingHeading,
                 ! robot().isLeftAtLine())) statusCheck();
     }
 
@@ -111,7 +111,7 @@ public class AutoModeDoubleCheck extends Auto9853 {
      */
     private void shiftLeft() throws StoppedException {
         // move left until left center line sensor registers
-        while (robot().driveAtAngleWhile(Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED,
+        while (robot().driveWithHeadingWhile(Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED, robot().startingHeading,
                 ! robot().isCenterAtLine())) statusCheck();
     }
 
@@ -121,7 +121,7 @@ public class AutoModeDoubleCheck extends Auto9853 {
      */
     private void backUp() throws StoppedException {
         // back up
-        while(robot().driveAtAngleWhile(Robot.Side.BACK.angle, Robot9853.SENSING_SPEED, robot().isBeaconInRange()))
+        while(robot().driveWithHeadingFor(Robot.Side.BACK.angle, Robot9853.SENSING_SPEED, robot().startingHeading, 500))
             statusCheck();
     }
 }
