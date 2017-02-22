@@ -126,7 +126,6 @@ public class Robot11248 extends OmniWheelDriver {
      */
     public void init() {
         moveLiftArmDown();
-        moveBeaconIn();
         closeCollector();
         setDimLed(true,true);
 

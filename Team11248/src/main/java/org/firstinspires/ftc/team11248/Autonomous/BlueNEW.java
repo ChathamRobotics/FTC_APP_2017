@@ -21,7 +21,7 @@ import org.firstinspires.ftc.team11248.Robot11248;
  * blue autonomous 100 POINTS
  */
 @Autonomous(name = "100ptBLUE")
-public class BLUE_100pt extends LinearOpMode {
+public class BlueNEW extends LinearOpMode {
 
     Robot11248 robot;
 
@@ -47,7 +47,7 @@ public class BLUE_100pt extends LinearOpMode {
 
         //STAYS HERE UNTIL INIT BUTTON
         robot = new Robot11248(hardwareMap, telemetry);
-       // robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
+        // robot.calibrateGyro(); //SETS ANGLE TOO 0 (BEFORE ANY MOVEMENT)
         robot.init(); //Sets servos to right position.
         robot.activateColorSensors();
         robot.silent = false;
@@ -115,10 +115,8 @@ public class BLUE_100pt extends LinearOpMode {
 
                 case 4: //Adjust x (hit if blue on left)
                     //X ADJUSTMENT
-                    robot.driveold(0, -.35, 0);
-                    if (robot.isBeaconBlue()) {//WHEN BEACON IS BLUE
-                        robot.driveold(0, -.35, 0);
-                        sleep(300);
+
+                    if (robot.isBeaconBlue()) {//WHEN BEACON IS BLUE;
                         robot.stop();
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -194,10 +192,7 @@ public class BLUE_100pt extends LinearOpMode {
 
                 case 11: //Adjust x
                     //X ADJUSTMENT
-                    robot.driveold(0, -.35, 0);
                     if (robot.isBeaconBlue()) { //WHEN BEACON IS BLUE
-                        robot.driveold(0, -.35, 0);
-                        sleep(300);
                         robot.stop();
                         sleep(BEACON_STOP);
                         pushBeacon();
