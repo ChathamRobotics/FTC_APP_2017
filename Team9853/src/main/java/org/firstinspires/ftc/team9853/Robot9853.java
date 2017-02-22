@@ -27,12 +27,12 @@ public class Robot9853 extends Robot {
     public static final double OPTICAL_LOW = .6;
     public static final double OPTICAL_HIGH = 1;
 
-    public static final int GYRO_MIN_ANGLE = 5;
+    public static final int GYRO_MIN_ANGLE = 15;
 
     public static final long RELOAD_TIME = 2500;
     public static final long SHOOT_TIME = 500;
 
-    public static  final double SENSING_SPEED = .26;
+    public static  final double SENSING_SPEED = .32;
 
 //    COMPONENTS    //
 
@@ -127,7 +127,8 @@ public class Robot9853 extends Robot {
 
     /**
      * Changes the referenced front of the robot.
-     * @param newFront  the front that should be referenced. (ex: if the left side of the robot should be the front call (changeFront(
+     *
+     * @param newFront  the front that should be referenced.
      */
     public void changeFront(Side newFront) {
         this.driver.offsetAngle = newFront.offset;
@@ -136,6 +137,7 @@ public class Robot9853 extends Robot {
 
     /**
      * Drives the robot give then game pad readings
+     *
      * @param gamepad   the controller to get the readings from
      */
     public void teleopDrive(Gamepad gamepad) {
@@ -144,6 +146,7 @@ public class Robot9853 extends Robot {
 
     /**
      * Drives in the direction specified by the angle
+     *
      * @param angle         the direction to drive. Relative to the front (in rads)
      * @param speedModifier the speed modified by multiplying it by this number
      */
@@ -153,6 +156,7 @@ public class Robot9853 extends Robot {
 
     /**
      * Drives in the direction specified by the angle
+     *
      * @param angle the direction to drive. Relative to the front (in rads)
      */
     public void driveAtAngle(double angle) {
@@ -161,6 +165,7 @@ public class Robot9853 extends Robot {
 
     /**
      * Drives in the direction specified by the x and y given
+     *
      * @param x             the x part of the point
      * @param y             the y part of the point
      * @param speedModifier the speed modified by multiplying it by this number
@@ -170,7 +175,8 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * Drives in the direction specified by the x and y given
+     * Drives in the direction specified by the x and y
+     *
      * @param x the x part of the point
      * @param y the y part of the point
      */
@@ -180,6 +186,7 @@ public class Robot9853 extends Robot {
 
     /**
      * Drives forward.
+     *
      * @param speedModifier the speed modified by multiplying it by this number
      */
     public void driveForward(double speedModifier) {
@@ -195,6 +202,7 @@ public class Robot9853 extends Robot {
 
     /**
      * Drives in the direction specified by the angle and maintains heading
+     *
      * @param angle         the direction to drive in
      * @param speedModifier the speed modified by multiplying it by this number
      * @param targetHeading the heading to try to maintain
@@ -224,7 +232,7 @@ public class Robot9853 extends Robot {
         //if going clockwise, set requiredRotation clockwise (-)
         if (headingDif < 0) requiredRotation *= -1;
 
-        if (Math.abs(headingDif) > GYRO_MIN_ANGLE)
+        if (Math.abs(headingDif) > (speedModifier == 0 ? 2 : GYRO_MIN_ANGLE * speedModifier))
             //Drive with gyros requiredRotation
             driver.move(angle, requiredRotation, speedModifier);
         else {
@@ -244,7 +252,10 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * Drives in the direction specified by the angle and maintains heading
+     * Drives in the direction specified by the angle and maintains heading.
+     * Assumes speed modifier is 1
+     * @see Robot9853#driveWithHeading(double, double, int)
+     *
      * @param angle         the direction to drive
      * @param targetHeading the heading to try to maintain
      * @return              whether the heading has been achieved.
@@ -255,6 +266,8 @@ public class Robot9853 extends Robot {
 
     /**
      * Drives a angle for the given period of time
+     * @see Robot9853#driveAtAngle(double, double)
+     *
      * @param angle         the direction to drive
      * @param speedModifier the speed modified by multiplying it by this number
      * @param duration      the amount of time to drive for
@@ -273,7 +286,9 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * Drives a angle for the given period of time
+     * Drives a angle for the given period of time. Assumes speed modifier is 1
+     * @see Robot9853#driveAtAngleFor(double, double, long)
+     *
      * @param angle     the direction to drive
      * @param duration  the amount of time to drive for
      * @return          whether duration has expired
@@ -284,6 +299,8 @@ public class Robot9853 extends Robot {
 
     /**
      * calls driveAtPoint for the given period of time
+     * @see Robot9853#driveAtPoint(double, double, double)
+     *
      * @param x             the x part of the direction
      * @param y             the y part of the direction
      * @param speedModifier the speed modified by multiplying it by this number
@@ -303,7 +320,9 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * calls driveAtPoint for the given period of time
+     * calls driveAtPoint for the given period of time. Assumes speed modifier is 1
+     * @see Robot9853#driveAtPointFor(double, double, double, long)
+     *
      * @param x         the x part of the direction
      * @param y         the y part of the direction
      * @param duration  the amount of time to drive for
@@ -312,7 +331,9 @@ public class Robot9853 extends Robot {
     public boolean driveAtPointFor(double x, double y, long duration) {return driveAtPointFor(x, y, 1, duration);}
 
     /**
-     * Drives forward for the specified time
+     * Drives forward for the specified time.
+     * @see Robot9853#driveForward(double)
+     *
      * @param speedModifier the speed modified by multiplying it by this number
      * @param duration      the amount of time to drive for
      * @return              whether duration has expired
@@ -330,14 +351,20 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * Drives forward for the specified time
+     * Drives forward for the specified time. Assumes speed modifier is 1
+     * @see Robot9853#driveForwardFor(double, long)
+     * @see Robot9853#driveForward(double)
+     *
      * @param duration  the amount of time to drive for
      * @return          whether duration has expired
      */
     public boolean driveForwardFor(long duration) {return driveForwardFor(1, duration);}
 
     /**
-     * Drive in the direction specified by the angle while attempting to reach the target heading for the given duration
+     * Drive in the direction specified by the angle while attempting to reach the target heading
+     * for the given duration
+     * @see Robot9853#driveWithHeading(double, double, int)
+     *
      * @param angle         the direction to travel in
      * @param speedModifier the speed modified by multiplying it by this number
      * @param targetHeading the heading to maintain
@@ -357,7 +384,11 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * Drive in the direction specified by the angle while attempting to reach the target heading for the given duration
+     * Drive in the direction specified by the angle while attempting to reach the target heading
+     * for the given duration. Assumes speed modifier is 1
+     * @see Robot9853#driveWithHeading(double, double, int)
+     * @see Robot9853#driveWithHeadingFor(double, double, int, long)
+     *
      * @param angle         the direction to travel in
      * @param targetHeading the heading to maintain
      * @param duration      whether duration has expired
@@ -369,7 +400,9 @@ public class Robot9853 extends Robot {
 
 
     /**
-     * drives at angle while condition is true
+     * drives at angle while condition is true.
+     * @see Robot9853#driveAtAngle(double, double)
+     *
      * @param angle         the direction to drive in
      * @param speedModifier the speed modified by multiplying it by this number
      * @param con           the condition
@@ -384,7 +417,10 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * drives at angle while condition is true
+     * drives at angle while condition is true. Assumes speed modifier is 1
+     * @see Robot9853#driveAtAngle(double, double)
+     * @see Robot9853#driveAtAngleWhile(double, double, boolean)
+     *
      * @param angle the direction to drive in
      * @param con   the condition
      * @return      whether the condition was true
@@ -395,6 +431,8 @@ public class Robot9853 extends Robot {
 
     /**
      * drive in the direction specified by point while the condition is true
+     * @see Robot9853#driveAtPoint(double, double, double)
+     *
      * @param x             the x part of the direction
      * @param y             the y part of the direction
      * @param speedModifier the speed modified by multiplying it by this number
@@ -410,7 +448,11 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * drive in the direction specified by point while the condition is true
+     * drive in the direction specified by point while the condition is true.
+     * Assumes speed modifier is 1
+     * @see Robot9853#driveAtPoint(double, double, double)
+     * @see Robot9853#driveAtPointWhile(double, double, double, boolean)
+     *
      * @param x     the x part of the direction
      * @param y     the y part of the direction
      * @param con   the condition
@@ -422,6 +464,8 @@ public class Robot9853 extends Robot {
 
     /**
      * drives forward while the condition is true
+     * @see Robot9853#driveForward(double)
+     *
      * @param speedModifier the speed modified by multiplying it by this number
      * @param con           the condition
      * @return              whether the condition was true
@@ -435,7 +479,10 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * drives forward while the condition is true
+     * drives forward while the condition is true. assumes speed modifier is 1.
+     * @see Robot9853#driveForward(double)
+     * @see Robot9853#driveForwardWhile(double, boolean)
+     *
      * @param con   the condition
      * @return      whether the condition was true
      */
@@ -444,8 +491,11 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * Drive in the direction specified by the angle while attempting to reach the target heading while  the condition is true
-     * @param angle         the direction to travl in
+     * Drive in the direction specified by the angle while attempting to reach the target heading
+     * while the condition is true.
+     * @see Robot9853#driveWithHeading(double, double, int)
+     *
+     * @param angle         the direction to travel in
      * @param speedModifier the speed modified by multiplying it by this number
      * @param targetHeading the heading to maintain
      * @param con           the condition
@@ -457,6 +507,18 @@ public class Robot9853 extends Robot {
         if(! con) stopDriving();
         return con;
     }
+
+    /**
+     * Drive in the direction specified by the angle while attempting to reach the target heading
+     * while  the condition is true. Assumes speed modifier is 1
+     * @see Robot9853#driveWithHeading(double, double, int)
+     * @see Robot9853#driveWithHeadingWhile(double, double, int, boolean)
+     *
+     * @param angle         the direction to travel in
+     * @param targetHeading the heading to maintain
+     * @param con           the condition
+     * @return              whether the condition is true
+     */
     public boolean driveWithHeadingWhile(double angle, int targetHeading, boolean con) {
         return driveWithHeadingWhile(angle, 1, targetHeading, con);
     }
@@ -471,6 +533,7 @@ public class Robot9853 extends Robot {
 
     /**
      * Sets the collection systems power.
+     *
      * @param power the power value to set the motors to
      */
     public void setCollectorPower(double power) {
@@ -478,12 +541,19 @@ public class Robot9853 extends Robot {
         this.belt.setPower(-power);
     }
 
+    /**
+     * Sets just the belts power
+     * @see Robot9853#setCollectorPower(double)
+     *
+     * @param power the power value to set the motors to
+     */
     public void setBeltPower(double power) {
         this.belt.setPower(power);
     }
 
     /**
      * sets the lifts power
+     *
      * @param power the power value to set the motor to
      */
     public void setLiftPower(double power) {
@@ -505,6 +575,57 @@ public class Robot9853 extends Robot {
                 lastLiftToggle = TOGGLE_UP_POSITION;
             }
         }
+    }
+
+    /**
+     * runs the shooter
+     *
+     * @param power the power to set the shooter to
+     */
+    public void setShooterPower(double power){
+        this.shooter.setPower(power);
+    }
+    public void setShooterPower() {
+        setShooterPower(.7);
+    }
+
+    /**
+     * shoots until the time is up
+     * @param power     the power to set the shooter to
+     * @param duration  how long to shoot for
+     * @return          whether time is up
+     */
+    public boolean shootFor(double power, long duration) {
+        boolean result = doUntil(duration);
+
+        setShooterPower(power);
+
+        if(isTimerUp()) {
+            setShooterPower(0);
+        }
+
+        return result;
+    }
+    public boolean shootFor(long duration) {
+        return shootFor(.7, duration);
+    }
+
+    /**
+     * runs the collector until time is up
+     *
+     * @param duration   the time to end
+     * @return          whether time is up
+     */
+    public boolean reloadFor(long duration) {
+        boolean result = doUntil(duration);
+
+        setCollectorPower(-1);
+
+        if(isTimerUp()) {
+            setCollectorPower(0);
+        }
+
+        return result;
     }
 
     /**
@@ -536,12 +657,32 @@ public class Robot9853 extends Robot {
         return lightVal >= OPTICAL_LOW && lightVal <= OPTICAL_HIGH;
     }
 
+
+
+    /**
+     * determine whether or not the beacon is being pressed
+     * @return whether the touch sensor is being pressed
+     */
+    public boolean isBeaconTouching() {
+        // test all touch sensors
+        for (Map.Entry<String, TouchSensor> entry: this.hardwareMap.touchSensor.entrySet()) {
+            if(entry.getValue().isPressed()) return true;
+        }
+        return false;
+    }
+
     /**
      * whether the beacon is in range
      * @return whether beacon is readable
      */
     public boolean isBeaconInRange() {
-        return centerBeaconSensor.getColorNumber() != 0;
+        if(centerBeaconSensor.getColorNumber() == 3 || centerBeaconSensor.getColorNumber() == 10)
+            return true;
+
+        if(rightBeaconSensor.getColorNumber() == 3 || rightBeaconSensor.getColorNumber() == 10)
+            return true;
+
+        return false;
     }
 
     /**
@@ -561,61 +702,28 @@ public class Robot9853 extends Robot {
     }
 
     /**
-     * determine whether or not the beacon is being pressed
-     * @return whether the touch sensor is being pressed
+     * Get the right color of a beacon
+     *
+     * @return the color number
      */
-    public boolean isBeaconTouching() {
-        // test all touch sensors
-        for (Map.Entry<String, TouchSensor> entry: this.hardwareMap.touchSensor.entrySet()) {
-            if(entry.getValue().isPressed()) return true;
-        }
-        return false;
+    public int getRightBeaconColor() {
+        return rightBeaconSensor.getColorNumber();
     }
 
     /**
-     * runs the shooter
-     * @param power the power to set the shooter to
+     * Get the left color of a beacons
+     *
+     * @return the color number
      */
-    public void shoot(double power){
-        this.shooter.setPower(power);
-    }
-    public void shoot() {
-        shoot(.7);
+    public int getLeftBeaconColor() {
+        return centerBeaconSensor.getColorNumber();
     }
 
-    /**
-     * shoots until the time is up
-     * @param power     the power to set the shooter to
-     * @param endTime   the time to end
-     * @return          whether time is up
-     */
-    public boolean shootFor(double power, long endTime) {
-        shoot(power);
-
-        if(System.currentTimeMillis() >= endTime) {
-            shoot(0);
-            return false;
-        }
-
-        return true;
-    }
-    public boolean shootFor(long endTime) {
-        return shootFor(.7, endTime);
+    public boolean isBlue(int colorNumber) {
+        return colorNumber <= 4;
     }
 
-    /**
-     * runs the collector until time is up
-     * @param endTime   the time to end
-     * @return          whether time is up
-     */
-    public boolean reloadFor(long endTime) {
-        setCollectorPower(-1);
-
-        if(System.currentTimeMillis() >= endTime) {
-            setCollectorPower(0);
-            return false;
-        }
-
-        return true;
+    public boolean isRed(int colorNumber) {
+        return colorNumber >= 9;
     }
 }

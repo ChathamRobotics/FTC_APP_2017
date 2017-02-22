@@ -43,7 +43,7 @@ public class AutoModeCharge extends Auto9853 {
         // Reload
         while(robot().reloadFor(Robot9853.RELOAD_TIME)) statusCheck();
 
-        // shoot
+        // setShooterPower
         while(robot().shootFor(Robot9853.SHOOT_TIME)) statusCheck();
 
         // Drives to center

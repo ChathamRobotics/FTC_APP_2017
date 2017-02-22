@@ -41,7 +41,7 @@ public class TeleMode extends Tele9853 {
         if(gamepad2.y) robot().setBeltPower(.75);
 
         // Shooting. the trigger value will always be positive
-        this.robot().shoot(gamepad2.right_trigger);
+        this.robot().setShooterPower(gamepad2.right_trigger);
 
         // Lift toggler
         if(gamepad2.y && gamepad2.b){

@@ -15,6 +15,9 @@ public class AutoModeBeacons extends Auto9853 {
 
 //    HARDWARE      //
 
+//    STATEFUL      //
+    private long timerEndTime;
+
 //    CONSTRUCTORS  //
 
     /**
@@ -53,6 +56,10 @@ public class AutoModeBeacons extends Auto9853 {
         // press beacon
         pressBeacon();
 
+        while(robot().shootFor(Robot9853.SHOOT_TIME)) statusCheck();
+        while(robot().reloadFor(Robot9853.RELOAD_TIME)) statusCheck();
+        while(robot().shootFor(Robot9853.SHOOT_TIME));
+
         // move to next beacon
         while(robot().driveWithHeadingFor(Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, 500)) statusCheck();
         while(robot().driveWithHeadingWhile(Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, ! robot().isLeftAtLine()))
@@ -60,6 +67,9 @@ public class AutoModeBeacons extends Auto9853 {
 
         // press beacon
         pressBeacon();
+
+        while(robot().driveWithHeadingFor(315 * Math.PI / 180, .75, robot().startingHeading, 3000))
+            statusCheck();
     }
 
     /**
@@ -67,8 +77,6 @@ public class AutoModeBeacons extends Auto9853 {
      * @throws StoppedException
      */
     private void pressBeacon() throws StoppedException{
-        boolean atRight = true, hitRight = false;
-
         /// ensure that is lined up with the right side of the beacon
         shiftRight();
 
@@ -79,13 +87,8 @@ public class AutoModeBeacons extends Auto9853 {
 
         // check right side for correct color
         robot().logger.info("Beacon RightSide color", getRightSideColor());
-        if((isRedTeam && getRightSideColor() >= 9) || (! isRedTeam && getRightSideColor() <= 4)) hitRight = true;
-
-        // shift if needed
-        if(! hitRight) {
-            shiftLeft();
-            atRight = false;
-        }
+        if((isRedTeam && robot().isBlue(robot().getRightBeaconColor()))
+                || (! isRedTeam && robot().isRed(robot().getRightBeaconColor()))) shiftLeft();
 
         // hit button
         hitButton();
@@ -97,12 +100,17 @@ public class AutoModeBeacons extends Auto9853 {
     }
 
     public void hitButton() throws StoppedException{
+        while(! robot().driveWithHeading(0, 0, robot().startingHeading)) statusCheck();
+        robot().stopDriving();
+
         // hit
-        while(robot().driveWithHeadingWhile(Robot.Side.FRONT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, ! robot().isBeaconTouching()))
-            statusCheck();
+        timerEndTime = System.currentTimeMillis() + 2000;
+        while(robot().driveWithHeadingWhile(Robot.Side.FRONT.angle, Robot9853.SENSING_SPEED,
+                robot().startingHeading, ! robot().isBeaconTouching()
+                        && System.currentTimeMillis() <= timerEndTime)) statusCheck();
 
         // back up
-        while(robot().driveWithHeadingWhile(Robot.Side.BACK.angle, Robot9853.SENSING_SPEED, robot().startingHeading, robot().isBeaconTouching()))
+        while(robot().driveWithHeadingFor(Robot.Side.BACK.angle, Robot9853.SENSING_SPEED, robot().startingHeading, 500))
             statusCheck();
     }
 
