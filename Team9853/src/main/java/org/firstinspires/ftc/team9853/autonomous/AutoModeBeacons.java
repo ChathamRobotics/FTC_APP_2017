@@ -41,7 +41,7 @@ public class AutoModeBeacons extends Auto9853 {
     public void runRobot() throws StoppedException, InterruptedException {
         robot().changeFront(Robot.Side.BACK);
 
-        robot().log("Right color", robot().rightBeaconSensor.getColorNumber());
+        robot().logger.info("Right color", robot().rightBeaconSensor.getColorNumber());
 
         // Drive to beacon
         while (robot().driveWithHeadingWhile(this.isRedTeam ? Math.PI/4 : 3 * Math.PI/4, Robot9853.SENSING_SPEED, robot().startingHeading,
@@ -75,10 +75,10 @@ public class AutoModeBeacons extends Auto9853 {
         // drive until the beacon is in range
         while(robot().driveWithHeadingWhile(Robot.Side.FRONT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, ! robot().isBeaconInRange()))
             statusCheck();
-        robot().log("Beacon is in range");
+        robot().logger.info("Beacon is in range");
 
         // check right side for correct color
-        robot().log("Beacon RightSide color", getRightSideColor());
+        robot().logger.info("Beacon RightSide color", getRightSideColor());
         if((isRedTeam && getRightSideColor() >= 9) || (! isRedTeam && getRightSideColor() <= 4)) hitRight = true;
 
         // shift if needed

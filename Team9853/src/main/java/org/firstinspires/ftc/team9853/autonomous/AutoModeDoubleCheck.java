@@ -2,7 +2,6 @@ package org.firstinspires.ftc.team9853.autonomous;
 
 import org.chathamrobotics.ftcutils.Robot;
 import org.chathamrobotics.ftcutils.StoppedException;
-import org.firstinspires.ftc.team9853.R;
 import org.firstinspires.ftc.team9853.Robot9853;
 import org.firstinspires.ftc.team9853.opmodes.Auto9853;
 
@@ -41,7 +40,6 @@ public class AutoModeDoubleCheck extends Auto9853 {
         robot().changeFront(Robot.Side.BACK);
 
         // Drive to beacon
-        robot().log("Drive Angle", this.isRedTeam ? Math.PI/4 : 3 * Math.PI/4);
         while (robot().driveWithHeadingWhile(this.isRedTeam ? Math.PI/4 : 3 * Math.PI/4, Robot9853.SENSING_SPEED, robot().startingHeading,
                 ! robot().isLeftAtLine())) statusCheck();
 

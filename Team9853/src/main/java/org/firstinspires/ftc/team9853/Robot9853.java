@@ -82,7 +82,7 @@ public class Robot9853 extends Robot {
         this.leftBeaconSensor.setPassiveMode();
         this.rightBeaconSensor.setPassiveMode();
 
-        this.log("Starting robot...");
+        this.logger.info("Starting robot...");
     }
 
     /**
@@ -131,7 +131,7 @@ public class Robot9853 extends Robot {
      */
     public void changeFront(Side newFront) {
         this.driver.offsetAngle = newFront.offset;
-        this.log("NewFront", newFront.name);
+        this.logger.info("NewFront", newFront.name);
     }
 
     /**
@@ -233,11 +233,11 @@ public class Robot9853 extends Robot {
         }
 
         // debug
-//        log("Current Heading", currentHeading);
-//        log("Target Heading", targetHeading);
-//        log("Distance to target heading", headingDif);
-//        log("Angular Speed Modifier", requiredRotation);
-//        log("Turning to the" + (headingDif > 0 ? "Left" : "Right"));
+        this.logger.debug("Current Heading", currentHeading, true);
+        this.logger.debug("Target Heading", targetHeading, true);
+        this.logger.debug("Distance to target heading", headingDif, true);
+        this.logger.debug("Angular Speed Modifier", requiredRotation, true);
+        this.logger.debug("Turning to the" + (headingDif > 0 ? "Left" : "Right"), true);
 
 
         return atHeading;
