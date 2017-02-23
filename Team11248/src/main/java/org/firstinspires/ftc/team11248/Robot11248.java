@@ -30,7 +30,7 @@ public class Robot11248 extends OmniWheelDriver {
 
     //Driving constants
     public static final double SHOOTER_SPEED = .625f;
-    public static final double AUTO_SHOOTER_SPEED = .475f;
+    public static final double AUTO_SHOOTER_SPEED = .5f;
 
     //Gyro Thresholds
     private static final int GYRO_THRESHOLD = 1;

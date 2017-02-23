@@ -38,6 +38,7 @@ public class DriverFull extends OpMode {
         }
 
         robot.deactivateColorSensors();
+        robot.setOffsetAngle(2 * Robot11248.RIGHT_ANGLE);
     }
 
     @Override
