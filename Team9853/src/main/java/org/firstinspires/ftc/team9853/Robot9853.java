@@ -136,6 +136,14 @@ public class Robot9853 extends Robot {
     }
 
     /**
+     * toggles the drive motors mode from drifting to braking
+     */
+
+    public void toggleDriftMode(){
+        this.driver.toggleDriftMode();
+    }
+
+    /**
      * Drives the robot give then game pad readings
      *
      * @param gamepad   the controller to get the readings from

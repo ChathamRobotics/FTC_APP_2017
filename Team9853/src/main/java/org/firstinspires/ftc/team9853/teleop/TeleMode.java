@@ -28,6 +28,10 @@ public class TeleMode extends Tele9853 {
         if(gamepad1.dpad_down){robot().changeFront(Robot.Side.BACK);}
         if(gamepad1.dpad_right){robot().changeFront(Robot.Side.RIGHT);}
 
+        // Set driving mode
+        if(gamepad1.x) robot().toggleDriftMode();
+
+
         // Use drives with controller values
         robot().teleopDrive(gamepad1);
 
