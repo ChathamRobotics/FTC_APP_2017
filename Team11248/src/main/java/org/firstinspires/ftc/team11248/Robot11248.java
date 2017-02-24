@@ -129,7 +129,6 @@ public class Robot11248 extends OmniWheelDriver {
      * Initializes the robot. (In this case it just sets servo positions to default)
      */
     public void init() {
-        servoController.pwmDisable();
         moveBeaconIn();
         moveLiftArmDown();
         closeCollector();
@@ -139,6 +138,10 @@ public class Robot11248 extends OmniWheelDriver {
     public void activateServos(){
         servoController.pwmEnable();
     }
+    public void deactivateServos(){
+        servoController.pwmDisable();
+    }
+
 
     /*
      * TELEMETRY METHODS

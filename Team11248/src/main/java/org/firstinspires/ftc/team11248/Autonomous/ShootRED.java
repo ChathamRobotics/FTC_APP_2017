@@ -23,7 +23,9 @@ public class ShootRED extends LinearOpMode{
         robot = new Robot11248(hardwareMap, telemetry);
         robot.init(); //Sets servos to right position.
 
-        waitForStart();
+        robot.deactivateServos();
+        waitForStart(); //STAYS HERE UNTIL PLAY BUTTON
+        robot.activateServos();
 
         while (opModeIsActive()) {
 

@@ -51,7 +51,9 @@ public class RED_100pt extends LinearOpMode {
         robot.activateColorSensors();
         robot.silent = false;
 
+        robot.deactivateServos();
         waitForStart(); //STAYS HERE UNTIL PLAY BUTTON
+        robot.activateServos();
 
         while (opModeIsActive() && !isStopRequested()) {
             //BEGIN AUTONOMOUS

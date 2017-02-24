@@ -21,8 +21,8 @@ import java.util.Map;
 
 public class Robot9853 extends Robot {
 //    CONSTANTS     //
-    public static final double TOGGLE_UP_POSITION = 1;
-    public static final double TOGGLE_DOWN_POSITION = 0;
+    public static final double TOGGLE_UP_POSITION = 0;
+    public static final double TOGGLE_DOWN_POSITION = 1;
 
     public static final double OPTICAL_LOW = .6;
     public static final double OPTICAL_HIGH = 1;
@@ -54,7 +54,7 @@ public class Robot9853 extends Robot {
 
 //    STATEFUL      //
     private double lastLiftToggle;
-
+    private boolean isShooterRunning;
     public int startingHeading;
 
 //    CONSTRUCTORS  //
@@ -104,7 +104,10 @@ public class Robot9853 extends Robot {
 
         // shooter system
         shooter = hardwareMap.dcMotor.get("Shooter");
-        shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        isShooterRunning = false;
+        //shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         // line sensor system
         leftLineSensor = hardwareMap.opticalDistanceSensor.get("LeftLineSensor");
@@ -572,18 +575,18 @@ public class Robot9853 extends Robot {
      * toggle the lift servos position
      */
     public void toggleLift() {
-        if(liftToggle.getPosition() != lastLiftToggle) {
-            if(lastLiftToggle == TOGGLE_UP_POSITION) {
-                // going up
-                liftToggle.setPosition(TOGGLE_DOWN_POSITION);
-                lastLiftToggle = TOGGLE_DOWN_POSITION;
-            } else {
-                // going down
-                liftToggle.setPosition(TOGGLE_UP_POSITION);
-                lastLiftToggle = TOGGLE_UP_POSITION;
-            }
+       // if(liftToggle.getPosition() != lastLiftToggle) {
+        if(lastLiftToggle == TOGGLE_UP_POSITION) {
+            // going up
+            liftToggle.setPosition(TOGGLE_DOWN_POSITION);
+            lastLiftToggle = TOGGLE_DOWN_POSITION;
+        } else {
+            // going down
+            liftToggle.setPosition(TOGGLE_UP_POSITION);
+            lastLiftToggle = TOGGLE_UP_POSITION;
         }
     }
+   // }
 
     /**
      * runs the shooter
@@ -591,10 +594,30 @@ public class Robot9853 extends Robot {
      * @param power the power to set the shooter to
      */
     public void setShooterPower(double power){
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         this.shooter.setPower(power);
+        isShooterRunning = true;
     }
     public void setShooterPower() {
-        setShooterPower(.7);
+        setShooterPower(1);
+    }
+
+    public int getShooterPosition(){
+      return shooter.getCurrentPosition();
+    }
+
+    public void setShooterPosition(int pos){
+        shooter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        shooter.setTargetPosition(pos);
+        isShooterRunning = false;
+    }
+
+    public void goToShooterPos0(){
+        setShooterPosition(shooter.getCurrentPosition() + (1440-(shooter.getCurrentPosition()%1440)));
+    }
+
+    public boolean isShooterRunning(){
+        return isShooterRunning;
     }
 
     /**
@@ -609,13 +632,13 @@ public class Robot9853 extends Robot {
         setShooterPower(power);
 
         if(isTimerUp()) {
-            setShooterPower(0);
+            goToShooterPos0();
         }
 
         return result;
     }
     public boolean shootFor(long duration) {
-        return shootFor(.7, duration);
+        return shootFor(1, duration);
     }
 
     /**
@@ -627,7 +650,7 @@ public class Robot9853 extends Robot {
     public boolean reloadFor(long duration) {
         boolean result = doUntil(duration);
 
-        setCollectorPower(-1);
+        setCollectorPower(1);
 
         if(isTimerUp()) {
             setCollectorPower(0);
