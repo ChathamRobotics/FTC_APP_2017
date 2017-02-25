@@ -61,14 +61,17 @@ public class AutoModeBeacons extends Auto9853 {
         while(robot().shootFor(Robot9853.SHOOT_TIME)) statusCheck();
 
         // move to next beacon
-        while(robot().driveWithHeadingFor(Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, 500)) statusCheck();
-        while(robot().driveWithHeadingWhile(Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, ! robot().isLeftAtLine()))
+        if(isRedTeam) shiftRight(); else shiftLeft();
+        while (robot().driveWithHeadingFor(isRedTeam?Robot.Side.RIGHT.angle:Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, 500))
+            statusCheck();
+
+        while(robot().driveWithHeadingWhile(isRedTeam?Robot.Side.RIGHT.angle:Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, ! robot().isLeftAtLine()))
             statusCheck();
 
         // press beacon
         pressBeacon();
 
-        while(robot().driveWithHeadingFor(315 * Math.PI / 180, .75, robot().startingHeading, 3000))
+        while(robot().driveWithHeadingFor(225 * Math.PI / 180, .75, robot().startingHeading, 3000))
             statusCheck();
     }
 

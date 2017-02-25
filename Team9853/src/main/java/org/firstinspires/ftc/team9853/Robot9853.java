@@ -24,15 +24,15 @@ public class Robot9853 extends Robot {
     public static final double TOGGLE_UP_POSITION = 0;
     public static final double TOGGLE_DOWN_POSITION = 1;
 
-    public static final double OPTICAL_LOW = .6;
+    public static final double OPTICAL_LOW = .4;
     public static final double OPTICAL_HIGH = 1;
 
-    public static final int GYRO_MIN_ANGLE = 3;
+    public static final int GYRO_MIN_ANGLE = 5;
 
     public static final long RELOAD_TIME = 2500;
     public static final long SHOOT_TIME = 500;
 
-    public static  final double SENSING_SPEED = .28;
+    public static  final double SENSING_SPEED = .32;
 
 //    COMPONENTS    //
 
@@ -238,14 +238,14 @@ public class Robot9853 extends Robot {
 
         // slows down as approaches angle with min threshold of .05
         // each degree adds/subtracts .95/180 values of speed
-        requiredRotation = Math.abs(headingDif) * .75 / 180 + .15;
+        requiredRotation = Math.abs(headingDif) * .5 / 180 + .15;
 
         //if going clockwise, set requiredRotation clockwise (-)
         if (headingDif < 0) requiredRotation *= -1;
 
-        if (Math.abs(headingDif) > GYRO_MIN_ANGLE)
+        if (Math.abs(headingDif) > GYRO_MIN_ANGLE && Math.abs(requiredRotation) > .15)
             //Drive with gyros requiredRotation
-            driver.move(angle, requiredRotation, 0);
+            driver.move(angle, requiredRotation, speedModifier);
         else {
             atHeading = true;
             driver.move(angle, 0, speedModifier);
