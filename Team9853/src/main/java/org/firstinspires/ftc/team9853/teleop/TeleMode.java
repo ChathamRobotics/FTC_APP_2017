@@ -63,7 +63,7 @@ public class TeleMode extends Tele9853 {
         if(Math.abs(gamepad2.right_stick_y)>0) robot().setCollectorPower(-gamepad2.right_stick_y);
         else if(gamepad2.a) robot().setBeltPower(-.75);
         else if(gamepad2.y) robot().setBeltPower(.75);
-        else robot().setBeltPower(0);
+        else robot().setCollectorPower(0);
 
 
         // Shooting. the trigger value will always be positive

@@ -58,7 +58,7 @@ public class AutoModeBeacons extends Auto9853 {
 
         while(robot().shootFor(Robot9853.SHOOT_TIME)) statusCheck();
         while(robot().reloadFor(Robot9853.RELOAD_TIME)) statusCheck();
-        while(robot().shootFor(Robot9853.SHOOT_TIME));
+        while(robot().shootFor(Robot9853.SHOOT_TIME)) statusCheck();
 
         // move to next beacon
         while(robot().driveWithHeadingFor(Robot.Side.LEFT.angle, Robot9853.SENSING_SPEED, robot().startingHeading, 500)) statusCheck();
@@ -110,7 +110,7 @@ public class AutoModeBeacons extends Auto9853 {
                         && System.currentTimeMillis() <= timerEndTime)) statusCheck();
 
         // back up
-        while(robot().driveWithHeadingFor(Robot.Side.BACK.angle, Robot9853.SENSING_SPEED, robot().startingHeading, 500))
+        while(robot().driveWithHeadingFor(Robot.Side.BACK.angle, Robot9853.SENSING_SPEED, robot().startingHeading, 250))
             statusCheck();
     }
 
