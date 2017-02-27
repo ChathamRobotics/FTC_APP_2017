@@ -599,7 +599,7 @@ public class Robot9853 extends Robot {
         isShooterRunning = true;
     }
     public void setShooterPower() {
-        setShooterPower(1);
+        setShooterPower(.5);
     }
 
     public int getShooterPosition(){

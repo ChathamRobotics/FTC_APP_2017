@@ -25,7 +25,7 @@ public class BLUE_100pt extends LinearOpMode {
 
     Robot11248 robot;
 
-    final int SONAR_DIST = 13;
+    final int SONAR_DIST = 13+1;
     final int SONAR_TOL = 1;
 
     final int STOP_DELAY = 370;
@@ -121,7 +121,7 @@ public class BLUE_100pt extends LinearOpMode {
                     robot.driveold(0, -.35, 0);
                     if (robot.isBeaconBlue()) {//WHEN BEACON IS BLUE
                         robot.driveold(0, -.35, 0);
-                        sleep(300);
+                        sleep(400);
                         robot.stop();
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -138,7 +138,7 @@ public class BLUE_100pt extends LinearOpMode {
                     robot.driveold(0, -.35, 0); //MOVE LEFT
                     if(robot.isBeaconBlue()) {
                         robot.driveold(0, -.35, 0);
-                        sleep(300);
+                        sleep(400);
                         robot.stop(); //STOP MOVING
                         sleep(BEACON_STOP);
                         pushBeacon();

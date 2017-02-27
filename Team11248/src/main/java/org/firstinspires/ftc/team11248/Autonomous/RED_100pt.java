@@ -25,7 +25,7 @@ public class RED_100pt extends LinearOpMode {
 
     Robot11248 robot;
 
-    final int SONAR_DIST = 12;
+    final int SONAR_DIST = 12+1;
     final int SONAR_TOL = 1;
 
     final int STOP_DELAY = 370;
@@ -171,7 +171,7 @@ public class RED_100pt extends LinearOpMode {
                     sleep(1400);
                     robot.stop();
                     sleep(200);
-                    robot.driveold(0, -.8, .11);
+                    robot.driveold(0, -.8, .05);
                     sleep(1300);
                     state++;
                     break;

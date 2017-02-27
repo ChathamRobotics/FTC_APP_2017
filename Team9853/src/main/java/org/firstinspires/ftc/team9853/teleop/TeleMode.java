@@ -67,7 +67,7 @@ public class TeleMode extends Tele9853 {
 
 
         // Shooting. the trigger value will always be positive
-        if(gamepad2.right_trigger > 0) robot().setShooterPower();
+        if(gamepad2.right_trigger > 0) robot().setShooterPower(.7);
         else if (robot().isShooterRunning()) robot().goToShooterPos0();
 
 
