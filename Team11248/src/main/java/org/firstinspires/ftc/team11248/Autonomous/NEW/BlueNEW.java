@@ -1,8 +1,9 @@
-package org.firstinspires.ftc.team11248.Autonomous;
+package org.firstinspires.ftc.team11248.Autonomous.NEW;
 
 import android.os.PowerManager;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -20,12 +21,13 @@ import org.firstinspires.ftc.team11248.Robot11248;
 /**
  * blue autonomous 100 POINTS
  */
-@Autonomous(name = "100ptBLUE")
-public class BLUE_100pt extends LinearOpMode {
+@Autonomous(name = "BlueNEW")
+@Disabled
+public class BlueNEW extends LinearOpMode {
 
     Robot11248 robot;
 
-    final int SONAR_DIST = 13+1;
+    final int SONAR_DIST = 13;
     final int SONAR_TOL = 1;
 
     final int STOP_DELAY = 370;
@@ -52,9 +54,7 @@ public class BLUE_100pt extends LinearOpMode {
         robot.activateColorSensors();
         robot.silent = false;
 
-        robot.deactivateServos();
         waitForStart(); //STAYS HERE UNTIL PLAY BUTTON
-        robot.activateServos();
 
         while (opModeIsActive() && !isStopRequested()) {
             //BEGIN AUTONOMOUS
@@ -63,7 +63,6 @@ public class BLUE_100pt extends LinearOpMode {
             telemetry.addData("Sonar", robot.getSonarValue());
             telemetry.addData("ODS: ", robot.getLineSensorValue());
             telemetry.addData("Heading: ", robot.getGyroAngle());
-            telemetry.addData("Flat: ", FLAT);
             telemetry.addData("State: ", state);
             telemetry.update();
 
@@ -118,10 +117,8 @@ public class BLUE_100pt extends LinearOpMode {
 
                 case 4: //Adjust x (hit if blue on left)
                     //X ADJUSTMENT
-                    robot.driveold(0, -.35, 0);
-                    if (robot.isBeaconBlue()) {//WHEN BEACON IS BLUE
-                        robot.driveold(0, -.35, 0);
-                        sleep(400);
+
+                    if (robot.isBeaconBlue()) {//WHEN BEACON IS BLUE;
                         robot.stop();
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -138,7 +135,7 @@ public class BLUE_100pt extends LinearOpMode {
                     robot.driveold(0, -.35, 0); //MOVE LEFT
                     if(robot.isBeaconBlue()) {
                         robot.driveold(0, -.35, 0);
-                        sleep(400);
+                        sleep(300);
                         robot.stop(); //STOP MOVING
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -197,10 +194,7 @@ public class BLUE_100pt extends LinearOpMode {
 
                 case 11: //Adjust x
                     //X ADJUSTMENT
-                    robot.driveold(0, -.35, 0);
                     if (robot.isBeaconBlue()) { //WHEN BEACON IS BLUE
-                        robot.driveold(0, -.35, 0);
-                        sleep(300);
                         robot.stop();
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -248,7 +242,7 @@ public class BLUE_100pt extends LinearOpMode {
         sleep(500);
 
         robot.openCollector();
-        robot.setShooter(Robot11248.AUTO_SHOOTER_SPEED);
+        robot.setShooter(.5f);
         sleep(750);
 
         robot.setConveyor(.2f);

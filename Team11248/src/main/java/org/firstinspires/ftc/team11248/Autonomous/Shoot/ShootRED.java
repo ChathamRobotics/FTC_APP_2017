@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.team11248.Autonomous;
+package org.firstinspires.ftc.team11248.Autonomous.Shoot;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -9,20 +9,17 @@ import org.firstinspires.ftc.team11248.Robot11248;
 /**
  * Team 11248 Shooter Autonomous
  */
-@Autonomous(name = "ShootBlue", group = "General")
-public class ShootBLUE extends LinearOpMode{
+@Autonomous(name = "ShootRED")
+public class ShootRED extends LinearOpMode{
 
     /**
      * The robot being controlled.
      */
     private Robot11248 robot;
 
-    //Time spent driving forward in milliseconds
-    private long timeDriving = 3000;
 
     @Override
     public void runOpMode() throws InterruptedException {
-
         robot = new Robot11248(hardwareMap, telemetry);
         robot.init(); //Sets servos to right position.
 
@@ -35,7 +32,7 @@ public class ShootBLUE extends LinearOpMode{
             sleep(6000);
 
             robot.driveold(0,.8,0);
-            sleep(750);
+            sleep(1000);
 
             //drive(0,0);
             robot.stop();
@@ -43,7 +40,7 @@ public class ShootBLUE extends LinearOpMode{
 
             robot.openCollector();
             robot.setShooter(.5f);
-            sleep(1000);
+            sleep(750);
 
             robot.setConveyor(.2f);
             sleep(1150);
@@ -54,7 +51,7 @@ public class ShootBLUE extends LinearOpMode{
             robot.shooterOff();
             robot.closeCollector();
 
-            robot.driveold(-1,0,.3);
+            robot.driveold(1,0,-.3);
             sleep(2500);
             robot.stop();
 
@@ -62,7 +59,6 @@ public class ShootBLUE extends LinearOpMode{
             robot.driveold(0,1,0);
             sleep(2500);
             robot.stop();
-
 
             idle();
             break;

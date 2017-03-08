@@ -16,6 +16,8 @@ import org.chathamrobotics.ftcutils.OmniWheelDriver;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import java.util.TimerTask;
+
 /**
  * Robot Class for team 11248
  */
@@ -30,6 +32,7 @@ public class Robot11248 extends OmniWheelDriver {
 
     //Driving constants
     public static final double SHOOTER_SPEED = .625f;
+    public static final long SHOOTER_RPM = 75;
     public static final double AUTO_SHOOTER_SPEED = .5f;
 
     //Gyro Thresholds
@@ -196,9 +199,7 @@ public class Robot11248 extends OmniWheelDriver {
     public void setShooter(double SHOOTER_SPEED) {
         shooterL.setPower(SHOOTER_SPEED);
         shooterR.setPower(-SHOOTER_SPEED);
-        shooterOn = true;
-        if(SHOOTER_SPEED == 0)
-            shooterOn = false;
+        shooterOn = (SHOOTER_SPEED!=0);
     }
 
 
@@ -222,15 +223,51 @@ public class Robot11248 extends OmniWheelDriver {
     }
 
 
+    private class BangBang extends TimerTask{
+
+        DcMotor flywheel;
+        int lastEncoder, currentEncoder;
+        double rpm;
+        long loopSpeed = 20;
+
+        BangBang (DcMotor flywheel){
+
+            flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            currentEncoder = lastEncoder = flywheel.getCurrentPosition();
+            //loopSpeed = this.scheduledExecutionTime();
+        }
+
+        private void getSpeed(){
+
+            currentEncoder = flywheel.getCurrentPosition();
+            rpm = (double)(currentEncoder-lastEncoder)/ (1440 * loopSpeed * .001);
+        }
+
+        @Override
+        public void run() {
+
+            getSpeed();
 
 
-    long lastTime = System.nanoTime();
-    int leftLastEncoder = 0;
-    int rightLastEncoder = 0;
-    double tolerance = .015;
+            //TODO: reverse
+            if(rpm >= SHOOTER_RPM){
+                flywheel.setPower(0);
 
-    public void bangBang(double fTarget){
+            }else if(rpm < SHOOTER_RPM){
+                flywheel.setPower(rpm / Math.abs(rpm));
+            }
 
+        }
+    }
+
+
+    public void bangBangOld(double fTarget){
+        long lastTime = System.nanoTime();
+        int leftLastEncoder = 0;
+        int rightLastEncoder = 0;
+        double tolerance = .015;
         boolean up = false;
         long now = System.nanoTime();
         long elapsedTime = now - lastTime;
@@ -282,9 +319,8 @@ public class Robot11248 extends OmniWheelDriver {
      */
     public void setConveyor(float f){
         conveyor.setPower(f);
-        conveyorOn = true;
-        if(f == 0)
-            conveyorOn = false;
+        conveyorOn = (f!= 0);
+
     }
 
     public void conveyorOn(){
@@ -398,11 +434,11 @@ public class Robot11248 extends OmniWheelDriver {
         if (net < 0) rotation *= -1; //if going clockwise, set rotation clockwise (-)
 
         if (Math.abs(net) > GYRO_THRESHOLD)
-            driveold(x, y, rotation); //Drive with gyros rotation
+            driveWithFixedAngle(x, y, rotation, 359 - getGyroAngle()); //Drive with gyros rotation
 
         else {
             atAngle = true;
-            driveold(x, y, 0);
+            driveWithFixedAngle(x, y, 0, 359 - getGyroAngle());
         }
 
         if(silent) {
@@ -415,6 +451,21 @@ public class Robot11248 extends OmniWheelDriver {
 
         return atAngle;
     }
+
+
+    /**
+     *
+     * @param x - x direction power
+     * @param y - y direction power
+     * @param rotate - power for rotation
+     * @param fixedAngle -  angle orentation is fixed on - set = to 359 - getGyroAngle()
+     */
+    public void driveWithFixedAngle(double x, double y, double rotate, int fixedAngle){
+
+        setOffsetAngle((fixedAngle/180.0) * Math.PI);
+        driveold(x, y, rotate);
+    }
+
 
     public boolean moveToAngle(int targetAngle){
         return driveWithGyro(0,0,targetAngle);
@@ -453,5 +504,6 @@ public class Robot11248 extends OmniWheelDriver {
         dim.setLED(0, red);
         dim.setLED(1, blue);
     }
+
 
 }

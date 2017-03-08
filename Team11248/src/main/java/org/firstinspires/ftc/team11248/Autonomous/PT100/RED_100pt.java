@@ -1,9 +1,8 @@
-package org.firstinspires.ftc.team11248.Autonomous;
+package org.firstinspires.ftc.team11248.Autonomous.PT100;
 
 import android.os.PowerManager;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -21,13 +20,12 @@ import org.firstinspires.ftc.team11248.Robot11248;
 /**
  * blue autonomous 100 POINTS
  */
-@Autonomous(name = "RedNEW")
-@Disabled
-public class RedNEW extends LinearOpMode {
+@Autonomous(name = "100ptRED")
+public class RED_100pt extends LinearOpMode {
 
     Robot11248 robot;
 
-    final int SONAR_DIST = 12;
+    final int SONAR_DIST = 12+1;
     final int SONAR_TOL = 1;
 
     final int STOP_DELAY = 370;
@@ -53,7 +51,9 @@ public class RedNEW extends LinearOpMode {
         robot.activateColorSensors();
         robot.silent = false;
 
+        robot.deactivateServos();
         waitForStart(); //STAYS HERE UNTIL PLAY BUTTON
+        robot.activateServos();
 
         while (opModeIsActive() && !isStopRequested()) {
             //BEGIN AUTONOMOUS
@@ -137,7 +137,10 @@ public class RedNEW extends LinearOpMode {
 
                 case 6: //Adjust x (hit if blue on left)
                     //X ADJUSTMENT
+                    robot.driveold(0, -.35, 0);
                     if (robot.isBeaconRed()) {//WHEN BEACON IS BLUE
+                        robot.driveold(0, -.35, 0);
+                        sleep(400);
                         robot.stop();
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -168,7 +171,7 @@ public class RedNEW extends LinearOpMode {
                     sleep(1400);
                     robot.stop();
                     sleep(200);
-                    robot.driveold(0, -.8, .11);
+                    robot.driveold(0, -.8, .05);
                     sleep(1300);
                     state++;
                     break;
@@ -213,7 +216,10 @@ public class RedNEW extends LinearOpMode {
 
                 case 13: //Adjust x
                     //X ADJUSTMENT
+                    robot.driveold(0, -.35, 0);
                     if (robot.isBeaconRed()) { //WHEN BEACON IS BLUE
+                        robot.driveold(0, -.35, 0);
+                        sleep(400);
                         robot.stop();
                         sleep(BEACON_STOP);
                         pushBeacon();
@@ -222,7 +228,7 @@ public class RedNEW extends LinearOpMode {
                         state += 2;
                     }
                     else if(robot.isBeaconBlue()) {
-                        // robot.stop();
+                       // robot.stop();
                         state++;
                     }
                     break;
@@ -262,7 +268,7 @@ public class RedNEW extends LinearOpMode {
         sleep(500);
 
         robot.openCollector();
-        robot.setShooter(.5f);
+        robot.setShooter(Robot11248.AUTO_SHOOTER_SPEED);
         sleep(1000);
 
         robot.setConveyor(.2f);

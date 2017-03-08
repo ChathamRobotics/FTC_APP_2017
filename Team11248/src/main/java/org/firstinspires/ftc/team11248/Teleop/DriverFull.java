@@ -70,7 +70,8 @@ public class DriverFull extends OpMode {
             robot.moveBeaconOut();
         else
             robot.moveBeaconIn();
-        
+
+        robot.setFastMode(gamepad1.left_bumper);
 
         if (gamepad1.y && !prevGP1.y)
             robot.toggleSlow();
