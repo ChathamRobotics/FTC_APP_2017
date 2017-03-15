@@ -131,9 +131,9 @@ public class DriverFull extends OpMode {
 
 
         if (gamepad2.right_trigger > 0)
-            robot.setConveyor(gamepad2.right_trigger * (robot.collectorClosed?1f:.35f));
+            robot.setConveyor(gamepad2.right_trigger * (robot.collectorClosed?1f:1f));
         else if (gamepad2.left_trigger > 0)
-            robot.setConveyor(-gamepad2.left_trigger * (robot.collectorClosed?1f:.65f));
+            robot.setConveyor(-gamepad2.left_trigger * (robot.collectorClosed?1f:1f));
         else
             robot.setConveyor(0);
 

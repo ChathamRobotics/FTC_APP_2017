@@ -29,11 +29,13 @@ public class SensorValTest extends OpMode {
 
         telemetry.addData("01: ", "Line Sensor: " + robot.getLineSensorValue());
         telemetry.addData("02: ", "hitLine: " + robot.hitLine());
-        telemetry.addData("03: ", "ColorBeacon: " + robot.getColorBeacon());
-        telemetry.addData("04: ", "isBlue: " + robot.isBeaconBlue());
-        telemetry.addData("05: ", "isRed: " + robot.isBeaconRed());
-        telemetry.addData("06: ", "Heading: " + robot.getGyroAngle());
-        telemetry.addData("07: ", "UltrasonicRaw: " + robot.getSonarValue());
+        telemetry.addData("03: ", "Line Sensor 2: " + robot.getLineSensor2Value());
+        telemetry.addData("02: ", "hitLine: " + robot.hitLine2());
+        telemetry.addData("04: ", "ColorBeacon: " + robot.getColorBeacon());
+        telemetry.addData("05: ", "isBlue: " + robot.isBeaconBlue());
+        telemetry.addData("06: ", "isRed: " + robot.isBeaconRed());
+        telemetry.addData("07: ", "Heading: " + robot.getGyroAngle());
+        telemetry.addData("08: ", "UltrasonicRaw: " + robot.getSonarValue());
 //        telemetry.addData("08: ", "UltrasonicIN: " + robot.getDistanceIN());
 //        telemetry.addData("09: ", "UltrasonicCM: " + robot.getDistanceCM());
 //        telemetry.addData("10: ", "UltrasonicMM: " + robot.getDistanceMM());

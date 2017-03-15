@@ -2,20 +2,14 @@ package org.firstinspires.ftc.team11248.Autonomous.Shoot;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.GyroSensor;
-import com.qualcomm.robotcore.hardware.I2cDevice;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import org.firstinspires.ftc.team11248.Robot11248;
 
 /**
  * Team 11248 Shooter Autonomous
  */
-@Autonomous(name = "ShootPark")
-public class ShootPark extends LinearOpMode{
+@Autonomous(name = "ShootParkCorner")
+public class ShootParkCorner extends LinearOpMode{
 
     /**
      * The robot being controlled.
@@ -32,6 +26,7 @@ public class ShootPark extends LinearOpMode{
         robot.deactivateServos();
         waitForStart(); //STAYS HERE UNTIL PLAY BUTTON
         robot.activateServos();
+        robot.calibrateGyro();
 
         while (opModeIsActive()) {
 
@@ -57,8 +52,8 @@ public class ShootPark extends LinearOpMode{
             robot.shooterOff();
             robot.closeCollector();
 
-            robot.driveold(0,1,0);
-            sleep(1750);
+            robot.driveWithGyro(1,0,0);
+            sleep(2000);
             robot.stop();
             idle();
             break;

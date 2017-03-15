@@ -9,75 +9,74 @@ import org.firstinspires.ftc.team11248.Robot11248;
  * red autonomous 100 POINTS
  */
 @Autonomous(name = "REDGyro")
-public class RED_GYRO extends GENERIC_GYRO {
+public class RED_GYRO extends LinearOpMode {
 
-    Robot11248 robot;
-
-    double x, y;
-    int SONAR_DIST = 13;
+    Robot11248 robot = new Robot11248(hardwareMap, telemetry);
+    GENERIC_GYRO template = new GENERIC_GYRO();
 
     @Override
     public void runOpMode() throws InterruptedException {
-        initAutonomous();
+
+        template.initAutonomous();
 
         while (opModeIsActive() && !isStopRequested()) {
             //BEGIN AUTONOMOUS
-            doTelemetry();
+            template.doTelemetry();
 
-            switch (state) {
+            switch (template.state) {
                 case 0: //Forward and shoot
-                    FLAT = (180 + robot.getGyroAngle()) % 360;
-                    forwardShoot();
+                    template.FLAT = (180 + robot.getGyroAngle()) % 360;
+                    template.forwardShoot();
                     break;
 
                 case 1: //Drive diagonal to line
-                    diagonalLine();
+                    template.diagonalLine();
                     break;
 
                 case 2: // Y ADJUSTMENT
-                    adjustWallDistance();
+                    template.adjustWallDistance();
                     break;
 
                 case 3: //Adjust x (hit if blue on left)
                     //X ADJUSTMENT
-                    robot.driveWithGyro(0, -.35, FLAT);
+                    robot.driveWithGyro(0, -.35, template.FLAT);
                     if (robot.isBeaconRed()) {//WHEN BEACON IS BLUE
-                        robot.driveWithGyro(0, -.35, FLAT);
+                        robot.driveWithGyro(0, -.35, template.FLAT);
                         sleep(400);
                         robot.stop();
-                        sleep(BEACON_STOP);
-                        pushBeacon();
+                        sleep(template.BEACON_STOP);
+                        template.pushBeacon();
                         robot.stop();
-                        sleep(BEACON_STOP);
-                        state += 2;
+                        sleep(template.BEACON_STOP);
+                        template.state += 2;
                     }
                     else if(robot.isBeaconBlue())
-                        state++;
+                        template.state++;
                     break;
 
                 case 4: //Adjust x (hit if red on right)
-                    robot.driveWithGyro(0, -.35, FLAT); //MOVE LEFT
+                    robot.driveWithGyro(0, -.35, template.FLAT); //MOVE LEFT
                     if(robot.isBeaconRed()) {
-                        robot.driveWithGyro(0, -.35, FLAT);
+                        robot.driveWithGyro(0, -.35, template.FLAT);
                         sleep(150);
                         robot.stop(); //STOP MOVING
-                        sleep(BEACON_STOP);
-                        pushBeacon();
-                        state++;
+                        sleep(template.BEACON_STOP);
+                        template.pushBeacon();
+                        template.state++;
                     }
                     break;
 
                 case 5: //Backup and drive towards other line
-                    backupDrive();
+                    template.backupDrive();
                     break;
 
                 case 6: //keep driving until line hit
-                    driveToLine2(false);
+                    template.driveToLine2();
                     break;
 
                 case 7:
                     //Y ADJUSTMENT
-                    adjustWallDistance();
+                    template.adjustWallDistance();
                     break;
 
                 case 8: //Adjust x
@@ -87,30 +86,30 @@ public class RED_GYRO extends GENERIC_GYRO {
                         robot.driveold(0, -.35, 0);
                         sleep(400);
                         robot.stop();
-                        sleep(BEACON_STOP);
-                        pushBeacon();
+                        sleep(template.BEACON_STOP);
+                        template.pushBeacon();
                         robot.stop();
-                        sleep(BEACON_STOP);
-                        state += 2;
+                        sleep(template.BEACON_STOP);
+                        template.state += 2;
                     }
                     else if(robot.isBeaconBlue())
-                        state++;
+                        template.state++;
                     break;
 
                 case 9: //adjust x
-                    robot.driveWithGyro(0, -.35, FLAT); //MOVE LEFT .5
+                    robot.driveWithGyro(0, -.35, template.FLAT); //MOVE LEFT .5
                     if(robot.isBeaconRed()) {
                         robot.driveold(0, -.35, 0);
                         sleep(200);
                         robot.stop(); //STOP MOVING
-                        sleep(BEACON_STOP);
-                        pushBeacon();
-                        state++;
+                        sleep(template.BEACON_STOP);
+                        template.pushBeacon();
+                        template.state++;
                     }
                     break;
 
                 case 10:
-                    driveToCap();
+                    template.driveToCap();
                     break;
 
                 default: //die

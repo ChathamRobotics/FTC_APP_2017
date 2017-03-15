@@ -24,13 +24,75 @@ public class GENERIC_GYRO extends LinearOpMode {
     int state = 0;
     int FLAT = 0;
 
+    public double x, y;
+
+    public static boolean isBlue;
+
+    private boolean rightSide = true;
+
+
     @Override
-    public void runOpMode() throws InterruptedException {}
+    public void runOpMode() throws InterruptedException {
+
+        initAutonomous();
+
+        while (opModeIsActive() && !isStopRequested()) {
+            //BEGIN AUTONOMOUS
+            doTelemetry();
+
+            switch (state) {
+                case 0: //Forward and shoot
+                    forwardShoot();
+                    break;
+
+                case 1: //Drive diagonal to line
+                    diagonalLine();
+                    break;
+
+                case 2: // Y ADJUSTMENT
+                    adjustWallDistance();
+                    break;
+
+                case 3:
+                    retrieveBeacon();
+                    break;
+
+                case 4: //Backup and drive towards other line
+                    backupDrive();
+                    break;
+
+                case 5: //keep driving until line hit
+                    driveToLine2();
+                    break;
+
+                case 6:
+                    //Y ADJUSTMENT
+                    adjustWallDistance();
+                    rightSide = true;
+                    break;
+
+                case 7: //Adjust x (hit if blue on left)
+                    retrieveBeacon();
+
+                case 8:
+                    driveToCap();
+                    break;
+
+                default: //die
+                    drive(0,0);
+                    idle();
+                    break;
+            }
+
+            robot.driveWithGyro(x, y, FLAT);
+        }
+    }
 
     public void shootBallsStart(){
-        robot.driveWithGyro(0,.8,FLAT);
+
+        drive(0,.8);
         sleep(500);
-        robot.stop();
+        drive(0, 0);
         sleep(500);
 
         robot.openCollector();
@@ -45,7 +107,6 @@ public class GENERIC_GYRO extends LinearOpMode {
         robot.conveyorOff();
         robot.shooterOff();
         robot.closeCollector();
-
         //4.95 seconds
     }
 
@@ -53,24 +114,6 @@ public class GENERIC_GYRO extends LinearOpMode {
         robot.moveBeaconOut(); //PUSH BEACON
         sleep(1000);
         robot.moveBeaconIn();
-    }
-
-    public void retrieveBeacon(long x, double speed) {
-        //X ADJUSTMENT
-        robot.driveold(0, -speed, 0);
-        sleep(x);
-        robot.stop();
-        sleep(STOP_DELAY);
-
-        if (robot.isBeaconBlue())//WHEN BEACON IS BLUE
-            pushBeacon();
-        else if (robot.isBeaconRed()) { //BEACON IS NOT BLUE (AKA ITS RED)
-            robot.driveWithGyro(0, -speed, 0); //MOVE LEFT .5
-            //sleep(TIME_TO_OTHER_COLOR); //WAIT .5 SECONDS
-            robot.stop(); //STOP MOVING
-
-            pushBeacon();
-        }
     }
 
     public void initAutonomous() {
@@ -88,67 +131,93 @@ public class GENERIC_GYRO extends LinearOpMode {
 
     //Case 0, drives forward then shoots
     public void forwardShoot() {
+
+        FLAT = robot.getGyroAngle();
         shootBallsStart(); //MOVES FORWARD AND SHOOT BALLS
+
+        FLAT = isBlue? FLAT: (180 + FLAT) % 360;
         sleep(1000);
-        robot.driveWithGyro(.6, .6, FLAT);
+        drive(.6, isBlue?.6:-.6);
         sleep(1600);
         state++;
     }
 
     //CASE 1, drives diagonally to first line
     public void diagonalLine() {
-        robot.driveWithGyro(.3, .3, FLAT); //DRIVE DIAGONAL
+        drive(.3, isBlue?.3:-.3); //DRIVE DIAGONAL
         if(robot.hitLine()) { //WHEN WHITE LINE FOUND
-            robot.stop(); //STOP MOVING
+            drive(0,0); //STOP MOVING
             sleep(STOP_DELAY);
             state++; //NEXT STATE
         }
     }
 
-    //CASE 2 & 9, adjusts distance to wall to be in right range
+    //CASE 2 & 6, adjusts distance to wall to be in right range
     public void adjustWallDistance() {
         if (robot.getSonarValue() <= SONAR_DIST + SONAR_TOL &&
                 robot.getSonarValue() >= SONAR_DIST - SONAR_TOL) {
+            drive(0, 0);
             sleep(STOP_DELAY);
             state++;
         }
 
         // if too close, drive back
-        else if(robot.getSonarValue() < SONAR_DIST - SONAR_TOL)
-            robot.driveWithGyro(-.3, 0, FLAT);
+        else if(robot.getSonarValue() < SONAR_DIST - SONAR_TOL) drive(-.3, 0);
 
             //if too far, drive forward
-        else if(robot.getSonarValue() > SONAR_DIST + SONAR_TOL)
-            robot.driveWithGyro(.3, 0, FLAT);
+        else if(robot.getSonarValue() > SONAR_DIST + SONAR_TOL) drive(.3, 0);
 
     }
 
-    //CASE 5, backs up and starts to drive to second line
+    //CASE 3, 7 senses navigates and presses correct button
+    public void retrieveBeacon(){
+
+            if(rightSide) {//Adjust x (hit if blue on left)
+                //WHEN BEACON IS good color
+                if (isBlue ? robot.isBeaconBlue() : robot.isBeaconRed()) {
+                    pushBeacon();
+                    state++; //Skip to state 5
+                }
+
+                //WHEN BEACON IS LEFT
+                else rightSide = false;
+
+
+            }else{
+                drive(0, -.35);
+                if (robot.hitLine2()) {
+                    drive(0, 0);
+                    pushBeacon();
+                    state++;
+                }
+
+        }
+    }
+
+    //CASE 4, backs up and starts to drive to second line
     public void backupDrive() {
-        robot.driveWithGyro(-.3, 0, FLAT);
+        drive(-.3, 0);
         sleep(1400); //back up a bit (kinda arbitrary)
-        robot.driveold(0, .8, FLAT);
+        drive(0, isBlue?.8:-.8);
         sleep(1390); //Drive fast for a while to cut on time
         state++;
     }
 
-    //CASE 6, Drives to second line
-    public void driveToLine2(boolean isBlue) {
-        if(isBlue)
-            robot.driveWithGyro(xAgainstWall(SONAR_DIST+3), .35, FLAT);
-        else
-            robot.driveWithGyro(xAgainstWall(SONAR_DIST+3), -.35, FLAT);
+    //CASE 5, Drives to second line
+    public void driveToLine2() {
 
-        if(robot.hitLine()) {
-            robot.stop();
+        drive(xAgainstWall(SONAR_DIST+3), isBlue?.35:-.35);
+
+        if(robot.hitLine()){
+            drive(0,0);
             sleep(STOP_DELAY);
             state++;
         }
     }
 
-    //CASE 10, Drives diagonally to cap ball and parks.
+    //CASE 8, Drives diagonally to cap ball and parks.
     public void driveToCap() {
-        robot.driveWithGyro(-1, -1, FLAT); //drive to cap ball
+        drive (-1, isBlue? -1:1); //drive to cap ball
         sleep(2750);
         state++;
     }
@@ -177,5 +246,19 @@ public class GENERIC_GYRO extends LinearOpMode {
         telemetry.addData("Flat: ", FLAT);
         telemetry.addData("State: ", state);
         telemetry.update();
+    }
+
+    public void drive(double x, double y){
+        this.x = x*.75;
+        this.y = y*.75;
+
+        robot.driveWithGyro(x, y, FLAT);
+    }
+
+    public void sleep (int millis){
+        long start = System.currentTimeMillis();
+        while(System.currentTimeMillis() - start < millis){
+            robot.driveWithGyro(x, y, FLAT);
+        }
     }
 }

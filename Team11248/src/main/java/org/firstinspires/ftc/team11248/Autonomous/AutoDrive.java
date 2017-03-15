@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.team11248.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -9,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
  * Created by tonytesoriero on 10/29/16.
  */
 @Autonomous(name = "AutoDrive")
-
+@Disabled
 public class AutoDrive extends LinearOpMode {
 
     public static double MAX_SPEED = .70;

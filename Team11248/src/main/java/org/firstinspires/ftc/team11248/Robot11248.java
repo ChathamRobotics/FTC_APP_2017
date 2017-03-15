@@ -15,7 +15,9 @@ import org.chathamrobotics.ftcutils.hardware.MRColorSensorV3;
 import org.chathamrobotics.ftcutils.OmniWheelDriver;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.team11248.testModes.EncoderTest;
 
+import java.util.Timer;
 import java.util.TimerTask;
 
 /**
@@ -31,16 +33,18 @@ public class Robot11248 extends OmniWheelDriver {
     public static final double RIGHT_ANGLE = Math.PI/2;
 
     //Driving constants
-    public static final double SHOOTER_SPEED = .625f;
+    public static final double SHOOTER_SPEED = .35f;
     public static final long SHOOTER_RPM = 75;
-    public static final double AUTO_SHOOTER_SPEED = .5f;
+    public static final double AUTO_SHOOTER_SPEED = SHOOTER_SPEED;
 
     //Gyro Thresholds
     private static final int GYRO_THRESHOLD = 1;
 
     //LINE SENSOR THRESHOLDS
-    private static final double OPTICAL_THRESHOLD_LOW = .55;
+    private static final double OPTICAL_THRESHOLD_LOW = .6;
     private static final double OPTICAL_THRESHOLD_HIGH = 1;
+    private static final double OPTICAL_THRESHOLD2_LOW = .6;
+    private static final double OPTICAL_THRESHOLD2_HIGH = 1;
 
     //Servo constants
     private static final double LIFT_DOWN = .26;
@@ -49,10 +53,10 @@ public class Robot11248 extends OmniWheelDriver {
     private static final double BEACON_OUT = 0;
     private static final double BEACON_IN = 1;
 
-    private static final double COLLECTOR_L_OPEN = .85;
-    private static final double COLLECTOR_L_CLOSED = .425;
-    private static final double COLLECTOR_R_OPEN = .05;
-    private static final double COLLECTOR_R_CLOSED = .425;
+    private static final double COLLECTOR_L_OPEN = 0;
+    private static final double COLLECTOR_L_CLOSED = .55;
+    private static final double COLLECTOR_R_OPEN = .7;
+    private static final double COLLECTOR_R_CLOSED = .05;
 
     // I2C address, registers, and commands
     private final byte COLOR_SENSOR_GREEN_ADDR = 0x3A; //Green
@@ -73,12 +77,16 @@ public class Robot11248 extends OmniWheelDriver {
     private ServoController servoController;
     private MRColorSensorV3 colorBeacon;
     private OpticalDistanceSensor lineSensor;
+    private OpticalDistanceSensor lineSensor2;
     private GyroSensor gyro;
     private UltrasonicSensor sonar;
     private DeviceInterfaceModule dim;
     private Telemetry telemetry;
 
-    //private DeviceInterfaceModule dim;
+//    BangBang leftShooter = new BangBang(shooterL);
+//    BangBang rightShooter = new BangBang(shooterR);
+//    Timer rightTimer = new Timer(), leftTimer = new Timer();
+
 
 
     public Robot11248(HardwareMap hardwareMap, Telemetry telemetry){
@@ -101,8 +109,8 @@ public class Robot11248 extends OmniWheelDriver {
         this.shooterL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         this.shooterR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-//        this.shooterL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        this.shooterR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        this.shooterL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        this.shooterR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         /*
          * SERVO INITS
@@ -117,6 +125,7 @@ public class Robot11248 extends OmniWheelDriver {
          * SENSOR INITS
          */
         this.lineSensor = hardwareMap.opticalDistanceSensor.get("sensor_ods");
+        this.lineSensor2 = hardwareMap.opticalDistanceSensor.get("sensor_ods2");
         this.gyro = hardwareMap.gyroSensor.get("gyro");
         this.sonar = hardwareMap.ultrasonicSensor.get("sonar");
         I2cDevice colorBeacon = hardwareMap.i2cDevice.get("color2");
@@ -200,6 +209,7 @@ public class Robot11248 extends OmniWheelDriver {
         shooterL.setPower(SHOOTER_SPEED);
         shooterR.setPower(-SHOOTER_SPEED);
         shooterOn = (SHOOTER_SPEED!=0);
+        if(shooterOn)openCollector();
     }
 
 
@@ -207,16 +217,33 @@ public class Robot11248 extends OmniWheelDriver {
     public void shooterReverse() {
         shooterL.setPower(-SHOOTER_SPEED);
         shooterR.setPower(SHOOTER_SPEED);
+        openCollector();
         shooterOn = true;
     }
 
     public void shooterOn() {
         shooterL.setPower(SHOOTER_SPEED);
         shooterR.setPower(-SHOOTER_SPEED);
+        openCollector();
         shooterOn = true;
     }
 
     public void shooterOff() {
+        shooterL.setPower(0);
+        shooterR.setPower(0);
+        closeCollector();
+        shooterOn = false;
+    }
+
+    public void shooterOnBang() {
+       // rightTimer.scheduleAtFixedRate(rightShooter, 0, 20);
+       // leftTimer.scheduleAtFixedRate(leftShooter, 0, 20);
+        shooterOn = true;
+    }
+
+    public void shooterOffBang() {
+     //   rightTimer.cancel();
+      //  leftTimer.cancel();
         shooterL.setPower(0);
         shooterR.setPower(0);
         shooterOn = false;
@@ -236,6 +263,7 @@ public class Robot11248 extends OmniWheelDriver {
             flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             currentEncoder = lastEncoder = flywheel.getCurrentPosition();
+
             //loopSpeed = this.scheduledExecutionTime();
         }
 
@@ -395,8 +423,21 @@ public class Robot11248 extends OmniWheelDriver {
                 lineSensor.getLightDetected() >= OPTICAL_THRESHOLD_LOW);
     }
 
+    /*
+     * OPTICAL DISTANCE SENSOR METHODS
+     */
+    public boolean hitLine2(){
+        return (lineSensor2.getLightDetected() < OPTICAL_THRESHOLD2_HIGH &&
+                lineSensor2.getLightDetected() >= OPTICAL_THRESHOLD2_LOW);
+    }
+
+
     public double getLineSensorValue(){
         return lineSensor.getLightDetected();
+    }
+
+    public double getLineSensor2Value(){
+        return lineSensor2.getLightDetected();
     }
 
     /*
@@ -412,7 +453,7 @@ public class Robot11248 extends OmniWheelDriver {
         return gyro.getHeading();
     }
 
-    public boolean driveWithGyro(double x, double y, int targetAngle) {
+    public boolean driveWithGyro(double x, double y, int targetAngle, boolean smooth) {
 
         boolean atAngle = false;
         int currentAngle = getGyroAngle();
@@ -433,13 +474,12 @@ public class Robot11248 extends OmniWheelDriver {
 
         if (net < 0) rotation *= -1; //if going clockwise, set rotation clockwise (-)
 
-        if (Math.abs(net) > GYRO_THRESHOLD)
-            driveWithFixedAngle(x, y, rotation, 359 - getGyroAngle()); //Drive with gyros rotation
-
-        else {
+        if (!(Math.abs(net) > GYRO_THRESHOLD)){
             atAngle = true;
-            driveWithFixedAngle(x, y, 0, 359 - getGyroAngle());
+            rotation = 0;
         }
+
+        driveWithFixedAngle(x, y, rotation, 360 - getGyroAngle() + targetAngle, smooth); //Drive with gyros rotation
 
         if(silent) {
             telemetry.addData("ROBOT11248", "Heading: " + getGyroAngle());
@@ -453,6 +493,11 @@ public class Robot11248 extends OmniWheelDriver {
     }
 
 
+    public boolean driveWithGyro(double x, double y, int targetAngle) {
+        return driveWithGyro(x,y,targetAngle, false);
+    }
+
+
     /**
      *
      * @param x - x direction power
@@ -460,10 +505,15 @@ public class Robot11248 extends OmniWheelDriver {
      * @param rotate - power for rotation
      * @param fixedAngle -  angle orentation is fixed on - set = to 359 - getGyroAngle()
      */
-    public void driveWithFixedAngle(double x, double y, double rotate, int fixedAngle){
+    public void driveWithFixedAngle(double x, double y, double rotate, int fixedAngle, boolean smooth){
 
-        setOffsetAngle((fixedAngle/180.0) * Math.PI);
-        driveold(x, y, rotate);
+        setOffsetAngle((Math.toRadians(fixedAngle)));
+        driveold(x, y, rotate, smooth);
+    }
+
+    public void driveWithFixedAngle(double x, double y, double rotate, int fixedAngle) {
+
+        driveWithFixedAngle(x, y, rotate, fixedAngle, false);
     }
 
 
@@ -477,24 +527,6 @@ public class Robot11248 extends OmniWheelDriver {
     public double getSonarValue(){
         return Range.clip(sonar.getUltrasonicLevel(), 0, 255);
 
-    }
-
-    public double getDistanceIN(){
-        //TODO: Calibrate
-        int unitsPerIn = 1023;
-        return sonar.getUltrasonicLevel()/unitsPerIn;
-    }
-
-    public double getDistanceCM(){
-        //TODO: Calibrate
-        int unitsPerCm = 1023;
-        return sonar.getUltrasonicLevel()/unitsPerCm;
-    }
-
-    public double getDistanceMM(){
-        //TODO: Calibrate
-        int unitsPerMm = 1023;
-        return sonar.getUltrasonicLevel()/unitsPerMm;
     }
 
     /*

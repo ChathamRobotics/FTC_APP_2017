@@ -23,6 +23,12 @@ public class EncoderTest extends OpMode {
     final double TOLERANCE = .05;
     boolean isRunning = false;
     double rpm;
+    int targetSpeed = 0;
+    int loops = 0;
+
+    ScheduledThreadPoolExecutor shooterR = new ScheduledThreadPoolExecutor(5);
+
+
 
     @Override
     public void init() {
@@ -30,16 +36,21 @@ public class EncoderTest extends OpMode {
         ShooterR = hardwareMap.dcMotor.get("ShooterR");
         ShooterR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         ShooterR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        ShooterR.setDirection(DcMotorSimple.Direction.REVERSE);
 
         ShooterL = hardwareMap.dcMotor.get("ShooterL");
         ShooterL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         ShooterL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-       ShooterL.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        shooterR.scheduleAtFixedRate(new BangBang(ShooterR), 0, 1, SECONDS);
+
     }
 
     @Override
     public void loop() {
 
+
+        targetSpeed = gamepad1.a?75:0;
 //        if(gamepad2.right_trigger > TOLERANCE){
 //            Shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //            Shooter.setPower(1);
@@ -55,31 +66,32 @@ public class EncoderTest extends OpMode {
 //        Timer shooterL = new Timer();
 //        shooterL.scheduleAtFixedRate(new BangBang(ShooterL, 75), 0, 20);
 //
-        Timer shooterR = new Timer();
-        shooterR.scheduleAtFixedRate(new BangBang(ShooterR, 75), 0, 20);
+
 
 
         telemetry.addData("Position L: ", ShooterL.getCurrentPosition());
         telemetry.addData("Position R: ", ShooterR.getCurrentPosition());
         telemetry.addData("RPM: ",  rpm);
+        telemetry.addData("loops: ", loops);
 
     }
 
 
-    private class BangBang extends TimerTask {
+    public class BangBang implements Runnable {
 
         DcMotor flywheel;
         int lastEncoder, currentEncoder;
-        double targetSpeed;
+        //double targetSpeed;
         long loopSpeed = 20;
 
 
-        BangBang (DcMotor flywheel, double targetSpeed) {
+        public BangBang (DcMotor flywheel) {
 
             flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             currentEncoder = lastEncoder = flywheel.getCurrentPosition();
+          //  this.targetSpeed = targetSpeed;
         }
 
         public void getSpeed(){
@@ -92,6 +104,8 @@ public class EncoderTest extends OpMode {
         }
 
         public void run(){
+
+            loops++;
 
             getSpeed();
 
@@ -108,5 +122,7 @@ public class EncoderTest extends OpMode {
         }
 
     }
+
+
 
 }
