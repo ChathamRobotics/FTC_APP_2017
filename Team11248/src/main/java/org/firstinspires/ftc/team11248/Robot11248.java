@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.team11248;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -27,15 +28,17 @@ import java.util.TimerTask;
 public class Robot11248 extends OmniWheelDriver {
 
     //Debouncing Variables
-    public boolean shooterOn, conveyorOn, collectorClosed, isLiftArmUp;
+    public boolean shooterOn, conveyorOn, collectorClosed, isLiftArmUp, bangBangOn;
+
+    public Thread BangBangLeft, BangBangRight;
 
     //Angles
     public static final double RIGHT_ANGLE = Math.PI/2;
 
     //Driving constants
-    public static final double SHOOTER_SPEED = .35f;
+    public static final double SHOOTER_SPEED = .29f;
     public static final long SHOOTER_RPM = 75;
-    public static final double AUTO_SHOOTER_SPEED = SHOOTER_SPEED;
+    public static final double AUTO_SHOOTER_SPEED = .30f;
 
     //Gyro Thresholds
     private static final int GYRO_THRESHOLD = 1;
@@ -54,9 +57,9 @@ public class Robot11248 extends OmniWheelDriver {
     private static final double BEACON_IN = 1;
 
     private static final double COLLECTOR_L_OPEN = 0;
-    private static final double COLLECTOR_L_CLOSED = .55;
+    private static final double COLLECTOR_L_CLOSED = .4;
     private static final double COLLECTOR_R_OPEN = .7;
-    private static final double COLLECTOR_R_CLOSED = .05;
+    private static final double COLLECTOR_R_CLOSED = .3;
 
     // I2C address, registers, and commands
     private final byte COLOR_SENSOR_GREEN_ADDR = 0x3A; //Green
@@ -83,11 +86,6 @@ public class Robot11248 extends OmniWheelDriver {
     private DeviceInterfaceModule dim;
     private Telemetry telemetry;
 
-//    BangBang leftShooter = new BangBang(shooterL);
-//    BangBang rightShooter = new BangBang(shooterR);
-//    Timer rightTimer = new Timer(), leftTimer = new Timer();
-
-
 
     public Robot11248(HardwareMap hardwareMap, Telemetry telemetry){
 
@@ -109,8 +107,11 @@ public class Robot11248 extends OmniWheelDriver {
         this.shooterL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         this.shooterR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        this.shooterL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        this.shooterR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        this.shooterR.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        BangBangLeft = new BangBang(shooterL);
+        BangBangRight = new BangBang(shooterR);
+
 
         /*
          * SERVO INITS
@@ -145,6 +146,9 @@ public class Robot11248 extends OmniWheelDriver {
         moveLiftArmDown();
         closeCollector();
         setDimLed(true,true);
+
+        new Thread(BangBangLeft).start();
+        new Thread(BangBangRight).start();
     }
 
     public void activateServos(){
@@ -219,12 +223,14 @@ public class Robot11248 extends OmniWheelDriver {
         shooterR.setPower(SHOOTER_SPEED);
         openCollector();
         shooterOn = true;
+        bangBangOn = false;
     }
 
     public void shooterOn() {
         shooterL.setPower(SHOOTER_SPEED);
         shooterR.setPower(-SHOOTER_SPEED);
         openCollector();
+        bangBangOn = false;
         shooterOn = true;
     }
 
@@ -232,25 +238,18 @@ public class Robot11248 extends OmniWheelDriver {
         shooterL.setPower(0);
         shooterR.setPower(0);
         closeCollector();
+        bangBangOn = false;
         shooterOn = false;
     }
 
     public void shooterOnBang() {
-       // rightTimer.scheduleAtFixedRate(rightShooter, 0, 20);
-       // leftTimer.scheduleAtFixedRate(leftShooter, 0, 20);
         shooterOn = true;
-    }
-
-    public void shooterOffBang() {
-     //   rightTimer.cancel();
-      //  leftTimer.cancel();
-        shooterL.setPower(0);
-        shooterR.setPower(0);
-        shooterOn = false;
+        bangBangOn = true;
     }
 
 
-    private class BangBang extends TimerTask{
+
+    private class BangBang extends Thread{
 
         DcMotor flywheel;
         int lastEncoder, currentEncoder;
@@ -276,17 +275,29 @@ public class Robot11248 extends OmniWheelDriver {
         @Override
         public void run() {
 
-            getSpeed();
+            while (!isInterrupted()) {
+                if (bangBangOn) {
+
+                    getSpeed();
+
+                    //TODO: reverse
+                    if (rpm >= SHOOTER_RPM) {
+                        flywheel.setPower(0);
+
+                    } else if (rpm < SHOOTER_RPM) {
+                        flywheel.setPower(rpm / Math.abs(rpm));
+                    }
 
 
-            //TODO: reverse
-            if(rpm >= SHOOTER_RPM){
-                flywheel.setPower(0);
+                    try {
+                        Thread.sleep(loopSpeed);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
 
-            }else if(rpm < SHOOTER_RPM){
-                flywheel.setPower(rpm / Math.abs(rpm));
+                }
+
             }
-
         }
     }
 
@@ -470,7 +481,7 @@ public class Robot11248 extends OmniWheelDriver {
 
         // slows down as approaches angle with min threshold of .05
         // each degree adds/subtracts .95/180 values of speed
-        rotation = Math.abs(net) * .85 / 180 + .15;
+        rotation = Math.abs(net) * .85 / 180 + .10;
 
         if (net < 0) rotation *= -1; //if going clockwise, set rotation clockwise (-)
 

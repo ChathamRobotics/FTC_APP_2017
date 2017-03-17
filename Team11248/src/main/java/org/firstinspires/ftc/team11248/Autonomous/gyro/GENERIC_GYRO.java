@@ -19,8 +19,9 @@ public class GENERIC_GYRO extends LinearOpMode {
 
     public static final int STOP_DELAY = 370;
     public static final int BEACON_STOP = 500;
+    public static final double SLOW_SPEED = .35;
 
-    int SONAR_DIST = 14;
+    int SONAR_DIST = 12;
     int state = 0;
     int FLAT = 0;
 
@@ -73,6 +74,7 @@ public class GENERIC_GYRO extends LinearOpMode {
 
                 case 7: //Adjust x (hit if blue on left)
                     retrieveBeacon();
+                    break;
 
                 case 8:
                     driveToCap();
@@ -93,16 +95,13 @@ public class GENERIC_GYRO extends LinearOpMode {
         drive(0,.8);
         sleep(500);
         drive(0, 0);
-        sleep(500);
 
         robot.openCollector();
         robot.setShooter(Robot11248.AUTO_SHOOTER_SPEED);
-        sleep(750);
+        sleep(1500);
 
-        robot.setConveyor(.2f);
-        sleep(1150);
-        robot.setConveyor(.8f);
-        sleep(850);
+        robot.setConveyor(.6f);
+        sleep(1500);
 
         robot.conveyorOff();
         robot.shooterOff();
@@ -136,7 +135,7 @@ public class GENERIC_GYRO extends LinearOpMode {
         shootBallsStart(); //MOVES FORWARD AND SHOOT BALLS
 
         FLAT = isBlue? FLAT: (180 + FLAT) % 360;
-        sleep(1000);
+        sleep(1500);
         drive(.6, isBlue?.6:-.6);
         sleep(1600);
         state++;
@@ -144,7 +143,7 @@ public class GENERIC_GYRO extends LinearOpMode {
 
     //CASE 1, drives diagonally to first line
     public void diagonalLine() {
-        drive(.3, isBlue?.3:-.3); //DRIVE DIAGONAL
+        drive(.25, isBlue?.25:-.25); //DRIVE DIAGONAL
         if(robot.hitLine()) { //WHEN WHITE LINE FOUND
             drive(0,0); //STOP MOVING
             sleep(STOP_DELAY);
@@ -182,11 +181,13 @@ public class GENERIC_GYRO extends LinearOpMode {
                 //WHEN BEACON IS LEFT
                 else rightSide = false;
 
-
             }else{
-                drive(0, -.35);
+
+                drive(0, -SLOW_SPEED);
                 if (robot.hitLine2()) {
+                    sleep(300);
                     drive(0, 0);
+                    sleep(500);
                     pushBeacon();
                     state++;
                 }
@@ -206,7 +207,7 @@ public class GENERIC_GYRO extends LinearOpMode {
     //CASE 5, Drives to second line
     public void driveToLine2() {
 
-        drive(xAgainstWall(SONAR_DIST+3), isBlue?.35:-.35);
+        drive(xAgainstWall(SONAR_DIST+3), isBlue?SLOW_SPEED:-SLOW_SPEED);
 
         if(robot.hitLine()){
             drive(0,0);
@@ -249,16 +250,17 @@ public class GENERIC_GYRO extends LinearOpMode {
     }
 
     public void drive(double x, double y){
-        this.x = x*.75;
-        this.y = y*.75;
+        this.x = x;
+        this.y = y;
 
         robot.driveWithGyro(x, y, FLAT);
     }
 
     public void sleep (int millis){
         long start = System.currentTimeMillis();
-        while(System.currentTimeMillis() - start < millis){
+        while(System.currentTimeMillis() - start < millis && opModeIsActive()){
             robot.driveWithGyro(x, y, FLAT);
         }
     }
+
 }
