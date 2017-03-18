@@ -185,7 +185,7 @@ public class GENERIC_GYRO extends LinearOpMode {
 
                 drive(0, -SLOW_SPEED);
                 if (robot.hitLine2()) {
-                    sleep(300);
+                    //sleep(300);
                     drive(0, 0);
                     sleep(500);
                     pushBeacon();

@@ -108,7 +108,7 @@ public class DriverFull extends OpMode {
                 robot.shooterOff();
                // bangBang = false;
             }else
-              robot.setShooter(Robot11248.SHOOTER_SPEED); // bangBang = true;
+             robot.shooterOnBang();// robot.setShooter(Robot11248.SHOOTER_SPEED); // bangBang = true;
         }
 
         //if(bangBang) robot.bangBang(robot.SHOOTER_SPEED);

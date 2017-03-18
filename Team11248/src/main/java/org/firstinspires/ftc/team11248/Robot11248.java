@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
+import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.Range;
 
 import org.chathamrobotics.ftcutils.hardware.MRColorSensorV3;
@@ -17,6 +18,7 @@ import org.chathamrobotics.ftcutils.OmniWheelDriver;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.team11248.testModes.EncoderTest;
+import org.firstinspires.ftc.team11248.testModes.Thread_Test;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -28,16 +30,17 @@ import java.util.TimerTask;
 public class Robot11248 extends OmniWheelDriver {
 
     //Debouncing Variables
-    public boolean shooterOn, conveyorOn, collectorClosed, isLiftArmUp, bangBangOn;
+    public boolean shooterOn, conveyorOn, collectorClosed, isLiftArmUp;
 
-    public Thread BangBangLeft, BangBangRight;
+    public static boolean bangBangOn;
 
     //Angles
     public static final double RIGHT_ANGLE = Math.PI/2;
 
     //Driving constants
     public static final double SHOOTER_SPEED = .29f;
-    public static final long SHOOTER_RPM = 75;
+    public static final long SHOOTER_RPM = 100;
+    public static final int LOOP = 10;
     public static final double AUTO_SHOOTER_SPEED = .30f;
 
     //Gyro Thresholds
@@ -75,7 +78,8 @@ public class Robot11248 extends OmniWheelDriver {
 
 
     //Motors, Sensors, Telemetry
-    private DcMotor shooterL, shooterR, lift, conveyor;
+    public static DcMotor shooterL, shooterR;
+    private DcMotor lift, conveyor;
     private Servo liftArm, beaconPusher, collectorServoL, collectorServoR;
     private ServoController servoController;
     private MRColorSensorV3 colorBeacon;
@@ -84,7 +88,7 @@ public class Robot11248 extends OmniWheelDriver {
     private GyroSensor gyro;
     private UltrasonicSensor sonar;
     private DeviceInterfaceModule dim;
-    private Telemetry telemetry;
+    public static Telemetry telemetry;
 
 
     public Robot11248(HardwareMap hardwareMap, Telemetry telemetry){
@@ -98,20 +102,21 @@ public class Robot11248 extends OmniWheelDriver {
                 hardwareMap.dcMotor.get("BackRight"),
                 telemetry);
 
-        this.shooterL = hardwareMap.dcMotor.get("ShooterL");
-        this.shooterR = hardwareMap.dcMotor.get("ShooterR");
+        Robot11248.shooterL = hardwareMap.dcMotor.get("ShooterL");
+        Robot11248.shooterR = hardwareMap.dcMotor.get("ShooterR");
         this.lift = hardwareMap.dcMotor.get("Lift");
         this.conveyor = hardwareMap.dcMotor.get("Conveyor");
 
 
-        this.shooterL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        this.shooterR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Robot11248.shooterR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Robot11248.shooterR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Robot11248.shooterR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Robot11248.shooterR.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        this.shooterR.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        BangBangLeft = new BangBang(shooterL);
-        BangBangRight = new BangBang(shooterR);
-
+        Robot11248.shooterL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Robot11248.shooterL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Robot11248.shooterL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         /*
          * SERVO INITS
@@ -147,8 +152,12 @@ public class Robot11248 extends OmniWheelDriver {
         closeCollector();
         setDimLed(true,true);
 
-        new Thread(BangBangLeft).start();
-        new Thread(BangBangRight).start();
+        Thread bangBangLeft = new BangBangLeft();
+        Thread bangBangRight = new BangBangRight();
+        new Thread(bangBangLeft).start();
+        new Thread(bangBangRight).start();
+
+
     }
 
     public void activateServos(){
@@ -211,7 +220,7 @@ public class Robot11248 extends OmniWheelDriver {
     */
     public void setShooter(double SHOOTER_SPEED) {
         shooterL.setPower(SHOOTER_SPEED);
-        shooterR.setPower(-SHOOTER_SPEED);
+        shooterR.setPower(SHOOTER_SPEED);
         shooterOn = (SHOOTER_SPEED!=0);
         if(shooterOn)openCollector();
     }
@@ -220,134 +229,34 @@ public class Robot11248 extends OmniWheelDriver {
 
     public void shooterReverse() {
         shooterL.setPower(-SHOOTER_SPEED);
-        shooterR.setPower(SHOOTER_SPEED);
-        openCollector();
-        shooterOn = true;
-        bangBangOn = false;
-    }
-
-    public void shooterOn() {
-        shooterL.setPower(SHOOTER_SPEED);
         shooterR.setPower(-SHOOTER_SPEED);
         openCollector();
         bangBangOn = false;
         shooterOn = true;
     }
 
+    public void shooterOn() {
+        shooterL.setPower(SHOOTER_SPEED);
+        shooterR.setPower(SHOOTER_SPEED);
+        openCollector();
+        bangBangOn = false;
+        shooterOn = true;
+    }
+
     public void shooterOff() {
+        bangBangOn = false;
+        shooterOn = false;
         shooterL.setPower(0);
         shooterR.setPower(0);
         closeCollector();
-        bangBangOn = false;
-        shooterOn = false;
     }
 
     public void shooterOnBang() {
+        openCollector();
         shooterOn = true;
         bangBangOn = true;
     }
 
-
-
-    private class BangBang extends Thread{
-
-        DcMotor flywheel;
-        int lastEncoder, currentEncoder;
-        double rpm;
-        long loopSpeed = 20;
-
-        BangBang (DcMotor flywheel){
-
-            flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-            currentEncoder = lastEncoder = flywheel.getCurrentPosition();
-
-            //loopSpeed = this.scheduledExecutionTime();
-        }
-
-        private void getSpeed(){
-
-            currentEncoder = flywheel.getCurrentPosition();
-            rpm = (double)(currentEncoder-lastEncoder)/ (1440 * loopSpeed * .001);
-        }
-
-        @Override
-        public void run() {
-
-            while (!isInterrupted()) {
-                if (bangBangOn) {
-
-                    getSpeed();
-
-                    //TODO: reverse
-                    if (rpm >= SHOOTER_RPM) {
-                        flywheel.setPower(0);
-
-                    } else if (rpm < SHOOTER_RPM) {
-                        flywheel.setPower(rpm / Math.abs(rpm));
-                    }
-
-
-                    try {
-                        Thread.sleep(loopSpeed);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-            }
-        }
-    }
-
-
-    public void bangBangOld(double fTarget){
-        long lastTime = System.nanoTime();
-        int leftLastEncoder = 0;
-        int rightLastEncoder = 0;
-        double tolerance = .015;
-        boolean up = false;
-        long now = System.nanoTime();
-        long elapsedTime = now - lastTime;
-        double left = fTarget;
-        double right = fTarget;
-
-        int shooterL_Encoder = shooterL.getCurrentPosition();
-        int shooterR_Encoder = shooterR.getCurrentPosition();
-
-        double shooterL_Velocity = (double)(shooterL_Encoder - leftLastEncoder) / elapsedTime;
-        double shooterR_Velocity = (double)(shooterR_Encoder - rightLastEncoder) / elapsedTime;
-
-
-        if(shooterL_Velocity >= (fTarget + tolerance)){
-            left = fTarget - .05;
-            up = true;
-
-        } else if(shooterL_Velocity < (fTarget - tolerance)) {
-            left = fTarget + .05;
-        }
-
-
-        if(shooterR_Velocity >= (fTarget + tolerance)){
-            right = fTarget - .05;
-
-        } else if(shooterR_Velocity < (fTarget - tolerance)) {
-            right = fTarget + .05;
-        }
-
-
-        shooterL.setPower(Range.clip(left, 0, 1));
-        shooterR.setPower(-Range.clip(right,0 ,1));
-        shooterOn = true;
-
-        leftLastEncoder = shooterL_Encoder;
-        rightLastEncoder = shooterR_Encoder;
-
-        lastTime = now;
-
-        telemetry.addData("1", up);
-    }
 
     public boolean getShooterOn() {
         return shooterOn;
@@ -398,6 +307,7 @@ public class Robot11248 extends OmniWheelDriver {
             openCollector();
         }else{
             closeCollector();
+            shooterOff();
         }
     }
 
@@ -548,5 +458,95 @@ public class Robot11248 extends OmniWheelDriver {
         dim.setLED(1, blue);
     }
 
+}
 
+
+class BangBangLeft extends Thread{
+
+    int lastEncoder, currentEncoder;
+    double rpm;
+    long loopSpeed = Robot11248.LOOP;
+
+    BangBangLeft (){
+
+        currentEncoder = lastEncoder = Robot11248.shooterL.getCurrentPosition();
+    }
+
+    private void getSpeed(){
+
+        lastEncoder = currentEncoder;
+        currentEncoder = Robot11248.shooterL.getCurrentPosition();
+        rpm = ((currentEncoder-lastEncoder)/1440.0)/(loopSpeed * .001*.0166666667);
+    }
+
+    @Override
+    public void run() {
+
+        while (!isInterrupted()) {
+
+            getSpeed();
+
+            if (Robot11248.bangBangOn) {
+
+                if (rpm >= Robot11248.SHOOTER_RPM) {
+                    Robot11248.shooterL.setPower(.2);
+
+                } else if (rpm < Robot11248.SHOOTER_RPM) {
+                    Robot11248.shooterL.setPower(.8);
+                }
+
+            }
+
+            try {
+                Thread.sleep(loopSpeed);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+class BangBangRight extends Thread{
+
+    int lastEncoder, currentEncoder;
+    double rpm;
+    long loopSpeed = Robot11248.LOOP;
+
+    BangBangRight (){
+
+        currentEncoder = lastEncoder = Robot11248.shooterR.getCurrentPosition();
+    }
+
+    private void getSpeed(){
+
+        lastEncoder = currentEncoder;
+        currentEncoder = Robot11248.shooterR.getCurrentPosition();
+        rpm = ((currentEncoder-lastEncoder)/1440.0)/(loopSpeed * .001*.0166666667);
+    }
+
+    @Override
+    public void run() {
+
+        while (!isInterrupted()) {
+
+            getSpeed();
+
+            if (Robot11248.bangBangOn) {
+
+                if (rpm >= Robot11248.SHOOTER_RPM) {
+                    Robot11248.shooterR.setPower(.2);
+
+                } else if (rpm < Robot11248.SHOOTER_RPM) {
+                    Robot11248.shooterR.setPower(.8);
+                }
+
+            }
+
+            try {
+                Thread.sleep(loopSpeed);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
