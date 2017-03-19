@@ -101,7 +101,11 @@ public class GENERIC_GYRO extends LinearOpMode {
         sleep(1500);
 
         robot.setConveyor(.6f);
-        sleep(1500);
+        sleep(500);
+        robot.setConveyor(0);
+        sleep(1000);
+        robot.setConveyor(1);
+        sleep(1000);
 
         robot.conveyorOff();
         robot.shooterOff();
@@ -198,7 +202,7 @@ public class GENERIC_GYRO extends LinearOpMode {
     //CASE 4, backs up and starts to drive to second line
     public void backupDrive() {
         drive(-.3, 0);
-        sleep(1400); //back up a bit (kinda arbitrary)
+        sleep(2000); //back up a bit (kinda arbitrary)
         drive(0, isBlue?.8:-.8);
         sleep(1390); //Drive fast for a while to cut on time
         state++;

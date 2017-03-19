@@ -40,19 +40,18 @@ public class ShootParkVortex extends LinearOpMode{
 
             robot.driveold(0,.8,0);
             sleep(1100);
-
-            //drive(0,0);
             robot.stop();
-            sleep(500);
 
             robot.openCollector();
-            robot.setShooter(.5f);
-            sleep(750);
+            robot.setShooter(Robot11248.AUTO_SHOOTER_SPEED);
+            sleep(1500);
 
-            robot.setConveyor(.2f);
-            sleep(1150);
-            robot.setConveyor(.7f);
-            sleep(850);
+            robot.setConveyor(.6f);
+            sleep(500);
+            robot.setConveyor(0);
+            sleep(1000);
+            robot.setConveyor(1);
+            sleep(1000);
 
             robot.conveyorOff();
             robot.shooterOff();
