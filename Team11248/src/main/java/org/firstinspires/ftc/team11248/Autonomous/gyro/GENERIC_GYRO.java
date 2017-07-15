@@ -139,7 +139,7 @@ public class GENERIC_GYRO extends LinearOpMode {
         shootBallsStart(); //MOVES FORWARD AND SHOOT BALLS
 
         FLAT = isBlue? FLAT: (180 + FLAT) % 360;
-        sleep(1500);
+        sleep(1700);
         drive(.6, isBlue?.6:-.6);
         sleep(1600);
         state++;
@@ -147,7 +147,7 @@ public class GENERIC_GYRO extends LinearOpMode {
 
     //CASE 1, drives diagonally to first line
     public void diagonalLine() {
-        drive(.25, isBlue?.25:-.25); //DRIVE DIAGONAL
+        drive((robot.getSonarValue() < 27)?0:.25, isBlue?.25:-.25); //DRIVE DIAGONAL
         if(robot.hitLine()) { //WHEN WHITE LINE FOUND
             drive(0,0); //STOP MOVING
             sleep(STOP_DELAY);
@@ -211,7 +211,7 @@ public class GENERIC_GYRO extends LinearOpMode {
     //CASE 5, Drives to second line
     public void driveToLine2() {
 
-        drive(xAgainstWall(SONAR_DIST+3), isBlue?SLOW_SPEED:-SLOW_SPEED);
+        drive(xAgainstWall(SONAR_DIST+5), isBlue?SLOW_SPEED:-SLOW_SPEED);
 
         if(robot.hitLine()){
             drive(0,0);

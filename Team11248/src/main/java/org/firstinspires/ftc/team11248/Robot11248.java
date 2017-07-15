@@ -38,7 +38,7 @@ public class Robot11248 extends OmniWheelDriver {
     public static final double RIGHT_ANGLE = Math.PI/2;
 
     //Driving constants
-    public static final double SHOOTER_SPEED = .29f;
+    public static final double SHOOTER_SPEED = 1f;
     public static final long SHOOTER_RPM = 50;
     public static final int LOOP = 10;
     public static final double AUTO_SHOOTER_SPEED = .275f;
@@ -78,7 +78,7 @@ public class Robot11248 extends OmniWheelDriver {
 
 
     //Motors, Sensors, Telemetry
-    public static DcMotor shooterL, shooterR;
+    public static volatile DcMotor shooterL, shooterR;
     private DcMotor lift, conveyor;
     private Servo liftArm, beaconPusher, collectorServoL, collectorServoR;
     private ServoController servoController;
@@ -138,7 +138,7 @@ public class Robot11248 extends OmniWheelDriver {
         this.colorBeacon = new MRColorSensorV3(colorBeacon, COLOR_SENSOR_BEACON_ADDR);
 
         //TELEMETRY
-        this.telemetry = telemetry;
+        Robot11248.telemetry = telemetry;
         this.dim = hardwareMap.get(DeviceInterfaceModule.class, "Device Interface Module 1");
 
     }
@@ -152,10 +152,10 @@ public class Robot11248 extends OmniWheelDriver {
         closeCollector();
         setDimLed(true,true);
 
-        Thread bangBangLeft = new BangBangLeft();
-        Thread bangBangRight = new BangBangRight();
-        new Thread(bangBangLeft).start();
-        new Thread(bangBangRight).start();
+//        Thread bangBangLeft = new BangBangLeft();
+//        Thread bangBangRight = new BangBangRight();
+//        new Thread(bangBangLeft).start();
+//        new Thread(bangBangRight).start();
 
 
     }
