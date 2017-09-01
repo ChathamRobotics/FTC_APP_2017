@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.team11248;
 
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDevice;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
@@ -344,14 +346,10 @@ public class Robot11248 extends OmniWheelDriver {
                 lineSensor.getLightDetected() >= OPTICAL_THRESHOLD_LOW);
     }
 
-    /*
-     * OPTICAL DISTANCE SENSOR METHODS
-     */
     public boolean hitLine2(){
         return (lineSensor2.getLightDetected() < OPTICAL_THRESHOLD2_HIGH &&
                 lineSensor2.getLightDetected() >= OPTICAL_THRESHOLD2_LOW);
     }
-
 
     public double getLineSensorValue(){
         return lineSensor.getLightDetected();
@@ -412,7 +410,6 @@ public class Robot11248 extends OmniWheelDriver {
 
         return atAngle;
     }
-
 
     public boolean driveWithGyro(double x, double y, int targetAngle) {
         return driveWithGyro(x,y,targetAngle, false);
